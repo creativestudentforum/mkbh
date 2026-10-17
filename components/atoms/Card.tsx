@@ -1,12 +1,10 @@
-"use client";
-
 import { cn } from "@/lib/utils";
 
 interface CardProps {
   children: React.ReactNode;
   className?: string;
   hover?: boolean;
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
 
 export default function Card({

@@ -16,7 +16,7 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   signOut: () => Promise<void>;
-  refreshProfile: () => Promise<void>;
+  refreshProfile: () => Promise<Profile | null>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -24,54 +24,90 @@ const AuthContext = createContext<AuthContextType>({
   profile: null,
   loading: true,
   signOut: async () => {},
-  refreshProfile: async () => {},
+  refreshProfile: async () => null,
 });
+
+const AUTH_BYPASS_PATHS = new Set([
+  "/",
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/reset-password",
+  "/privacy",
+  "/terms",
+]);
+
+function shouldBypassAuth() {
+  return typeof window !== "undefined" && AUTH_BYPASS_PATHS.has(window.location.pathname);
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !shouldBypassAuth());
   const supabase = createClient();
 
   const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", userId)
       .single();
-    setProfile(data);
+    if (error) {
+      console.error("Failed to load profile:", error.message);
+      setProfile(null);
+      return null;
+    }
+    setProfile(data ?? null);
+    return data;
   };
 
   const refreshProfile = async () => {
     if (user) {
-      await fetchProfile(user.id);
+      return fetchProfile(user.id);
     }
+    return null;
   };
 
   useEffect(() => {
+    if (shouldBypassAuth()) return;
+
     const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-      if (user) {
-        await fetchProfile(user.id);
+      try {
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser();
+        if (error) throw error;
+
+        setUser(user);
+        if (user) {
+          await fetchProfile(user.id);
+        } else {
+          setProfile(null);
+        }
+      } catch (error) {
+        console.error("Failed to load auth session:", error);
+        setUser(null);
+        setProfile(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     getUser();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        await fetchProfile(session.user.id);
+        setLoading(true);
+        void fetchProfile(session.user.id).finally(() => setLoading(false));
       } else {
         setProfile(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -79,10 +115,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    setLoading(true);
     setUser(null);
     setProfile(null);
-    window.location.href = "/login";
+    try {
+      await supabase.auth.signOut({ scope: "local" });
+    } catch (error) {
+      console.error("Failed to sign out cleanly:", error);
+    } finally {
+      window.location.assign("/login");
+    }
   };
 
   return (

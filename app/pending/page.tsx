@@ -2,7 +2,7 @@
 
 import Button from "@/components/atoms/Button";
 import { useAuth } from "@/lib/auth-context";
-import { Clock, RefreshCw, LogOut, XCircle, GraduationCap, Mail } from "lucide-react";
+import { Clock, RefreshCw, LogOut, XCircle, GraduationCap, Mail, Phone, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -13,14 +13,11 @@ export default function PendingPage() {
 
   const handleRefresh = async () => {
     setLoading(true);
-    await refreshProfile();
-    // Re-check after refresh
-    setTimeout(() => {
-      if (profile?.status === "approved") {
-        router.push("/dashboard");
-      }
-      setLoading(false);
-    }, 500);
+    const latestProfile = await refreshProfile();
+    if (latestProfile?.status === "approved") {
+      router.push("/dashboard");
+    }
+    setLoading(false);
   };
 
   const isRejected = profile?.status === "rejected";
@@ -83,6 +80,26 @@ export default function PendingPage() {
                   Signed up as {profile.full_name}
                 </p>
               )}
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2 text-left">
+                {profile.batch && (
+                  <div className="rounded-lg bg-[rgba(255,255,255,0.03)] px-3 py-2">
+                    <p className="text-[10px] text-[#555] uppercase tracking-wider">Batch</p>
+                    <p className="text-[12px] text-[#a0a0a0]">{profile.batch}</p>
+                  </div>
+                )}
+                {profile.department && (
+                  <div className="rounded-lg bg-[rgba(255,255,255,0.03)] px-3 py-2">
+                    <p className="text-[10px] text-[#555] uppercase tracking-wider flex items-center gap-1"><Users className="w-3 h-3" /> Group</p>
+                    <p className="text-[12px] text-[#a0a0a0]">{profile.department}</p>
+                  </div>
+                )}
+                {profile.phone && (
+                  <div className="rounded-lg bg-[rgba(255,255,255,0.03)] px-3 py-2">
+                    <p className="text-[10px] text-[#555] uppercase tracking-wider flex items-center gap-1"><Phone className="w-3 h-3" /> Phone</p>
+                    <p className="text-[12px] text-[#a0a0a0]">{profile.phone}</p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

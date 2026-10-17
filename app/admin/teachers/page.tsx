@@ -9,11 +9,11 @@ import Input from "@/components/atoms/Input";
 import Modal from "@/components/atoms/Modal";
 import SearchBar from "@/components/molecules/SearchBar";
 import { createClient } from "@/lib/supabase";
-import { compressAndUploadImage } from "@/lib/utils";
+import { compressAndUploadImage, getErrorMessage, sanitizeSearchQuery } from "@/lib/utils";
 import type { Teacher } from "@/lib/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, GraduationCap, BookOpen, Mail, Phone, Globe, Camera, Save, X, Users, ToggleLeft, ToggleRight } from "lucide-react";
+import { useState } from "react";
+import { Plus, Pencil, Trash2, GraduationCap, BookOpen, Mail, Phone, Camera, Save, X, Users, ToggleLeft, ToggleRight } from "lucide-react";
 
 const emptyTeacher = { full_name: "", email: "", department: "", designation: "", phone: "", bio: "", specialization: "", linkedin_url: "", website_url: "" };
 
@@ -34,18 +34,12 @@ export default function AdminTeachersPage() {
     queryKey: ["admin-teachers", searchQuery],
     queryFn: async () => {
       let query = supabase.from("teachers").select("*").order("full_name");
-      if (searchQuery) { query = query.or(`full_name.ilike.%${searchQuery}%,department.ilike.%${searchQuery}%,designation.ilike.%${searchQuery}%`); }
+      const sanitizedSearch = sanitizeSearchQuery(searchQuery);
+      if (sanitizedSearch) { query = query.or(`full_name.ilike.%${sanitizedSearch}%,department.ilike.%${sanitizedSearch}%,designation.ilike.%${sanitizedSearch}%`); }
       const { data } = await query;
       return data as Teacher[];
     },
   });
-
-  useEffect(() => {
-    if (editingTeacher) {
-      setFormData({ full_name: editingTeacher.full_name || "", email: editingTeacher.email || "", department: editingTeacher.department || "", designation: editingTeacher.designation || "", phone: editingTeacher.phone || "", bio: editingTeacher.bio || "", specialization: editingTeacher.specialization || "", linkedin_url: editingTeacher.linkedin_url || "", website_url: editingTeacher.website_url || "" });
-      setAvatarPreview(editingTeacher.avatar_url);
-    } else { setFormData(emptyTeacher); setAvatarPreview(null); }
-  }, [editingTeacher]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => { setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value })); };
 
@@ -54,11 +48,11 @@ export default function AdminTeachersPage() {
     setUploading(true);
     const file = e.target.files[0];
     const fileExt = file.name.split(".").pop();
-    const filePath = `teacher-${Date.now()}.${fileExt}`;
+    const filePath = `teachers/${crypto.randomUUID()}.${fileExt}`;
     try {
       const publicUrl = await compressAndUploadImage(file, "avatars", filePath);
       if (publicUrl) { setAvatarPreview(publicUrl); } else { alert("Image upload failed. Please try again."); }
-    } catch (err: any) { console.error(err); alert(err?.message || "Error uploading image"); } finally { setUploading(false); }
+    } catch (err: unknown) { console.error(err); alert(getErrorMessage(err)); } finally { setUploading(false); }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -82,7 +76,12 @@ export default function AdminTeachersPage() {
   };
 
   const openCreate = () => { setEditingTeacher(null); setFormData(emptyTeacher); setAvatarPreview(null); setShowModal(true); };
-  const openEdit = (teacher: Teacher) => { setEditingTeacher(teacher); setShowModal(true); };
+  const openEdit = (teacher: Teacher) => {
+    setEditingTeacher(teacher);
+    setFormData({ full_name: teacher.full_name || "", email: teacher.email || "", department: teacher.department || "", designation: teacher.designation || "", phone: teacher.phone || "", bio: teacher.bio || "", specialization: teacher.specialization || "", linkedin_url: teacher.linkedin_url || "", website_url: teacher.website_url || "" });
+    setAvatarPreview(teacher.avatar_url);
+    setShowModal(true);
+  };
 
   const activeCount = teachers?.filter((t) => t.is_active).length || 0;
   const totalCount = teachers?.length || 0;

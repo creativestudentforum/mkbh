@@ -10,6 +10,7 @@ import type { Teacher } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useDebounce } from "@/lib/hooks";
+import { sanitizeSearchQuery } from "@/lib/utils";
 import { BookOpen, Phone, Mail, Globe, Users } from "lucide-react";
 import { LinkedinIcon } from "@/components/atoms/SocialIcons";
 import Link from "next/link";
@@ -23,7 +24,8 @@ export default function TeachersPage() {
     queryKey: ["teachers", debouncedSearch],
     queryFn: async () => {
       let query = supabase.from("teachers").select("*").eq("is_active", true).order("full_name");
-      if (debouncedSearch) { query = query.or(`full_name.ilike.%${debouncedSearch}%,department.ilike.%${debouncedSearch}%,designation.ilike.%${debouncedSearch}%,specialization.ilike.%${debouncedSearch}%`); }
+      const sanitizedSearch = sanitizeSearchQuery(debouncedSearch);
+      if (sanitizedSearch) { query = query.or(`full_name.ilike.%${sanitizedSearch}%,department.ilike.%${sanitizedSearch}%,designation.ilike.%${sanitizedSearch}%,specialization.ilike.%${sanitizedSearch}%`); }
       const { data } = await query;
       return data as Teacher[];
     },

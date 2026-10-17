@@ -3,15 +3,20 @@
 import Avatar from "@/components/atoms/Avatar";
 import Badge from "@/components/atoms/Badge";
 import Card from "@/components/atoms/Card";
-import type { Profile } from "@/lib/types";
+import type { AlumniDirectoryProfile, Profile } from "@/lib/types";
 import { Briefcase, MapPin, GraduationCap } from "lucide-react";
+import Link from "next/link";
 
 interface ProfileCardProps {
-  profile: Profile;
+  profile: Profile | AlumniDirectoryProfile;
   onClick?: () => void;
 }
 
 export default function ProfileCard({ profile, onClick }: ProfileCardProps) {
+  const profession = profile.profession || "";
+  const company = profile.company || "";
+  const location = [profile.city, profile.country].filter(Boolean).join(", ");
+
   return (
     <Card hover onClick={onClick} className="p-5">
       <div className="flex items-start gap-4">
@@ -21,17 +26,17 @@ export default function ProfileCard({ profile, onClick }: ProfileCardProps) {
             <h3 className="text-[#fafafa] font-semibold truncate text-[14px]">
               {profile.full_name}
             </h3>
-            {profile.role === "admin" && (
+            {"role" in profile && profile.role === "admin" && (
               <Badge variant="info">Admin</Badge>
             )}
           </div>
 
-          {profile.job_title && (
+          {profession && (
             <div className="flex items-center gap-1.5 text-[13px] text-[#888] mb-1">
               <Briefcase className="w-3.5 h-3.5 flex-shrink-0 text-[#555]" />
               <span className="truncate">
-                {profile.job_title}
-                {profile.current_company && ` at ${profile.current_company}`}
+                {profession}
+                {company && ` at ${company}`}
               </span>
             </div>
           )}
@@ -40,16 +45,22 @@ export default function ProfileCard({ profile, onClick }: ProfileCardProps) {
             <div className="flex items-center gap-1.5 text-[13px] text-[#888] mb-1">
               <GraduationCap className="w-3.5 h-3.5 flex-shrink-0 text-[#555]" />
               <span className="truncate">
-                Batch {profile.batch}
+                <Link
+                  href={`/batches/${encodeURIComponent(profile.batch)}`}
+                  onClick={(event) => event.stopPropagation()}
+                  className="hover:text-[#FF6363] transition-colors"
+                >
+                  Batch {profile.batch}
+                </Link>
                 {profile.department && ` • ${profile.department}`}
               </span>
             </div>
           )}
 
-          {profile.location && (
+          {location && (
             <div className="flex items-center gap-1.5 text-[13px] text-[#888]">
               <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-[#555]" />
-              <span className="truncate">{profile.location}</span>
+              <span className="truncate">{location}</span>
             </div>
           )}
         </div>

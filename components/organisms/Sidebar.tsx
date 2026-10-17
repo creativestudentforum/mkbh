@@ -4,6 +4,8 @@ import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 import Avatar from "@/components/atoms/Avatar";
 import Badge from "@/components/atoms/Badge";
+import { useI18n } from "@/lib/i18n/client";
+import type { I18nKey } from "@/lib/i18n/dictionaries";
 import {
   LayoutDashboard,
   Users,
@@ -15,8 +17,13 @@ import {
   BookOpen,
   X,
   ChevronLeft,
-  Megaphone,
   CalendarDays,
+  Droplets,
+  Layers,
+  Images,
+  ListChecks,
+  DollarSign,
+  Flower2,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -28,19 +35,29 @@ interface SidebarProps {
   onToggleCollapse: () => void;
 }
 
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/directory", label: "Directory", icon: Users },
-  { href: "/profile", label: "My Profile", icon: UserCircle },
-  { href: "/teachers", label: "Teachers", icon: BookOpen },
-  { href: "/events", label: "Events", icon: CalendarDays },
-  { href: "/id-card", label: "Digital ID", icon: CreditCard },
+const navItems: Array<{ href: string; labelKey: I18nKey; icon: typeof LayoutDashboard }> = [
+  { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
+  { href: "/directory", labelKey: "nav.directory", icon: Users },
+  { href: "/batches", labelKey: "nav.batches", icon: Layers },
+  { href: "/profile", labelKey: "nav.profile", icon: UserCircle },
+  { href: "/teachers", labelKey: "nav.teachers", icon: BookOpen },
+  { href: "/events", labelKey: "nav.events", icon: CalendarDays },
+  { href: "/gallery", labelKey: "nav.gallery", icon: Images },
+  { href: "/blood", labelKey: "nav.blood", icon: Droplets },
+  { href: "/fund", labelKey: "nav.fund", icon: DollarSign },
+  { href: "/memorial", labelKey: "nav.memorial", icon: Flower2 },
+  { href: "/id-card", labelKey: "nav.idCard", icon: CreditCard },
 ];
 
-const adminItems = [
-  { href: "/admin/users", label: "User Management", icon: Shield },
-  { href: "/admin/teachers", label: "Manage Teachers", icon: GraduationCap },
-  { href: "/admin/events", label: "Manage Events", icon: CalendarDays },
+const adminItems: Array<{ href: string; labelKey: I18nKey; icon: typeof LayoutDashboard }> = [
+  { href: "/admin/users", labelKey: "nav.users", icon: Shield },
+  { href: "/admin/teachers", labelKey: "nav.manageTeachers", icon: GraduationCap },
+  { href: "/admin/events", labelKey: "nav.manageEvents", icon: CalendarDays },
+  { href: "/admin/batches", labelKey: "nav.manageBatches", icon: Layers },
+  { href: "/admin/gallery", labelKey: "nav.manageGallery", icon: Images },
+  { href: "/admin/roster", labelKey: "nav.roster", icon: ListChecks },
+  { href: "/admin/fund", labelKey: "nav.manageFund", icon: DollarSign },
+  { href: "/admin/memorial", labelKey: "nav.manageMemorial", icon: Flower2 },
 ];
 
 export default function Sidebar({
@@ -51,6 +68,7 @@ export default function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const { profile, signOut } = useAuth();
+  const { t } = useI18n();
 
   return (
     <>
@@ -115,7 +133,7 @@ export default function Sidebar({
           <div className={cn("mb-2 mt-1", isCollapsed ? "px-0" : "px-3")}>
             {!isCollapsed && (
               <p className="text-[10px] font-semibold text-[#444] uppercase tracking-[0.08em]">
-                Main Menu
+                {t("nav.main")}
               </p>
             )}
           </div>
@@ -128,7 +146,7 @@ export default function Sidebar({
                 key={item.href}
                 href={item.href}
                 onClick={onClose}
-                title={isCollapsed ? item.label : undefined}
+                title={isCollapsed ? t(item.labelKey) : undefined}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 group relative",
                   isCollapsed && "justify-center px-2",
@@ -141,7 +159,7 @@ export default function Sidebar({
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 bg-[#FF6363] rounded-r-full" />
                 )}
                 <item.icon className={cn("w-[18px] h-[18px] flex-shrink-0", isActive && "text-[#FF6363]")} />
-                {!isCollapsed && item.label}
+                {!isCollapsed && t(item.labelKey)}
               </Link>
             );
           })}
@@ -153,7 +171,7 @@ export default function Sidebar({
               >
                 {!isCollapsed ? (
                   <p className="text-[10px] font-semibold text-[#444] uppercase tracking-[0.08em]">
-                    Administration
+                    {t("nav.admin")}
                   </p>
                 ) : (
                   <div className="border-t border-[rgba(255,255,255,0.06)] mx-2" />
@@ -166,7 +184,7 @@ export default function Sidebar({
                     key={item.href}
                     href={item.href}
                     onClick={onClose}
-                    title={isCollapsed ? item.label : undefined}
+                    title={isCollapsed ? t(item.labelKey) : undefined}
                     className={cn(
                       "flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 group relative",
                       isCollapsed && "justify-center px-2",
@@ -179,7 +197,7 @@ export default function Sidebar({
                       <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 bg-[#FF6363] rounded-r-full" />
                     )}
                     <item.icon className={cn("w-[18px] h-[18px] flex-shrink-0", isActive && "text-[#FF6363]")} />
-                    {!isCollapsed && item.label}
+                    {!isCollapsed && t(item.labelKey)}
                   </Link>
                 );
               })}
@@ -213,7 +231,11 @@ export default function Sidebar({
           )}
         >
           {!isCollapsed && (
-            <div className="flex items-center gap-3 px-3 py-2 mb-1 rounded-lg hover:bg-[rgba(255,255,255,0.04)] transition-colors">
+            <Link
+              href="/profile"
+              onClick={onClose}
+              className="flex items-center gap-3 px-3 py-2 mb-1 rounded-lg hover:bg-[rgba(255,255,255,0.04)] transition-colors"
+            >
               <Avatar
                 src={profile?.avatar_url}
                 name={profile?.full_name || "User"}
@@ -234,14 +256,16 @@ export default function Sidebar({
                   {profile?.email}
                 </p>
               </div>
-            </div>
+            </Link>
           )}
           {isCollapsed && (
-            <Avatar
-              src={profile?.avatar_url}
-              name={profile?.full_name || "User"}
-              size="sm"
-            />
+            <Link href="/profile" onClick={onClose} title="Open profile">
+              <Avatar
+                src={profile?.avatar_url}
+                name={profile?.full_name || "User"}
+                size="sm"
+              />
+            </Link>
           )}
           <button
             onClick={signOut}
@@ -252,7 +276,7 @@ export default function Sidebar({
             )}
           >
             <LogOut className="w-[18px] h-[18px] flex-shrink-0" />
-            {!isCollapsed && "Sign Out"}
+            {!isCollapsed && t("nav.signOut")}
           </button>
         </div>
       </aside>

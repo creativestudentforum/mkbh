@@ -8,11 +8,14 @@ import Badge from "@/components/atoms/Badge";
 import SearchBar from "@/components/molecules/SearchBar";
 import Modal from "@/components/atoms/Modal";
 import { createClient } from "@/lib/supabase";
-import type { Profile } from "@/lib/types";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { AlumniRosterEntry, Profile } from "@/lib/types";
+import { updateUserStatus } from "./actions";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { CheckCircle, XCircle, Clock, Users, UserCheck, UserX, Mail, Phone, GraduationCap, Briefcase, MapPin, Filter, Eye } from "lucide-react";
-import { formatDate } from "@/lib/utils";
+import { useDebounce } from "@/lib/hooks";
+import { CheckCircle, XCircle, Clock, Users, UserCheck, UserX, Mail, Phone, GraduationCap, Briefcase, MapPin, Eye, Download, Star } from "lucide-react";
+import { formatDate, sanitizeSearchQuery } from "@/lib/utils";
+import Link from "next/link";
 
 type StatusFilter = "all" | "pending" | "approved" | "rejected";
 
@@ -21,15 +24,23 @@ export default function AdminUsersPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [achievement, setAchievement] = useState("");
+  const [featuredSaving, setFeaturedSaving] = useState(false);
+  const debouncedSearch = useDebounce(searchQuery, 300);
   const supabase = createClient();
   const queryClient = useQueryClient();
 
   const { data: users, isLoading } = useQuery({
-    queryKey: ["admin-users", searchQuery, statusFilter],
+    queryKey: ["admin-users", debouncedSearch, statusFilter],
     queryFn: async () => {
-      let query = supabase.from("profiles").select("*").order("created_at", { ascending: false });
+      let query = supabase
+        .from("profiles")
+        .select("id, full_name, email, phone, avatar_url, batch, department, student_id, status, role, bio, profession, company, city, country, is_featured, achievement, rejection_reason, created_at")
+        .order("created_at", { ascending: false })
+        .limit(100);
       if (statusFilter !== "all") { query = query.eq("status", statusFilter); }
-      if (searchQuery) { query = query.or(`full_name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%,batch.ilike.%${searchQuery}%`); }
+      const sanitizedSearch = sanitizeSearchQuery(debouncedSearch);
+      if (sanitizedSearch) { query = query.or(`full_name.ilike.%${sanitizedSearch}%,email.ilike.%${sanitizedSearch}%,batch.ilike.%${sanitizedSearch}%`); }
       const { data } = await query;
       return data as Profile[];
     },
@@ -47,12 +58,77 @@ export default function AdminUsersPage() {
     },
   });
 
+  const { data: rosterMatches } = useQuery({
+    queryKey: ["admin-roster-matches", users?.map((user) => user.id).join(",")],
+    enabled: Boolean(users?.length),
+    queryFn: async () => {
+      const pendingUsers = (users || []).filter((user) => user.status === "pending");
+      if (pendingUsers.length === 0) return new Map<string, AlumniRosterEntry>();
+
+      const emails = pendingUsers.map((user) => user.email?.trim().toLowerCase()).filter(Boolean);
+      const phones = pendingUsers.map((user) => user.phone?.trim()).filter(Boolean);
+      const clauses = [
+        emails.length > 0 ? `email.in.(${emails.map((email) => `"${email}"`).join(",")})` : "",
+        phones.length > 0 ? `phone.in.(${phones.map((phone) => `"${phone}"`).join(",")})` : "",
+      ].filter(Boolean).join(",");
+
+      if (!clauses) return new Map<string, AlumniRosterEntry>();
+
+      const { data } = await supabase.from("alumni_roster").select("*").or(clauses);
+      const rows = (data || []) as AlumniRosterEntry[];
+      const matches = new Map<string, AlumniRosterEntry>();
+
+      pendingUsers.forEach((user) => {
+        const match = rows.find((row) =>
+          (row.email && user.email && row.email.toLowerCase() === user.email.toLowerCase()) ||
+          (row.phone && user.phone && row.phone === user.phone)
+        );
+        if (match) matches.set(user.id, match);
+      });
+
+      return matches;
+    },
+  });
+
   const updateStatus = async (userId: string, status: "approved" | "rejected") => {
+    const rejectionReason = status === "rejected"
+      ? window.prompt("Optional rejection reason. This will be emailed to the applicant.") || ""
+      : "";
+
     setActionLoading(userId);
-    const { error } = await supabase.from("profiles").update({ status }).eq("id", userId);
-    if (error) { alert("Error updating user: " + error.message); }
-    else { queryClient.invalidateQueries({ queryKey: ["admin-users"] }); queryClient.invalidateQueries({ queryKey: ["admin-user-stats"] }); if (selectedUser?.id === userId) { setSelectedUser(null); } }
+    try {
+      await updateUserStatus(userId, status, rejectionReason);
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-user-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-roster-matches"] });
+      if (selectedUser?.id === userId) { setSelectedUser(null); }
+    } catch (error) {
+      alert("Error updating user: " + (error instanceof Error ? error.message : "Unknown error"));
+    }
     setActionLoading(null);
+  };
+
+  const openUser = (user: Profile) => {
+    setSelectedUser(user);
+    setAchievement(user.achievement || "");
+  };
+
+  const saveFeatured = async () => {
+    if (!selectedUser) return;
+    setFeaturedSaving(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ is_featured: !selectedUser.is_featured, achievement: achievement.trim() })
+      .eq("id", selectedUser.id);
+
+    if (error) {
+      alert("Error updating featured status: " + error.message);
+    } else {
+      await queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      await queryClient.invalidateQueries({ queryKey: ["featured-alumni"] });
+      setSelectedUser({ ...selectedUser, is_featured: !selectedUser.is_featured, achievement: achievement.trim() });
+    }
+    setFeaturedSaving(false);
   };
 
   const getStatusBadge = (status: string) => {
@@ -82,8 +158,15 @@ export default function AdminUsersPage() {
     <DashboardShell title="User Management">
       <div className="space-y-6">
         <div className="slide-up stagger-1">
-          <h2 className="text-[22px] font-bold text-[#fafafa] mb-1 tracking-tight">User Management</h2>
-          <p className="text-[#777] text-[14px]">Approve, reject, and manage alumni accounts</p>
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <h2 className="text-[22px] font-bold text-[#fafafa] mb-1 tracking-tight">User Management</h2>
+              <p className="text-[#777] text-[14px]">Approve, reject, and manage alumni accounts</p>
+            </div>
+            <Link href="/admin/users/export" target="_blank">
+              <Button variant="secondary"><Download className="w-4 h-4" />Export CSV</Button>
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 slide-up stagger-2">
@@ -123,6 +206,8 @@ export default function AdminUsersPage() {
                         <h3 className="text-[13px] font-semibold text-[#fafafa] truncate">{user.full_name}</h3>
                         {getStatusBadge(user.status)}
                         {user.role === "admin" && <Badge variant="info">Admin</Badge>}
+                        {user.is_featured && <Badge variant="warning"><Star className="w-3 h-3 mr-1" />Featured</Badge>}
+                        {rosterMatches?.has(user.id) && <Badge variant="success">Roster match</Badge>}
                       </div>
                       <p className="text-[11px] text-[#666] truncate mt-0.5">{user.email}</p>
                       <div className="flex items-center gap-3 mt-1 flex-wrap">
@@ -133,7 +218,7 @@ export default function AdminUsersPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 sm:flex-shrink-0">
-                    <Button variant="ghost" size="sm" onClick={() => setSelectedUser(user)}><Eye className="w-4 h-4" /><span className="sm:hidden lg:inline">View</span></Button>
+                    <Button variant="ghost" size="sm" onClick={() => openUser(user)}><Eye className="w-4 h-4" /><span className="sm:hidden lg:inline">View</span></Button>
                     {user.status !== "approved" && (<Button variant="primary" size="sm" isLoading={actionLoading === user.id} onClick={() => updateStatus(user.id, "approved")}><CheckCircle className="w-4 h-4" /><span className="sm:hidden lg:inline">Approve</span></Button>)}
                     {user.status !== "rejected" && (<Button variant="danger" size="sm" isLoading={actionLoading === user.id} onClick={() => updateStatus(user.id, "rejected")}><XCircle className="w-4 h-4" /><span className="sm:hidden lg:inline">Reject</span></Button>)}
                   </div>
@@ -153,6 +238,15 @@ export default function AdminUsersPage() {
       <Modal isOpen={!!selectedUser} onClose={() => setSelectedUser(null)} title="User Details" size="lg">
         {selectedUser && (
           <div className="space-y-6">
+            {rosterMatches?.get(selectedUser.id) && (
+              <div className="rounded-xl bg-[rgba(52,211,153,0.08)] border border-[rgba(52,211,153,0.16)] p-4">
+                <p className="text-[13px] font-semibold text-[#34D399] mb-1">Roster match found</p>
+                <p className="text-[12px] text-[#a0a0a0]">
+                  {rosterMatches.get(selectedUser.id)?.full_name} · Batch {rosterMatches.get(selectedUser.id)?.batch}
+                  {rosterMatches.get(selectedUser.id)?.department && ` · ${rosterMatches.get(selectedUser.id)?.department}`}
+                </p>
+              </div>
+            )}
             <div className="flex items-start gap-4">
               <Avatar src={selectedUser.avatar_url} name={selectedUser.full_name} size="xl" />
               <div className="flex-1 min-w-0">
@@ -167,7 +261,7 @@ export default function AdminUsersPage() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-[13px] text-[#a0a0a0]"><Mail className="w-4 h-4 text-[#555]" /><span className="truncate">{selectedUser.email}</span></div>
                   {selectedUser.phone && (<div className="flex items-center gap-2 text-[13px] text-[#a0a0a0]"><Phone className="w-4 h-4 text-[#555]" />{selectedUser.phone}</div>)}
-                  {selectedUser.location && (<div className="flex items-center gap-2 text-[13px] text-[#a0a0a0]"><MapPin className="w-4 h-4 text-[#555]" />{selectedUser.location}</div>)}
+                  {(selectedUser.city || selectedUser.country) && (<div className="flex items-center gap-2 text-[13px] text-[#a0a0a0]"><MapPin className="w-4 h-4 text-[#555]" />{[selectedUser.city, selectedUser.country].filter(Boolean).join(", ")}</div>)}
                 </div>
               </div>
               <div className="space-y-3">
@@ -179,10 +273,30 @@ export default function AdminUsersPage() {
                 </div>
               </div>
             </div>
-            {(selectedUser.job_title || selectedUser.current_company) && (
+            {(selectedUser.profession || selectedUser.company) && (
               <div className="space-y-3 pt-4 border-t border-[rgba(255,255,255,0.06)]">
                 <h4 className="text-[11px] font-semibold text-[#555] uppercase tracking-wider">Professional</h4>
-                <p className="text-[13px] text-[#a0a0a0]">{selectedUser.job_title}{selectedUser.current_company && ` at ${selectedUser.current_company}`}</p>
+                <p className="text-[13px] text-[#a0a0a0]">{selectedUser.profession}{selectedUser.company && ` at ${selectedUser.company}`}</p>
+              </div>
+            )}
+            <div className="space-y-3 pt-4 border-t border-[rgba(255,255,255,0.06)]">
+              <div className="flex items-center justify-between gap-3">
+                <h4 className="text-[11px] font-semibold text-[#555] uppercase tracking-wider">Featured Alumni</h4>
+                {selectedUser.is_featured && <Badge variant="warning"><Star className="w-3 h-3 mr-1" />Featured</Badge>}
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="achievement" className="block text-[13px] font-medium text-[#a0a0a0]">Achievement</label>
+                <textarea id="achievement" rows={3} value={achievement} onChange={(event) => setAchievement(event.target.value)} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(255,99,99,0.5)]" placeholder="Notable achievement to show on dashboard..." />
+              </div>
+              <Button variant="secondary" isLoading={featuredSaving} onClick={saveFeatured}>
+                <Star className="w-4 h-4" />
+                {selectedUser.is_featured ? "Remove Featured" : "Mark Featured"}
+              </Button>
+            </div>
+            {selectedUser.status === "rejected" && selectedUser.rejection_reason && (
+              <div className="space-y-2 pt-4 border-t border-[rgba(255,255,255,0.06)]">
+                <h4 className="text-[11px] font-semibold text-[#555] uppercase tracking-wider">Rejection Reason</h4>
+                <p className="text-[13px] text-[#a0a0a0]">{selectedUser.rejection_reason}</p>
               </div>
             )}
             <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[rgba(255,255,255,0.06)]">

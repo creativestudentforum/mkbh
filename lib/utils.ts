@@ -1,4 +1,3 @@
-import imageCompression from "browser-image-compression";
 import { createClient } from "./supabase";
 
 export function cn(...classes: (string | boolean | undefined | null)[]) {
@@ -22,12 +21,21 @@ export function formatDate(date: string): string {
   });
 }
 
+export function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "Something went wrong";
+}
+
+export function sanitizeSearchQuery(value: string): string {
+  return value.replace(/[,%()]/g, " ").replace(/\s+/g, " ").trim();
+}
+
 export async function compressAndUploadImage(
   file: File,
   bucket: string,
   path: string
 ): Promise<string | null> {
   try {
+    const { default: imageCompression } = await import("browser-image-compression");
     const options = {
       maxSizeMB: 0.5,
       maxWidthOrHeight: 800,
@@ -50,8 +58,43 @@ export async function compressAndUploadImage(
     } = supabase.storage.from(bucket).getPublicUrl(path);
 
     return publicUrl;
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Image upload failed:", err);
+    throw err;
+  }
+}
+
+export async function compressAndUploadGalleryImage(
+  file: File,
+  path: string
+): Promise<string | null> {
+  try {
+    const { default: imageCompression } = await import("browser-image-compression");
+    const compressedFile = await imageCompression(file, {
+      maxSizeMB: 0.35,
+      maxWidthOrHeight: 1600,
+      useWebWorker: true,
+      fileType: "image/webp",
+      initialQuality: 0.8,
+    });
+
+    const supabase = createClient();
+    const { error } = await supabase.storage
+      .from("gallery")
+      .upload(path, compressedFile, {
+        upsert: false,
+        contentType: "image/webp",
+      });
+
+    if (error) throw error;
+
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("gallery").getPublicUrl(path);
+
+    return publicUrl;
+  } catch (err: unknown) {
+    console.error("Gallery image upload failed:", err);
     throw err;
   }
 }

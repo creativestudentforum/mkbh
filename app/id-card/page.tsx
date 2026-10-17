@@ -1,17 +1,17 @@
 "use client";
 
 import DashboardShell from "@/components/organisms/DashboardShell";
-import Card from "@/components/atoms/Card";
 import Button from "@/components/atoms/Button";
+import Card from "@/components/atoms/Card";
 import { useAuth } from "@/lib/auth-context";
 import { getAvatarUrl } from "@/lib/utils";
-import { Download, Printer, GraduationCap, Phone, Users, Hash } from "lucide-react";
+import { Download, Printer, GraduationCap, Phone, Users, QrCode } from "lucide-react";
 import { useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import Image from "next/image";
 
 export default function IDCardPage() {
-  const { profile } = useAuth();
+  const { profile, loading } = useAuth();
   const cardRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
 
@@ -31,7 +31,30 @@ export default function IDCardPage() {
 
   const handlePrint = () => { window.print(); };
 
-  if (!profile) return null;
+  if (loading) {
+    return (
+      <DashboardShell title="Digital ID Card">
+        <Card className="max-w-3xl mx-auto p-8 text-center">
+          <p className="text-[13px] text-[#777]">Loading digital ID...</p>
+        </Card>
+      </DashboardShell>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <DashboardShell title="Digital ID Card">
+        <Card className="max-w-3xl mx-auto p-8 text-center">
+          <h2 className="text-[18px] font-semibold text-[#fafafa] mb-2">Profile not found</h2>
+          <p className="text-[13px] text-[#777]">A profile is required before a digital ID card can be generated.</p>
+        </Card>
+      </DashboardShell>
+    );
+  }
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== "undefined" ? window.location.origin : "");
+  const verificationUrl = `${siteUrl}/verify/${profile.public_code}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=112x112&margin=0&data=${encodeURIComponent(verificationUrl)}`;
 
   return (
     <DashboardShell title="Digital ID Card">
@@ -40,6 +63,19 @@ export default function IDCardPage() {
           <div>
             <h2 className="text-[22px] font-bold text-[#fafafa] mb-1 tracking-tight">Your Digital ID</h2>
             <p className="text-[#777] text-[14px]">Use this to access alumni events and facilities</p>
+            <a href={verificationUrl} target="_blank" rel="noreferrer" className="inline-flex mt-2 text-[12px] text-[#FF6363] hover:text-[#FF4F4F] transition-colors">
+              Public verification link
+            </a>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={handlePrint}>
+              <Printer className="w-4 h-4" />
+              Print
+            </Button>
+            <Button onClick={handleDownload} isLoading={downloading}>
+              <Download className="w-4 h-4" />
+              Download
+            </Button>
           </div>
         </div>
 
@@ -90,7 +126,7 @@ export default function IDCardPage() {
               <h3 className="text-[18px] font-bold text-[#fafafa] tracking-tight leading-tight mb-4">{profile.full_name}</h3>
 
               {/* Info rows */}
-              <div className="space-y-2.5 mt-auto">
+              <div className="space-y-2.5 mt-auto pr-24">
                 <div className="flex items-center gap-3">
                   <div className="w-7 h-7 rounded-lg bg-[rgba(255,99,99,0.08)] flex items-center justify-center flex-shrink-0">
                     <Users className="w-3.5 h-3.5 text-[#FF6363]" />
@@ -113,9 +149,18 @@ export default function IDCardPage() {
               </div>
             </div>
 
+            <div className="absolute right-5 bottom-9 z-20 w-[72px] h-[72px] rounded-lg bg-white p-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.35)]">
+              {profile.public_code ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={qrUrl} alt="ID verification QR code" className="w-full h-full" crossOrigin="anonymous" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-[#111]"><QrCode className="w-8 h-8" /></div>
+              )}
+            </div>
+
             {/* Bottom bar */}
             <div className="px-5 sm:px-6 pb-4 flex items-center justify-between relative z-10">
-              <p className="text-[8px] text-[#444] font-mono tracking-widest uppercase">ID: {profile.id.split('-')[0].toUpperCase()}</p>
+              <p className="text-[8px] text-[#444] font-mono tracking-widest uppercase">ID: {(profile.public_code || profile.id.split('-')[0]).toUpperCase()}</p>
               <div className="flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-[#34D399]" />
                 <span className="text-[8px] text-[#555] font-medium uppercase tracking-wider">Verified</span>

@@ -35,7 +35,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               "px-3.5 py-2.5 text-[13px] transition-all duration-200",
               "focus:outline-none focus:border-[rgba(255,99,99,0.5)] focus:ring-1 focus:ring-[rgba(255,99,99,0.2)]",
               "hover:border-[rgba(255,255,255,0.14)]",
-              icon && "pl-10",
+              Boolean(icon) && "pl-10",
               error && "border-[#DC2626] focus:ring-[#DC2626] focus:border-[#DC2626]",
               className
             )}

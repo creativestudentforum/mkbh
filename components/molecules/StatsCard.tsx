@@ -19,13 +19,6 @@ export default function StatsCard({
   trend,
   color = "indigo",
 }: StatsCardProps) {
-  const colors = {
-    indigo: "from-[#FF6363] to-[#FF8A63] shadow-[#FF6363]/25",
-    emerald: "from-[#34D399] to-[#10B981] shadow-[#34D399]/25",
-    amber: "from-[#FBBF24] to-[#F59E0B] shadow-[#FBBF24]/25",
-    rose: "from-[#FB7185] to-[#F43F5E] shadow-[#FB7185]/25",
-  };
-
   const iconBg = {
     indigo: "bg-[rgba(255,99,99,0.1)] text-[#FF6363]",
     emerald: "bg-[rgba(52,211,153,0.1)] text-[#34D399]",

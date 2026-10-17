@@ -10,6 +10,7 @@ import Modal from "@/components/atoms/Modal";
 import Input from "@/components/atoms/Input";
 import { useAuth } from "@/lib/auth-context";
 import { createClient } from "@/lib/supabase";
+import { useI18n } from "@/lib/i18n/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "@/lib/utils";
 import {
@@ -18,9 +19,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import type { Announcement } from "@/lib/types";
+import type { AlumniDirectoryProfile, Announcement, BirthdayProfile } from "@/lib/types";
 
 export default function DashboardPage() {
+  const { t } = useI18n();
   const { profile } = useAuth();
   const supabase = createClient();
   const queryClient = useQueryClient();
@@ -33,20 +35,29 @@ export default function DashboardPage() {
   const { data: stats } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: async () => {
-      const [alumniCount, teacherCount, pendingCount] = await Promise.all([
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("status", "approved"),
-        supabase.from("teachers").select("id", { count: "exact", head: true }).eq("is_active", true),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      const [statsResponse, pendingCount] = await Promise.all([
+        supabase.from("dashboard_stats").select("alumni_count, teacher_count").maybeSingle(),
+        isAdmin
+          ? supabase.from("profiles").select("id", { count: "exact", head: true }).eq("status", "pending")
+          : Promise.resolve({ count: 0 }),
       ]);
-      return { alumni: alumniCount.count || 0, teachers: teacherCount.count || 0, pending: pendingCount.count || 0 };
+      return {
+        alumni: statsResponse.data?.alumni_count || 0,
+        teachers: statsResponse.data?.teacher_count || 0,
+        pending: pendingCount.count || 0,
+      };
     },
   });
 
   const { data: recentAlumni } = useQuery({
     queryKey: ["recent-alumni"],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("*").eq("status", "approved").order("created_at", { ascending: false }).limit(6);
-      return data;
+      const { data } = await supabase
+        .from("alumni_directory")
+        .select("id, full_name, avatar_url, profession, company, batch, created_at")
+        .order("created_at", { ascending: false })
+        .limit(6);
+      return (data || []) as AlumniDirectoryProfile[];
     },
   });
 
@@ -55,6 +66,27 @@ export default function DashboardPage() {
     queryFn: async () => {
       const { data } = await supabase.from("announcements").select("*, profiles(full_name, avatar_url)").order("is_pinned", { ascending: false }).order("created_at", { ascending: false }).limit(5);
       return data as Announcement[];
+    },
+  });
+
+  const { data: birthdays } = useQuery({
+    queryKey: ["todays-birthdays"],
+    queryFn: async () => {
+      const { data } = await supabase.from("todays_birthdays").select("id, full_name, avatar_url, batch").order("full_name").limit(12);
+      return (data || []) as BirthdayProfile[];
+    },
+  });
+
+  const { data: featuredAlumni } = useQuery({
+    queryKey: ["featured-alumni"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("alumni_directory")
+        .select("id, full_name, avatar_url, batch, achievement, profession")
+        .eq("is_featured", true)
+        .order("created_at", { ascending: false })
+        .limit(6);
+      return (data || []) as AlumniDirectoryProfile[];
     },
   });
 
@@ -81,10 +113,10 @@ export default function DashboardPage() {
   };
 
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const greeting = hour < 12 ? t("dashboard.goodMorning") : hour < 18 ? t("dashboard.goodAfternoon") : t("dashboard.goodEvening");
 
   return (
-    <DashboardShell title="Dashboard">
+    <DashboardShell title={t("dashboard.title")}>
       <div className="space-y-6">
         <div className="slide-up stagger-1">
           <div className="flex items-start justify-between flex-wrap gap-4">
@@ -93,7 +125,7 @@ export default function DashboardPage() {
                 <h2 className="text-[22px] font-bold text-[#fafafa] tracking-tight">{greeting}, {profile?.full_name?.split(" ")[0]}!</h2>
                 <Sparkles className="w-5 h-5 text-[#FBBF24]" />
               </div>
-              <p className="text-[#777] text-[14px]">Here&apos;s what&apos;s happening in your alumni network today.</p>
+              <p className="text-[#777] text-[14px]">{t("dashboard.subtitle")}</p>
             </div>
             {isAdmin && stats?.pending && stats.pending > 0 ? (
               <Link href="/admin/users"><Button variant="secondary" size="sm"><Clock className="w-4 h-4 text-[#FBBF24]" />{stats.pending} pending approval{stats.pending > 1 ? "s" : ""}</Button></Link>
@@ -102,10 +134,10 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 slide-up stagger-2">
-          <StatsCard title="Total Alumni" value={stats?.alumni || 0} icon={Users} color="indigo" />
-          <StatsCard title="Faculty Members" value={stats?.teachers || 0} icon={GraduationCap} color="emerald" />
-          <StatsCard title="Departments" value="8+" icon={Building2} color="amber" />
-          <StatsCard title="Batches" value="15+" icon={MapPin} color="rose" />
+          <StatsCard title={t("dashboard.totalAlumni")} value={stats?.alumni || 0} icon={Users} color="indigo" />
+          <StatsCard title={t("dashboard.faculty")} value={stats?.teachers || 0} icon={GraduationCap} color="emerald" />
+          <StatsCard title={t("dashboard.departments")} value="8+" icon={Building2} color="amber" />
+          <StatsCard title={t("dashboard.batches")} value="15+" icon={MapPin} color="rose" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 slide-up stagger-3">
@@ -113,7 +145,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2">
                 <Megaphone className="w-[18px] h-[18px] text-[#FF6363]" />
-                <h3 className="text-[15px] font-semibold text-[#fafafa]">Announcements</h3>
+                <h3 className="text-[15px] font-semibold text-[#fafafa]">{t("dashboard.announcements")}</h3>
               </div>
               {isAdmin && (<Button variant="ghost" size="sm" onClick={() => setShowAnnouncementModal(true)}><Plus className="w-4 h-4" />New</Button>)}
             </div>
@@ -155,8 +187,8 @@ export default function DashboardPage() {
 
           <Card className="p-5 sm:p-6">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-[15px] font-semibold text-[#fafafa]">New Members</h3>
-              <Link href="/directory" className="text-[11px] text-[#FF6363] hover:text-[#FF4F4F] flex items-center gap-1 transition-colors font-medium">View all <ArrowRight className="w-3 h-3" /></Link>
+              <h3 className="text-[15px] font-semibold text-[#fafafa]">{t("dashboard.newMembers")}</h3>
+              <Link href="/directory" className="text-[11px] text-[#FF6363] hover:text-[#FF4F4F] flex items-center gap-1 transition-colors font-medium">{t("common.viewAll")} <ArrowRight className="w-3 h-3" /></Link>
             </div>
             <div className="space-y-1">
               {recentAlumni?.map((al) => (
@@ -164,13 +196,60 @@ export default function DashboardPage() {
                   <Avatar src={al.avatar_url} name={al.full_name} size="md" />
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] font-medium text-[#e5e5e5] truncate">{al.full_name}</p>
-                    <p className="text-[11px] text-[#666] truncate">{al.job_title || "Alumni"}{al.current_company && ` @ ${al.current_company}`}</p>
+                    <p className="text-[11px] text-[#666] truncate">{al.profession || "Alumni"}{al.company && ` @ ${al.company}`}</p>
                   </div>
                   {al.batch && (<span className="text-[10px] text-[#555] bg-[rgba(255,255,255,0.04)] px-2 py-0.5 rounded-md flex-shrink-0 font-medium">{al.batch}</span>)}
                 </div>
               ))}
               {!recentAlumni?.length && (<p className="text-[13px] text-[#555] text-center py-4">No alumni yet</p>)}
             </div>
+          </Card>
+
+          <Card className="p-5 sm:p-6 lg:col-span-3">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-[15px] font-semibold text-[#fafafa]">{t("dashboard.birthdays")}</h3>
+              <Badge variant="info">{birthdays?.length || 0}</Badge>
+            </div>
+            {birthdays && birthdays.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {birthdays.map((member) => (
+                  <div key={member.id} className="flex items-center gap-3 p-3 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)]">
+                    <Avatar src={member.avatar_url} name={member.full_name} size="md" />
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-medium text-[#e5e5e5] truncate">{member.full_name}</p>
+                      <p className="text-[11px] text-[#666]">Batch {member.batch || "N/A"}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[13px] text-[#555] text-center py-4">{t("dashboard.noBirthdays")}</p>
+            )}
+          </Card>
+
+          <Card className="p-5 sm:p-6 lg:col-span-3">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-[15px] font-semibold text-[#fafafa]">{t("dashboard.featured")}</h3>
+              <Badge variant="warning">{featuredAlumni?.length || 0}</Badge>
+            </div>
+            {featuredAlumni && featuredAlumni.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {featuredAlumni.map((member) => (
+                  <div key={member.id} className="p-4 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)]">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Avatar src={member.avatar_url} name={member.full_name} size="md" />
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-medium text-[#e5e5e5] truncate">{member.full_name}</p>
+                        <p className="text-[11px] text-[#666] truncate">Batch {member.batch || "N/A"}</p>
+                      </div>
+                    </div>
+                    <p className="text-[12px] text-[#888] leading-relaxed line-clamp-3">{member.achievement || member.profession || "Featured alumnus"}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[13px] text-[#555] text-center py-4">{t("dashboard.noFeatured")}</p>
+            )}
           </Card>
         </div>
 

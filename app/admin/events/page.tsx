@@ -13,8 +13,9 @@ import { formatDate } from "@/lib/utils";
 import type { Event } from "@/lib/types";
 import {
   CalendarDays, MapPin, Clock, Plus, Trash2,
-  Edit3, ToggleLeft, ToggleRight, Sparkles,
+  Edit3, ToggleLeft, ToggleRight, Sparkles, Users,
 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 export default function AdminEventsPage() {
@@ -213,6 +214,13 @@ export default function AdminEventsPage() {
                           >
                             {event.is_active ? <ToggleRight className="w-4 h-4 text-[#34D399]" /> : <ToggleLeft className="w-4 h-4" />}
                           </button>
+                          <Link
+                            href={`/admin/events/${event.id}/rsvps`}
+                            className="p-1.5 rounded-lg text-[#555] hover:text-[#34D399] hover:bg-[rgba(52,211,153,0.06)] transition-colors"
+                            title="View RSVPs"
+                          >
+                            <Users className="w-3.5 h-3.5" />
+                          </Link>
                           <button
                             onClick={() => openEditModal(event)}
                             className="p-1.5 rounded-lg text-[#555] hover:text-[#FF6363] hover:bg-[rgba(255,99,99,0.06)] transition-colors"

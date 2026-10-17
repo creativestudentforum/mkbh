@@ -2,18 +2,19 @@
 
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
+import LangToggle from "@/components/atoms/LangToggle";
 import { createClient } from "@/lib/supabase";
+import { useI18n } from "@/lib/i18n/client";
 import { GraduationCap, Mail, Lock, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginPage() {
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +37,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute top-4 right-4 z-20"><LangToggle /></div>
       {/* Background decorations */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(255,99,99,0.04)_0%,transparent_70%)] -translate-y-1/3 translate-x-1/4" />
@@ -49,10 +51,10 @@ export default function LoginPage() {
             <GraduationCap className="w-7 h-7 text-white" />
           </div>
           <h1 className="text-[28px] font-bold text-[#fafafa] mb-2 tracking-tight">
-            Welcome back
+            {t("auth.welcome")}
           </h1>
           <p className="text-[#777] text-[15px]">
-            Sign in to access your alumni network
+            {t("auth.loginSubtitle")}
           </p>
         </div>
 
@@ -68,7 +70,7 @@ export default function LoginPage() {
             )}
 
             <Input
-              label="Email Address"
+              label={t("auth.email")}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -78,7 +80,7 @@ export default function LoginPage() {
             />
 
             <Input
-              label="Password"
+              label={t("auth.password")}
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -87,13 +89,22 @@ export default function LoginPage() {
               required
             />
 
+            <div className="flex justify-end -mt-2">
+              <Link
+                href="/forgot-password"
+                className="text-[12px] text-[#777] hover:text-[#FF6363] transition-colors"
+              >
+                {t("auth.forgot")}
+              </Link>
+            </div>
+
             <Button
               type="submit"
               className="w-full mt-2"
               size="lg"
               isLoading={loading}
             >
-              Sign In
+              {t("auth.signIn")}
               <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           </form>
@@ -104,20 +115,20 @@ export default function LoginPage() {
             </div>
             <div className="relative flex justify-center text-xs">
               <span className="bg-[#141414] px-3 text-[#555]">
-                New to AlumniHub?
+                {t("auth.new")}
               </span>
             </div>
           </div>
 
           <Link href="/signup" className="block">
             <Button variant="secondary" className="w-full" size="lg">
-              Create an Account
+              {t("auth.create")}
             </Button>
           </Link>
         </div>
 
         <p className="text-center text-[11px] text-[#444] mt-6">
-          By signing in, you agree to our Terms & Privacy Policy
+          {t("auth.terms")} <Link href="/privacy" className="hover:text-[#FF6363]">Privacy</Link> · <Link href="/terms" className="hover:text-[#FF6363]">Terms</Link>
         </p>
       </div>
     </div>

@@ -9,11 +9,11 @@ import SearchBar from "@/components/molecules/SearchBar";
 import Modal from "@/components/atoms/Modal";
 import { createClient } from "@/lib/supabase";
 import type { AlumniRosterEntry, Profile } from "@/lib/types";
-import { updateUserStatus } from "./actions";
+import { deleteUserAccount, updateUserStatus } from "./actions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useDebounce } from "@/lib/hooks";
-import { CheckCircle, XCircle, Clock, Users, UserCheck, UserX, Mail, Phone, GraduationCap, Briefcase, MapPin, Eye, Download, Star } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Users, UserCheck, UserX, Mail, Phone, GraduationCap, Briefcase, MapPin, Eye, Download, Star, Trash2 } from "lucide-react";
 import { formatDate, sanitizeSearchQuery } from "@/lib/utils";
 import Link from "next/link";
 
@@ -24,6 +24,7 @@ export default function AdminUsersPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
   const [achievement, setAchievement] = useState("");
   const [featuredSaving, setFeaturedSaving] = useState(false);
   const debouncedSearch = useDebounce(searchQuery, 300);
@@ -106,6 +107,23 @@ export default function AdminUsersPage() {
       alert("Error updating user: " + (error instanceof Error ? error.message : "Unknown error"));
     }
     setActionLoading(null);
+  };
+
+  const deleteUser = async (user: Profile) => {
+    if (!window.confirm(`Delete ${user.full_name}'s account permanently? They will be able to sign up again with ${user.email}.`)) return;
+
+    setDeleteLoading(user.id);
+    try {
+      await deleteUserAccount(user.id);
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-user-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-roster-matches"] });
+      queryClient.invalidateQueries({ queryKey: ["directory"] });
+      if (selectedUser?.id === user.id) { setSelectedUser(null); }
+    } catch (error) {
+      alert("Error deleting user: " + (error instanceof Error ? error.message : "Unknown error"));
+    }
+    setDeleteLoading(null);
   };
 
   const openUser = (user: Profile) => {
@@ -221,6 +239,7 @@ export default function AdminUsersPage() {
                     <Button variant="ghost" size="sm" onClick={() => openUser(user)}><Eye className="w-4 h-4" /><span className="sm:hidden lg:inline">View</span></Button>
                     {user.status !== "approved" && (<Button variant="primary" size="sm" isLoading={actionLoading === user.id} onClick={() => updateStatus(user.id, "approved")}><CheckCircle className="w-4 h-4" /><span className="sm:hidden lg:inline">Approve</span></Button>)}
                     {user.status !== "rejected" && (<Button variant="danger" size="sm" isLoading={actionLoading === user.id} onClick={() => updateStatus(user.id, "rejected")}><XCircle className="w-4 h-4" /><span className="sm:hidden lg:inline">Reject</span></Button>)}
+                    {user.role !== "admin" && (<Button variant="ghost" size="sm" className="text-[#EF4444] hover:text-[#DC2626]" isLoading={deleteLoading === user.id} onClick={() => deleteUser(user)}><Trash2 className="w-4 h-4" /><span className="sm:hidden lg:inline">Delete</span></Button>)}
                   </div>
                 </div>
               </Card>
@@ -302,6 +321,7 @@ export default function AdminUsersPage() {
             <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[rgba(255,255,255,0.06)]">
               {selectedUser.status !== "approved" && (<Button className="flex-1" isLoading={actionLoading === selectedUser.id} onClick={() => updateStatus(selectedUser.id, "approved")}><CheckCircle className="w-4 h-4" />Approve User</Button>)}
               {selectedUser.status !== "rejected" && (<Button variant="danger" className="flex-1" isLoading={actionLoading === selectedUser.id} onClick={() => updateStatus(selectedUser.id, "rejected")}><XCircle className="w-4 h-4" />Reject User</Button>)}
+              {selectedUser.role !== "admin" && (<Button variant="ghost" className="flex-1 text-[#EF4444] hover:text-[#DC2626]" isLoading={deleteLoading === selectedUser.id} onClick={() => deleteUser(selectedUser)}><Trash2 className="w-4 h-4" />Delete User</Button>)}
             </div>
           </div>
         )}

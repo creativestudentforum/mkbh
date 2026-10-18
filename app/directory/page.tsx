@@ -13,7 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { useDebounce } from "@/lib/hooks";
 import { sanitizeSearchQuery } from "@/lib/utils";
-import { Briefcase, MapPin, GraduationCap, Phone, Users, Globe } from "lucide-react";
+import { Briefcase, MapPin, GraduationCap, Phone, Users, Globe, QrCode, ShieldCheck } from "lucide-react";
 import { FacebookIcon, LinkedinIcon } from "@/components/atoms/SocialIcons";
 import Link from "next/link";
 
@@ -31,7 +31,7 @@ export default function DirectoryPage() {
     queryFn: async () => {
       let query = supabase
         .from("alumni_directory")
-        .select("id, full_name, batch, department, avatar_url, profession, company, city, country, linkedin_url, blood_group, phone, bio, facebook_url, website_url, created_at, is_featured, achievement")
+        .select("id, public_code, full_name, batch, department, avatar_url, profession, company, city, country, linkedin_url, blood_group, phone, bio, facebook_url, website_url, created_at, is_featured, achievement")
         .order("full_name")
         .limit(72);
       const sanitizedSearch = sanitizeSearchQuery(debouncedSearch);
@@ -63,6 +63,10 @@ export default function DirectoryPage() {
     const set = new Set(profiles.map((p) => p.department).filter(Boolean));
     return Array.from(set).sort();
   }, [profiles]);
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== "undefined" ? window.location.origin : "");
+  const verificationUrl = selectedProfile?.public_code ? `${siteUrl}/verify/${selectedProfile.public_code}` : "";
+  const qrUrl = verificationUrl ? `https://api.qrserver.com/v1/create-qr-code/?size=128x128&margin=0&data=${encodeURIComponent(verificationUrl)}` : "";
 
   return (
     <DashboardShell title={t("nav.directory")}>
@@ -146,6 +150,24 @@ export default function DirectoryPage() {
                 <p className="text-[13px] text-[#a0a0a0] leading-relaxed">{selectedProfile.bio}</p>
               </div>
             )}
+            <div className="space-y-3 pt-4 border-t border-[rgba(255,255,255,0.06)]">
+              <h4 className="text-[11px] font-semibold text-[#555] uppercase tracking-wider">Digital ID</h4>
+              <div className="flex flex-col sm:flex-row gap-4 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] p-4">
+                <div className="w-28 h-28 rounded-xl bg-white p-2 flex items-center justify-center flex-shrink-0">
+                  {qrUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={qrUrl} alt={`${selectedProfile.full_name} digital ID QR code`} className="w-full h-full" crossOrigin="anonymous" />
+                  ) : (
+                    <QrCode className="w-10 h-10 text-[#111]" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(52,211,153,0.08)] border border-[rgba(52,211,153,0.16)] px-2.5 py-1 text-[11px] font-medium text-[#34D399] mb-2"><ShieldCheck className="w-3.5 h-3.5" />Verified Alumni ID</div>
+                  <p className="text-[13px] text-[#a0a0a0] leading-relaxed mb-3">Scan this QR code to verify the alumni ID and view only the details this alumni made public.</p>
+                  {verificationUrl && <Link href={verificationUrl} target="_blank" className="text-[12px] text-[#FF6363] hover:text-[#FF4F4F] transition-colors break-all">{verificationUrl}</Link>}
+                </div>
+              </div>
+            </div>
             <div className="space-y-3 pt-4 border-t border-[rgba(255,255,255,0.06)]">
               <h4 className="text-[11px] font-semibold text-[#555] uppercase tracking-wider">Social Links</h4>
               <div className="flex gap-3 flex-wrap">

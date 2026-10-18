@@ -47,6 +47,7 @@ export interface Profile {
 
 export interface AlumniDirectoryProfile {
   id: string;
+  public_code: string | null;
   full_name: string;
   batch: string;
   department: string;

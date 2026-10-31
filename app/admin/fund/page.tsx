@@ -119,7 +119,7 @@ export default function AdminFundPage() {
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-start justify-between flex-wrap gap-4 slide-up stagger-1">
           <div>
-            <div className="flex items-center gap-2 mb-1"><h2 className="text-[22px] font-bold text-[#fafafa] tracking-tight">Manage Fund</h2><Wallet className="w-5 h-5 text-[#FF6363]" /></div>
+            <div className="flex items-center gap-2 mb-1"><h2 className="text-[22px] font-bold text-[#fafafa] tracking-tight">Manage Fund</h2><Wallet className="w-5 h-5 text-[#14B8A6]" /></div>
             <p className="text-[#777] text-[14px]">Verify member payments and add manual fund entries.</p>
           </div>
           <Button onClick={() => { resetForm(); setShowModal(true); }}><Plus className="w-4 h-4" />Add Entry</Button>
@@ -178,7 +178,7 @@ export default function AdminFundPage() {
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Add Fund Entry" size="lg">
         <form onSubmit={handleCreate} className="space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2"><label htmlFor="kind" className="block text-[13px] font-medium text-[#a0a0a0]">Kind</label><select id="kind" value={kind} onChange={(event) => setKind(event.target.value as "income" | "expense")} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(255,99,99,0.5)]"><option value="income">Income</option><option value="expense">Expense</option></select></div>
+            <div className="space-y-2"><label htmlFor="kind" className="block text-[13px] font-medium text-[#a0a0a0]">Kind</label><select id="kind" value={kind} onChange={(event) => setKind(event.target.value as "income" | "expense")} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)]"><option value="income">Income</option><option value="expense">Expense</option></select></div>
             <Input label="Amount" type="number" min="1" value={amount} onChange={(event) => setAmount(event.target.value)} required />
             <Input label="Title" value={title} onChange={(event) => setTitle(event.target.value)} required placeholder="Event expense" />
             <Input label="Category" value={category} onChange={(event) => setCategory(event.target.value)} placeholder="donation / event / scholarship" />
@@ -186,7 +186,7 @@ export default function AdminFundPage() {
             <Input label="Method" value={method} onChange={(event) => setMethod(event.target.value)} placeholder="bKash / Cash / Bank" />
             <Input label="TrxID" value={trxId} onChange={(event) => setTrxId(event.target.value)} />
           </div>
-          <div className="space-y-2"><label htmlFor="admin-note" className="block text-[13px] font-medium text-[#a0a0a0]">Note</label><textarea id="admin-note" rows={3} value={note} onChange={(event) => setNote(event.target.value)} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(255,99,99,0.5)]" /></div>
+          <div className="space-y-2"><label htmlFor="admin-note" className="block text-[13px] font-medium text-[#a0a0a0]">Note</label><textarea id="admin-note" rows={3} value={note} onChange={(event) => setNote(event.target.value)} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)]" /></div>
           <div className="flex justify-end gap-3 pt-4 border-t border-[rgba(255,255,255,0.06)]"><Button type="button" variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button><Button type="submit" isLoading={saving}><Save className="w-4 h-4" />Save Entry</Button></div>
         </form>
       </Modal>

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <radialGradient id="glowTeal" cx="1500" cy="220" r="760" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0D9488" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#0D9488" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowCyan" cx="280" cy="960" r="640" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#14B8A6" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#14B8A6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="dotFade" cx="960" cy="540" r="900" gradientUnits="userSpaceOnUse">
+      <stop offset="0.25" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="1"/>
+    </radialGradient>
+    <mask id="dotMask">
+      <rect width="1920" height="1080" fill="url(#dotFade)"/>
+    </mask>
+    <pattern id="dots" width="32" height="32" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#ffffff" fill-opacity="0.16"/>
+    </pattern>
+    <linearGradient id="archStroke" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2DD4BF" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#0D9488" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1920" height="1080" fill="#0a0a0a"/>
+  <rect width="1920" height="1080" fill="url(#glowTeal)"/>
+  <rect width="1920" height="1080" fill="url(#glowCyan)"/>
+  <rect width="1920" height="1080" fill="url(#dots)" mask="url(#dotMask)"/>
+
+  <!-- nested arches: a quiet nod to school windows and doorways -->
+  <g fill="none" stroke="url(#archStroke)" stroke-width="1.5">
+    <path d="M1180 1080 V560 A220 220 0 0 1 1620 560 V1080"/>
+    <path d="M1120 1080 V540 A280 280 0 0 1 1680 540 V1080" stroke-opacity="0.7"/>
+    <path d="M1060 1080 V520 A340 340 0 0 1 1740 520 V1080" stroke-opacity="0.45"/>
+    <path d="M1000 1080 V500 A400 400 0 0 1 1800 500 V1080" stroke-opacity="0.25"/>
+  </g>
+
+  <!-- soft vignette so form cards stay readable -->
+  <rect width="1920" height="1080" fill="#0a0a0a" fill-opacity="0.18"/>
+</svg>

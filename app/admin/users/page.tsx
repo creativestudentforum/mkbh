@@ -27,6 +27,8 @@ export default function AdminUsersPage() {
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
   const [achievement, setAchievement] = useState("");
   const [featuredSaving, setFeaturedSaving] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 15;
   const debouncedSearch = useDebounce(searchQuery, 300);
   const supabase = createClient();
   const queryClient = useQueryClient();
@@ -159,7 +161,7 @@ export default function AdminUsersPage() {
   };
 
   const statCards = [
-    { label: "Total Users", value: stats?.total || 0, icon: Users, color: "text-[#FF6363]", bg: "bg-[rgba(255,99,99,0.08)]" },
+    { label: "Total Users", value: stats?.total || 0, icon: Users, color: "text-[#14B8A6]", bg: "bg-[rgba(20,184,166,0.12)]" },
     { label: "Pending", value: stats?.pending || 0, icon: Clock, color: "text-[#FBBF24]", bg: "bg-[rgba(251,191,36,0.08)]" },
     { label: "Approved", value: stats?.approved || 0, icon: UserCheck, color: "text-[#34D399]", bg: "bg-[rgba(52,211,153,0.08)]" },
     { label: "Rejected", value: stats?.rejected || 0, icon: UserX, color: "text-[#EF4444]", bg: "bg-[rgba(239,68,68,0.08)]" },
@@ -171,6 +173,9 @@ export default function AdminUsersPage() {
     { label: "Rejected", value: "rejected", count: stats?.rejected },
     { label: "All", value: "all", count: stats?.total },
   ];
+
+  const totalPages = Math.ceil((users?.length || 0) / PAGE_SIZE) || 1;
+  const paginatedUsers = users?.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE) || [];
 
   return (
     <DashboardShell title="User Management">
@@ -201,21 +206,22 @@ export default function AdminUsersPage() {
         <div className="flex flex-col sm:flex-row gap-3 slide-up stagger-3">
           <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
             {filterButtons.map((btn) => (
-              <button key={btn.value} onClick={() => setStatusFilter(btn.value)} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium whitespace-nowrap transition-all duration-200 ${statusFilter === btn.value ? "bg-[rgba(255,99,99,0.1)] text-[#FF6363] border border-[rgba(255,99,99,0.2)]" : "bg-[rgba(255,255,255,0.03)] text-[#777] border border-[rgba(255,255,255,0.06)] hover:bg-[rgba(255,255,255,0.06)] hover:text-[#a0a0a0]"}`}>
+              <button key={btn.value} onClick={() => { setStatusFilter(btn.value); setCurrentPage(1); }} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium whitespace-nowrap transition-all duration-200 ${statusFilter === btn.value ? "bg-[rgba(20,184,166,0.12)] text-[#14B8A6] border border-[rgba(20,184,166,0.25)]" : "bg-[rgba(255,255,255,0.03)] text-[#777] border border-[rgba(255,255,255,0.06)] hover:bg-[rgba(255,255,255,0.06)] hover:text-[#a0a0a0]"}`}>
                 {btn.label}
-                {btn.count !== undefined && (<span className={`text-[11px] px-1.5 py-0.5 rounded-md ${statusFilter === btn.value ? "bg-[rgba(255,99,99,0.15)]" : "bg-[rgba(255,255,255,0.06)]"}`}>{btn.count}</span>)}
+                {btn.count !== undefined && (<span className={`text-[11px] px-1.5 py-0.5 rounded-md ${statusFilter === btn.value ? "bg-[rgba(20,184,166,0.2)]" : "bg-[rgba(255,255,255,0.06)]"}`}>{btn.count}</span>)}
               </button>
             ))}
           </div>
-          <div className="sm:ml-auto w-full sm:w-64"><SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search users..." /></div>
+          <div className="sm:ml-auto w-full sm:w-64"><SearchBar value={searchQuery} onChange={(v) => { setSearchQuery(v); setCurrentPage(1); }} placeholder="Search users..." /></div>
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center items-center py-20"><div className="w-8 h-8 border-2 border-[#FF6363] border-t-transparent rounded-full animate-spin" /></div>
+          <div className="flex justify-center items-center py-20"><div className="w-8 h-8 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin" /></div>
         ) : (
-          <div className="space-y-3 slide-up stagger-4">
-            {users?.map((user) => (
-              <Card key={user.id} className="p-4 sm:p-5 hover:border-[rgba(255,255,255,0.12)] transition-all duration-200">
+          <div className="space-y-4 slide-up stagger-4">
+            <div className="space-y-3">
+              {paginatedUsers.map((user) => (
+                <Card key={user.id} className="p-4 sm:p-5 hover:border-[rgba(255,255,255,0.12)] transition-all duration-200">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <Avatar src={user.avatar_url} name={user.full_name} size="lg" />
@@ -244,10 +250,37 @@ export default function AdminUsersPage() {
                 </div>
               </Card>
             ))}
+            </div>
+
             {users?.length === 0 && (
               <div className="text-center py-20">
                 <div className="w-16 h-16 rounded-xl bg-[rgba(255,255,255,0.03)] flex items-center justify-center mx-auto mb-4"><Users className="w-8 h-8 text-[#444]" /></div>
                 <p className="text-[#666] text-[13px]">No {statusFilter !== "all" ? statusFilter : ""} users found</p>
+              </div>
+            )}
+
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between border-t border-[rgba(255,255,255,0.06)] pt-4">
+                <p className="text-[12px] text-[#777]">
+                  Showing {(currentPage - 1) * PAGE_SIZE + 1} to {Math.min(currentPage * PAGE_SIZE, users?.length || 0)} of {users?.length || 0} users
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                    className="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-[rgba(255,255,255,0.04)] text-[#a0a0a0] hover:text-white hover:bg-[rgba(255,255,255,0.08)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Previous
+                  </button>
+                  <span className="text-[12px] text-[#777] px-2 py-1.5">{currentPage} / {totalPages}</span>
+                  <button
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                    className="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-[rgba(255,255,255,0.04)] text-[#a0a0a0] hover:text-white hover:bg-[rgba(255,255,255,0.08)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -305,7 +338,7 @@ export default function AdminUsersPage() {
               </div>
               <div className="space-y-2">
                 <label htmlFor="achievement" className="block text-[13px] font-medium text-[#a0a0a0]">Achievement</label>
-                <textarea id="achievement" rows={3} value={achievement} onChange={(event) => setAchievement(event.target.value)} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(255,99,99,0.5)]" placeholder="Notable achievement to show on dashboard..." />
+                <textarea id="achievement" rows={3} value={achievement} onChange={(event) => setAchievement(event.target.value)} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)]" placeholder="Notable achievement to show on dashboard..." />
               </div>
               <Button variant="secondary" isLoading={featuredSaving} onClick={saveFeatured}>
                 <Star className="w-4 h-4" />

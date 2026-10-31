@@ -20,7 +20,7 @@ export default function StatsCard({
   color = "indigo",
 }: StatsCardProps) {
   const iconBg = {
-    indigo: "bg-[rgba(255,99,99,0.1)] text-[#FF6363]",
+    indigo: "bg-[rgba(20,184,166,0.12)] text-[#14B8A6]",
     emerald: "bg-[rgba(52,211,153,0.1)] text-[#34D399]",
     amber: "bg-[rgba(251,191,36,0.1)] text-[#FBBF24]",
     rose: "bg-[rgba(251,113,133,0.1)] text-[#FB7185]",

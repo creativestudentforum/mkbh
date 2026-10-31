@@ -35,7 +35,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 relative overflow-hidden">
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(255,99,99,0.04)_0%,transparent_70%)] -translate-y-1/3 translate-x-1/4" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(20,184,166,0.04)_0%,transparent_70%)] -translate-y-1/3 translate-x-1/4" />
       </div>
 
       <div className="w-full max-w-[400px] relative z-10">
@@ -64,7 +64,7 @@ export default function ForgotPasswordPage() {
             </Button>
           </form>
 
-          <Link href="/login" className="mt-6 flex items-center justify-center gap-2 text-[13px] text-[#777] hover:text-[#FF6363] transition-colors">
+          <Link href="/login" className="mt-6 flex items-center justify-center gap-2 text-[13px] text-[#777] hover:text-[#14B8A6] transition-colors">
             <ArrowLeft className="w-4 h-4" /> Back to login
           </Link>
         </div>

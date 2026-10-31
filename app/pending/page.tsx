@@ -26,7 +26,7 @@ export default function PendingPage() {
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
       {/* Background decoration */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[radial-gradient(circle,rgba(255,99,99,0.03)_0%,transparent_70%)]" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[radial-gradient(circle,rgba(20,184,166,0.03)_0%,transparent_70%)]" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[radial-gradient(circle,rgba(255,160,99,0.03)_0%,transparent_70%)]" />
       </div>
 
@@ -34,7 +34,7 @@ export default function PendingPage() {
         <div className="glass rounded-2xl p-8 sm:p-10 slide-up">
           {/* Logo */}
           <div className="flex justify-center mb-6">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#FF6363] to-[#FF9A63] flex items-center justify-center">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#0D9488] to-[#14B8A6] flex items-center justify-center">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
           </div>
@@ -104,13 +104,13 @@ export default function PendingPage() {
           )}
 
           {!isRejected && (
-            <div className="bg-[rgba(255,99,99,0.04)] rounded-xl p-4 mb-6 border border-[rgba(255,99,99,0.08)]">
+            <div className="bg-[rgba(20,184,166,0.04)] rounded-xl p-4 mb-6 border border-[rgba(20,184,166,0.08)]">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[rgba(255,99,99,0.08)] flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <RefreshCw className="w-4 h-4 text-[#FF6363]" />
+                <div className="w-8 h-8 rounded-lg bg-[rgba(20,184,166,0.08)] flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <RefreshCw className="w-4 h-4 text-[#14B8A6]" />
                 </div>
                 <div className="text-left">
-                  <p className="text-[12px] font-medium text-[#FF8A63] mb-0.5">
+                  <p className="text-[12px] font-medium text-[#14B8A6] mb-0.5">
                     What happens next?
                   </p>
                   <p className="text-[12px] text-[#777] leading-relaxed">

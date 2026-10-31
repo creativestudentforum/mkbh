@@ -55,7 +55,7 @@ export default function Avatar({
   return (
     <div
       className={cn(
-        "rounded-full flex items-center justify-center font-semibold bg-gradient-to-br from-[#FF6363] to-[#FF9A63] text-white ring-1 ring-[rgba(255,255,255,0.08)] flex-shrink-0",
+        "rounded-full flex items-center justify-center font-semibold bg-gradient-to-br from-[#0D9488] to-[#14B8A6] text-white ring-1 ring-[rgba(255,255,255,0.08)] flex-shrink-0",
         sizes[size],
         className
       )}

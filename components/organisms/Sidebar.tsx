@@ -107,7 +107,7 @@ export default function Sidebar({
               className="flex items-center gap-2.5 group"
               onClick={onClose}
             >
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#FF6363] to-[#FF9A63] flex items-center justify-center shadow-[0_0_12px_rgba(255,99,99,0.2)] group-hover:shadow-[0_0_20px_rgba(255,99,99,0.3)] transition-shadow">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#0D9488] to-[#14B8A6] flex items-center justify-center shadow-[0_0_12px_rgba(20,184,166,0.25)] group-hover:shadow-[0_0_20px_rgba(20,184,166,0.4)] transition-shadow">
                 <GraduationCap className="w-4 h-4 text-white" />
               </div>
               <span className="text-[15px] font-semibold text-[#fafafa] tracking-tight">
@@ -116,7 +116,7 @@ export default function Sidebar({
             </Link>
           )}
           {isCollapsed && (
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#FF6363] to-[#FF9A63] flex items-center justify-center shadow-[0_0_12px_rgba(255,99,99,0.2)]">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#0D9488] to-[#14B8A6] flex items-center justify-center shadow-[0_0_12px_rgba(20,184,166,0.25)]">
               <GraduationCap className="w-4 h-4 text-white" />
             </div>
           )}
@@ -156,9 +156,9 @@ export default function Sidebar({
                 )}
               >
                 {isActive && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 bg-[#FF6363] rounded-r-full" />
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 bg-[#14B8A6] rounded-r-full shadow-[0_0_8px_rgba(20,184,166,0.6)]" />
                 )}
-                <item.icon className={cn("w-[18px] h-[18px] flex-shrink-0", isActive && "text-[#FF6363]")} />
+                <item.icon className={cn("w-[18px] h-[18px] flex-shrink-0", isActive && "text-[#14B8A6]")} />
                 {!isCollapsed && t(item.labelKey)}
               </Link>
             );
@@ -194,9 +194,9 @@ export default function Sidebar({
                     )}
                   >
                     {isActive && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 bg-[#FF6363] rounded-r-full" />
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 bg-[#14B8A6] rounded-r-full shadow-[0_0_8px_rgba(20,184,166,0.6)]" />
                     )}
-                    <item.icon className={cn("w-[18px] h-[18px] flex-shrink-0", isActive && "text-[#FF6363]")} />
+                    <item.icon className={cn("w-[18px] h-[18px] flex-shrink-0", isActive && "text-[#14B8A6]")} />
                     {!isCollapsed && t(item.labelKey)}
                   </Link>
                 );

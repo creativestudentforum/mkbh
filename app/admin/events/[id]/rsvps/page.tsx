@@ -76,7 +76,7 @@ export default function AdminEventRsvpsPage() {
       <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex items-start justify-between flex-wrap gap-4 slide-up stagger-1">
           <div>
-            <Link href="/admin/events" className="inline-flex items-center gap-2 text-[12px] text-[#777] hover:text-[#FF6363] transition-colors mb-3">
+            <Link href="/admin/events" className="inline-flex items-center gap-2 text-[12px] text-[#777] hover:text-[#14B8A6] transition-colors mb-3">
               <ArrowLeft className="w-4 h-4" /> Back to events
             </Link>
             <h2 className="text-[22px] font-bold text-[#fafafa] tracking-tight">{data?.event?.title || "Event RSVPs"}</h2>

@@ -138,11 +138,11 @@ export default function AdminRosterPage() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <h2 className="text-[22px] font-bold text-[#fafafa] tracking-tight">Alumni Roster</h2>
-              <ListChecks className="w-5 h-5 text-[#FF6363]" />
+              <ListChecks className="w-5 h-5 text-[#14B8A6]" />
             </div>
             <p className="text-[#777] text-[14px]">Import old alumni lists and use them to verify pending signups.</p>
           </div>
-          <label className="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium bg-[#FF6363] text-white hover:bg-[#FF4F4F] cursor-pointer transition-all">
+          <label className="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium bg-[#0D9488] text-white hover:bg-[#0F766E] cursor-pointer transition-all">
             <FileUp className="w-4 h-4" /> Upload CSV
             <input type="file" accept=".csv,text/csv" onChange={handleFile} className="hidden" />
           </label>

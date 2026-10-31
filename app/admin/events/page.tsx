@@ -166,8 +166,8 @@ export default function AdminEventsPage() {
                 <Card key={event.id} className={`p-0 overflow-hidden ${!event.is_active ? "opacity-50" : ""}`}>
                   <div className="flex">
                     {/* Date column */}
-                    <div className={`w-20 flex-shrink-0 flex flex-col items-center justify-center py-5 ${isPast ? "bg-[rgba(255,255,255,0.02)]" : "bg-[rgba(255,99,99,0.06)]"}`}>
-                      <span className={`text-[10px] font-bold tracking-wider uppercase ${isPast ? "text-[#555]" : "text-[#FF6363]"}`}>
+                    <div className={`w-20 flex-shrink-0 flex flex-col items-center justify-center py-5 ${isPast ? "bg-[rgba(255,255,255,0.02)]" : "bg-[rgba(20,184,166,0.1)]"}`}>
+                      <span className={`text-[10px] font-bold tracking-wider uppercase ${isPast ? "text-[#555]" : "text-[#14B8A6]"}`}>
                         {eventDate.toLocaleString("default", { month: "short" }).toUpperCase()}
                       </span>
                       <span className={`text-[28px] font-bold leading-none mt-1 ${isPast ? "text-[#666]" : "text-[#fafafa]"}`}>
@@ -223,7 +223,7 @@ export default function AdminEventsPage() {
                           </Link>
                           <button
                             onClick={() => openEditModal(event)}
-                            className="p-1.5 rounded-lg text-[#555] hover:text-[#FF6363] hover:bg-[rgba(255,99,99,0.06)] transition-colors"
+                            className="p-1.5 rounded-lg text-[#555] hover:text-[#14B8A6] hover:bg-[rgba(20,184,166,0.1)] transition-colors"
                             title="Edit"
                           >
                             <Edit3 className="w-3.5 h-3.5" />
@@ -280,7 +280,7 @@ export default function AdminEventsPage() {
             <textarea
               id="event-description"
               rows={3}
-              className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(255,99,99,0.5)] focus:ring-1 focus:ring-[rgba(255,99,99,0.2)] transition-all duration-200 hover:border-[rgba(255,255,255,0.14)]"
+              className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)] focus:ring-1 focus:ring-[rgba(20,184,166,0.25)] transition-all duration-200 hover:border-[rgba(255,255,255,0.14)]"
               placeholder="Describe the event..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}

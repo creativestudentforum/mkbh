@@ -97,7 +97,7 @@ export default function FundPage() {
         <div className="slide-up stagger-1">
           <div className="flex items-center gap-2 mb-1">
             <h2 className="text-[22px] font-bold text-[#fafafa] tracking-tight">Fund Ledger</h2>
-            <Wallet className="w-5 h-5 text-[#FF6363]" />
+            <Wallet className="w-5 h-5 text-[#14B8A6]" />
           </div>
           <p className="text-[#777] text-[14px]">Transparent manual ledger for alumni fund income and expenses.</p>
         </div>
@@ -110,9 +110,9 @@ export default function FundPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-5">
           <div className="space-y-5 slide-up stagger-3">
-            <Card className="p-5 bg-[rgba(255,99,99,0.04)] border-[rgba(255,99,99,0.12)]">
+            <Card className="p-5 bg-[rgba(20,184,166,0.06)] border-[rgba(20,184,166,0.18)]">
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[rgba(255,99,99,0.08)] flex items-center justify-center"><Landmark className="w-5 h-5 text-[#FF6363]" /></div>
+                <div className="w-9 h-9 rounded-lg bg-[rgba(20,184,166,0.12)] flex items-center justify-center"><Landmark className="w-5 h-5 text-[#14B8A6]" /></div>
                 <div>
                   <p className="text-[13px] font-semibold text-[#fafafa] mb-1">Payment details</p>
                   <p className="text-[12px] text-[#888] leading-relaxed">Send money to the official committee account, then submit your TrxID here.</p>
@@ -134,14 +134,14 @@ export default function FundPage() {
                 <Input label="Amount" type="number" min="1" value={amount} onChange={(event) => setAmount(event.target.value)} required placeholder="1000" />
                 <div className="space-y-2">
                   <label htmlFor="method" className="block text-[13px] font-medium text-[#a0a0a0]">Method</label>
-                  <select id="method" value={method} onChange={(event) => setMethod(event.target.value)} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(255,99,99,0.5)]">
+                  <select id="method" value={method} onChange={(event) => setMethod(event.target.value)} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)]">
                     {PAYMENT_METHODS.map((item) => <option key={item} value={item}>{item}</option>)}
                   </select>
                 </div>
                 <Input label="TrxID / Reference" value={trxId} onChange={(event) => setTrxId(event.target.value)} placeholder="Transaction ID" />
                 <div className="space-y-2">
                   <label htmlFor="note" className="block text-[13px] font-medium text-[#a0a0a0]">Note</label>
-                  <textarea id="note" rows={3} value={note} onChange={(event) => setNote(event.target.value)} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(255,99,99,0.5)]" placeholder="Optional note" />
+                  <textarea id="note" rows={3} value={note} onChange={(event) => setNote(event.target.value)} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)]" placeholder="Optional note" />
                 </div>
                 <Button type="submit" isLoading={submitting} className="w-full"><HandCoins className="w-4 h-4" />Submit Payment</Button>
               </form>

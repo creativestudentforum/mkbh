@@ -23,6 +23,15 @@ export async function createServerSupabaseClient() {
           }
         },
       },
+      global: {
+        fetch: (url, options = {}) => {
+          return fetch(url, {
+            ...options,
+            // Re-use TCP/TLS connections via HTTP keep-alive
+            keepalive: true,
+          });
+        },
+      },
     }
   );
 }

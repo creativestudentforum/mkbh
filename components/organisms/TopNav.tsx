@@ -21,6 +21,7 @@ export default function TopNav({ onMenuClick, title }: TopNavProps) {
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
+          aria-label="Toggle navigation menu"
           className="p-2 rounded-lg text-[#666] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-colors lg:hidden"
         >
           <Menu className="w-5 h-5" />
@@ -32,9 +33,12 @@ export default function TopNav({ onMenuClick, title }: TopNavProps) {
 
       <div className="flex items-center gap-2">
         <LangToggle />
-        <button className="relative p-2 rounded-lg text-[#666] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-colors">
+        <button
+          aria-label="View notifications"
+          className="relative p-2 rounded-lg text-[#666] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-colors"
+        >
           <Bell className="w-[18px] h-[18px]" />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#FF6363] rounded-full" />
+          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#14B8A6] rounded-full" />
         </button>
         <Link
           href="/profile"

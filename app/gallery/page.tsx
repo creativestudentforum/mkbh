@@ -6,6 +6,7 @@ import DashboardShell from "@/components/organisms/DashboardShell";
 import { createClient } from "@/lib/supabase";
 import type { Album } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
+import { getOptimizedImageUrl } from "@/lib/cloudinary";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Camera, ImageIcon, Images } from "lucide-react";
 import Image from "next/image";
@@ -35,7 +36,7 @@ export default function GalleryPage() {
         <div className="slide-up stagger-1">
           <div className="flex items-center gap-2 mb-1">
             <h2 className="text-[22px] font-bold text-[#fafafa] tracking-tight">Gallery</h2>
-            <Images className="w-5 h-5 text-[#FF6363]" />
+            <Images className="w-5 h-5 text-[#14B8A6]" />
           </div>
           <p className="text-[#777] text-[14px]">Browse alumni event albums and school memories.</p>
         </div>
@@ -53,7 +54,7 @@ export default function GalleryPage() {
                 <Card hover className="overflow-hidden h-full">
                   {album.cover_url ? (
                     <div className="relative h-48">
-                      <Image src={album.cover_url} alt={album.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover" />
+                      <Image src={getOptimizedImageUrl(album.cover_url, { width: 600, crop: "fill" })} alt={album.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover" />
                     </div>
                   ) : (
                     <div className="h-48 bg-[rgba(255,255,255,0.03)] flex items-center justify-center"><ImageIcon className="w-10 h-10 text-[#444]" /></div>

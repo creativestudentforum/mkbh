@@ -50,12 +50,12 @@ export default function VerifyMemberPage({ params }: { params: Promise<{ code: s
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 relative overflow-hidden">
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(255,99,99,0.04)_0%,transparent_70%)] -translate-y-1/3 translate-x-1/4" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(20,184,166,0.04)_0%,transparent_70%)] -translate-y-1/3 translate-x-1/4" />
         <div className="absolute bottom-0 left-0 w-[520px] h-[520px] bg-[radial-gradient(circle,rgba(52,211,153,0.035)_0%,transparent_70%)] translate-y-1/3 -translate-x-1/4" />
       </div>
 
       <Card className="w-full max-w-2xl p-6 sm:p-8 relative z-10">
-        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FF6363] to-[#FF9A63] flex items-center justify-center mx-auto mb-6">
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#0D9488] to-[#14B8A6] flex items-center justify-center mx-auto mb-6">
           <GraduationCap className="w-7 h-7 text-white" />
         </div>
 
@@ -117,7 +117,7 @@ export default function VerifyMemberPage({ params }: { params: Promise<{ code: s
           </div>
         )}
 
-        <Link href="/login" className="flex justify-center mt-8 text-[12px] text-[#FF6363] hover:text-[#FF4F4F] transition-colors">
+        <Link href="/login" className="flex justify-center mt-8 text-[12px] text-[#14B8A6] hover:text-[#0D9488] transition-colors">
           Go to AlumniHub
         </Link>
       </Card>
@@ -128,7 +128,7 @@ export default function VerifyMemberPage({ params }: { params: Promise<{ code: s
 function InfoItem({ icon: Icon, label, value }: { icon: typeof Mail; label: string; value: string | null }) {
   return (
     <div className="flex items-start gap-3 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] p-4">
-      <Icon className="w-4 h-4 text-[#FF6363] mt-0.5 flex-shrink-0" />
+      <Icon className="w-4 h-4 text-[#14B8A6] mt-0.5 flex-shrink-0" />
       <div className="min-w-0">
         <p className="text-[11px] text-[#555] uppercase tracking-wider font-semibold">{label}</p>
         <p className="text-[13px] text-[#e5e5e5] break-words mt-1">{value}</p>
@@ -141,7 +141,7 @@ function PublicLink({ href, label }: { href: string | null; label: string }) {
   if (!href) return null;
 
   return (
-    <a href={href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-[rgba(255,99,99,0.08)] border border-[rgba(255,99,99,0.16)] px-3 py-2 text-[12px] font-medium text-[#FF8A8A] hover:bg-[rgba(255,99,99,0.12)] transition-colors">
+    <a href={href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-[rgba(20,184,166,0.08)] border border-[rgba(20,184,166,0.16)] px-3 py-2 text-[12px] font-medium text-[#14B8A6] hover:bg-[rgba(20,184,166,0.12)] transition-colors">
       {label}
       <ExternalLink className="w-3 h-3" />
     </a>

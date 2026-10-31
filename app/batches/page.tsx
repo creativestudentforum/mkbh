@@ -42,7 +42,7 @@ export default function BatchesPage() {
         <div className="slide-up stagger-1">
           <div className="flex items-center gap-2 mb-1">
             <h2 className="text-[22px] font-bold text-[#fafafa] tracking-tight">Batches</h2>
-            <CalendarRange className="w-5 h-5 text-[#FF6363]" />
+            <CalendarRange className="w-5 h-5 text-[#14B8A6]" />
           </div>
           <p className="text-[#777] text-[14px]">Browse alumni by SSC batch year.</p>
         </div>
@@ -101,8 +101,8 @@ function BatchGrid({
                   <p className="text-[11px] text-[#555] uppercase tracking-wider mb-1">Batch</p>
                   <h4 className="text-[24px] font-bold text-[#fafafa] leading-tight">{batch.year}</h4>
                 </div>
-                <div className="w-11 h-11 rounded-xl bg-[rgba(255,99,99,0.08)] flex items-center justify-center">
-                  <GraduationCap className="w-5 h-5 text-[#FF6363]" />
+                <div className="w-11 h-11 rounded-xl bg-[rgba(20,184,166,0.12)] flex items-center justify-center">
+                  <GraduationCap className="w-5 h-5 text-[#14B8A6]" />
                 </div>
               </div>
 

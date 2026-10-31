@@ -16,7 +16,7 @@ export default function Badge({
     success: "bg-[rgba(52,211,153,0.1)] text-[#34D399] border border-[rgba(52,211,153,0.15)]",
     warning: "bg-[rgba(251,191,36,0.1)] text-[#FBBF24] border border-[rgba(251,191,36,0.15)]",
     danger: "bg-[rgba(239,68,68,0.1)] text-[#EF4444] border border-[rgba(239,68,68,0.15)]",
-    info: "bg-[rgba(255,99,99,0.1)] text-[#FF6363] border border-[rgba(255,99,99,0.15)]",
+    info: "bg-[rgba(20,184,166,0.12)] text-[#14B8A6] border border-[rgba(20,184,166,0.2)]",
   };
 
   return (

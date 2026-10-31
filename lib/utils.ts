@@ -1,4 +1,8 @@
 import { createClient } from "./supabase";
+import { uploadImage } from "./uploadImage";
+import { getOptimizedImageUrl } from "./cloudinary";
+
+export { uploadImage, getOptimizedImageUrl };
 
 export function cn(...classes: (string | boolean | undefined | null)[]) {
   return classes.filter(Boolean).join(" ");
@@ -32,32 +36,14 @@ export function sanitizeSearchQuery(value: string): string {
 export async function compressAndUploadImage(
   file: File,
   bucket: string,
-  path: string
+  _path?: string
 ): Promise<string | null> {
   try {
-    const { default: imageCompression } = await import("browser-image-compression");
-    const options = {
-      maxSizeMB: 0.5,
-      maxWidthOrHeight: 800,
-      useWebWorker: true,
-    };
-    const compressedFile = await imageCompression(file, options);
-
-    const supabase = createClient();
-    const { error } = await supabase.storage
-      .from(bucket)
-      .upload(path, compressedFile, {
-        upsert: true,
-        contentType: compressedFile.type,
-      });
-
-    if (error) throw error;
-
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from(bucket).getPublicUrl(path);
-
-    return publicUrl;
+    return await uploadImage(file, {
+      folder: `alumni-hub/${bucket}`,
+      maxSizeMB: 0.35,
+      maxWidthOrHeight: 1200,
+    });
   } catch (err: unknown) {
     console.error("Image upload failed:", err);
     throw err;
@@ -66,33 +52,14 @@ export async function compressAndUploadImage(
 
 export async function compressAndUploadGalleryImage(
   file: File,
-  path: string
+  _path?: string
 ): Promise<string | null> {
   try {
-    const { default: imageCompression } = await import("browser-image-compression");
-    const compressedFile = await imageCompression(file, {
-      maxSizeMB: 0.35,
+    return await uploadImage(file, {
+      folder: "alumni-hub/gallery",
+      maxSizeMB: 0.4,
       maxWidthOrHeight: 1600,
-      useWebWorker: true,
-      fileType: "image/webp",
-      initialQuality: 0.8,
     });
-
-    const supabase = createClient();
-    const { error } = await supabase.storage
-      .from("gallery")
-      .upload(path, compressedFile, {
-        upsert: false,
-        contentType: "image/webp",
-      });
-
-    if (error) throw error;
-
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("gallery").getPublicUrl(path);
-
-    return publicUrl;
   } catch (err: unknown) {
     console.error("Gallery image upload failed:", err);
     throw err;
@@ -101,7 +68,12 @@ export async function compressAndUploadGalleryImage(
 
 export function getAvatarUrl(url: string | null): string {
   if (!url) return "";
-  if (url.startsWith("http")) return url;
+  if (url.startsWith("http")) {
+    if (url.includes("res.cloudinary.com")) {
+      return getOptimizedImageUrl(url, { width: 160, height: 160, crop: "fill" });
+    }
+    return url;
+  }
   const supabase = createClient();
   const {
     data: { publicUrl },

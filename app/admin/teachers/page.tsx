@@ -9,7 +9,7 @@ import Input from "@/components/atoms/Input";
 import Modal from "@/components/atoms/Modal";
 import SearchBar from "@/components/molecules/SearchBar";
 import { createClient } from "@/lib/supabase";
-import { compressAndUploadImage, getErrorMessage, sanitizeSearchQuery } from "@/lib/utils";
+import { uploadImage, getErrorMessage, sanitizeSearchQuery } from "@/lib/utils";
 import type { Teacher } from "@/lib/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -47,10 +47,8 @@ export default function AdminTeachersPage() {
     if (!e.target.files || e.target.files.length === 0) return;
     setUploading(true);
     const file = e.target.files[0];
-    const fileExt = file.name.split(".").pop();
-    const filePath = `teachers/${crypto.randomUUID()}.${fileExt}`;
     try {
-      const publicUrl = await compressAndUploadImage(file, "avatars", filePath);
+      const publicUrl = await uploadImage(file, { folder: "alumni-hub/teachers" });
       if (publicUrl) { setAvatarPreview(publicUrl); } else { alert("Image upload failed. Please try again."); }
     } catch (err: unknown) { console.error(err); alert(getErrorMessage(err)); } finally { setUploading(false); }
   };
@@ -98,14 +96,14 @@ export default function AdminTeachersPage() {
         </div>
 
         <div className="grid grid-cols-2 gap-3 slide-up stagger-2">
-          <Card className="p-4"><div className="flex items-center gap-3"><div className="p-2.5 rounded-lg bg-[rgba(255,99,99,0.08)]"><GraduationCap className="w-5 h-5 text-[#FF6363]" /></div><div><p className="text-2xl font-bold text-[#fafafa]">{totalCount}</p><p className="text-[11px] text-[#666]">Total Teachers</p></div></div></Card>
+          <Card className="p-4"><div className="flex items-center gap-3"><div className="p-2.5 rounded-lg bg-[rgba(20,184,166,0.12)]"><GraduationCap className="w-5 h-5 text-[#14B8A6]" /></div><div><p className="text-2xl font-bold text-[#fafafa]">{totalCount}</p><p className="text-[11px] text-[#666]">Total Teachers</p></div></div></Card>
           <Card className="p-4"><div className="flex items-center gap-3"><div className="p-2.5 rounded-lg bg-[rgba(52,211,153,0.08)]"><Users className="w-5 h-5 text-[#34D399]" /></div><div><p className="text-2xl font-bold text-[#fafafa]">{activeCount}</p><p className="text-[11px] text-[#666]">Active</p></div></div></Card>
         </div>
 
         <div className="w-full sm:w-72 slide-up stagger-3"><SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search teachers..." /></div>
 
         {isLoading ? (
-          <div className="flex justify-center items-center py-20"><div className="w-8 h-8 border-2 border-[#FF6363] border-t-transparent rounded-full animate-spin" /></div>
+          <div className="flex justify-center items-center py-20"><div className="w-8 h-8 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin" /></div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 slide-up stagger-4">
             {teachers?.map((teacher) => (
@@ -115,7 +113,7 @@ export default function AdminTeachersPage() {
                   <Avatar src={teacher.avatar_url} name={teacher.full_name} size="lg" />
                   <div className="min-w-0">
                     <h3 className="text-[14px] font-bold text-[#fafafa] leading-tight truncate">{teacher.full_name}</h3>
-                    <p className="text-[13px] font-medium text-[#FF6363] truncate">{teacher.designation}</p>
+                    <p className="text-[13px] font-medium text-[#14B8A6] truncate">{teacher.designation}</p>
                     <div className="flex items-center gap-1 mt-0.5 text-[11px] text-[#666]"><BookOpen className="w-3 h-3" /><span className="truncate">{teacher.department}</span></div>
                   </div>
                 </div>
@@ -175,7 +173,7 @@ export default function AdminTeachersPage() {
           </div>
           <div className="space-y-2">
             <label htmlFor="bio" className="block text-[13px] font-medium text-[#a0a0a0]">Bio</label>
-            <textarea id="bio" rows={3} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(255,99,99,0.5)] focus:ring-1 focus:ring-[rgba(255,99,99,0.2)] transition-all duration-200 hover:border-[rgba(255,255,255,0.14)]" placeholder="Brief bio about the teacher..." value={formData.bio} onChange={handleChange} />
+            <textarea id="bio" rows={3} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)] focus:ring-1 focus:ring-[rgba(20,184,166,0.25)] transition-all duration-200 hover:border-[rgba(255,255,255,0.14)]" placeholder="Brief bio about the teacher..." value={formData.bio} onChange={handleChange} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input id="linkedin_url" label="LinkedIn URL" type="url" value={formData.linkedin_url} onChange={handleChange} placeholder="https://linkedin.com/in/..." />

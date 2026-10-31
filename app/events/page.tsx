@@ -122,8 +122,8 @@ function EventCard({ event, isUpcoming = false }: { event: Event; isUpcoming?: b
     <Card className={`p-0 overflow-hidden group ${!isUpcoming ? "opacity-60" : ""}`} hover={isUpcoming}>
       <div className="flex">
         {/* Date column */}
-        <div className={`w-20 flex-shrink-0 flex flex-col items-center justify-center py-5 ${isUpcoming ? "bg-[rgba(255,99,99,0.06)]" : "bg-[rgba(255,255,255,0.02)]"}`}>
-          <span className={`text-[10px] font-bold tracking-wider uppercase ${isUpcoming ? "text-[#FF6363]" : "text-[#555]"}`}>{month}</span>
+        <div className={`w-20 flex-shrink-0 flex flex-col items-center justify-center py-5 ${isUpcoming ? "bg-[rgba(20,184,166,0.1)]" : "bg-[rgba(255,255,255,0.02)]"}`}>
+          <span className={`text-[10px] font-bold tracking-wider uppercase ${isUpcoming ? "text-[#14B8A6]" : "text-[#555]"}`}>{month}</span>
           <span className={`text-[28px] font-bold leading-none mt-1 ${isUpcoming ? "text-[#fafafa]" : "text-[#666]"}`}>{day}</span>
         </div>
 

@@ -8,7 +8,7 @@ import Avatar from "@/components/atoms/Avatar";
 import { useAuth } from "@/lib/auth-context";
 import { createClient } from "@/lib/supabase";
 import type { Batch, Profile } from "@/lib/types";
-import { compressAndUploadImage, getErrorMessage } from "@/lib/utils";
+import { uploadImage, getErrorMessage } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Camera, Save } from "lucide-react";
@@ -157,9 +157,7 @@ function ProfileEditor({
       if (!e.target.files || e.target.files.length === 0) return;
       setUploading(true);
       const file = e.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${userId}/${crypto.randomUUID()}.${fileExt}`;
-      const publicUrl = await compressAndUploadImage(file, 'avatars', filePath);
+      const publicUrl = await uploadImage(file, { folder: `alumni-hub/avatars/${userId}` });
       if (publicUrl) {
         const { error: updateError } = await supabase.from("profiles").update({ avatar_url: publicUrl }).eq("id", userId);
         if (updateError) { console.error("Supabase Update Error:", updateError); throw new Error(updateError.message || "Failed to update profile"); }
@@ -211,7 +209,7 @@ function ProfileEditor({
                   <Input id="date_of_birth" label="Date of Birth" type="date" value={formData.date_of_birth} onChange={handleChange} />
                   <div className="space-y-2">
                     <label htmlFor="blood_group" className="block text-[13px] font-medium text-[#a0a0a0]">Blood Group</label>
-                    <select id="blood_group" value={formData.blood_group} onChange={handleChange} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(255,99,99,0.5)] focus:ring-1 focus:ring-[rgba(255,99,99,0.2)] transition-all hover:border-[rgba(255,255,255,0.14)]">
+                    <select id="blood_group" value={formData.blood_group} onChange={handleChange} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)] focus:ring-1 focus:ring-[rgba(20,184,166,0.25)] transition-all hover:border-[rgba(255,255,255,0.14)]">
                       <option value="">Select blood group</option>
                       {BLOOD_GROUPS.map((group) => <option key={group} value={group}>{group}</option>)}
                     </select>
@@ -220,30 +218,30 @@ function ProfileEditor({
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <label className="flex items-center gap-2 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-[13px] text-[#a0a0a0]">
-                    <input id="show_email" type="checkbox" checked={formData.show_email} onChange={handleChange} className="accent-[#FF6363]" />
+                    <input id="show_email" type="checkbox" checked={formData.show_email} onChange={handleChange} className="accent-[#0D9488]" />
                     Show email on public QR page
                   </label>
                   <label className="flex items-center gap-2 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-[13px] text-[#a0a0a0]">
-                    <input id="is_blood_donor" type="checkbox" checked={formData.is_blood_donor} onChange={handleChange} className="accent-[#FF6363]" />
+                    <input id="is_blood_donor" type="checkbox" checked={formData.is_blood_donor} onChange={handleChange} className="accent-[#0D9488]" />
                     <span>
                       Available as blood donor
                       <span className="block text-[11px] text-[#555]">My phone number will be visible to members in Blood Finder.</span>
                     </span>
                   </label>
                   <label className="flex items-center gap-2 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-[13px] text-[#a0a0a0]">
-                    <input id="show_phone" type="checkbox" checked={formData.show_phone} onChange={handleChange} className="accent-[#FF6363]" />
+                    <input id="show_phone" type="checkbox" checked={formData.show_phone} onChange={handleChange} className="accent-[#0D9488]" />
                     Show phone in directory
                   </label>
                   <label className="flex items-center gap-2 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-[13px] text-[#a0a0a0]">
-                    <input id="show_birthday" type="checkbox" checked={formData.show_birthday} onChange={handleChange} className="accent-[#FF6363]" />
+                    <input id="show_birthday" type="checkbox" checked={formData.show_birthday} onChange={handleChange} className="accent-[#0D9488]" />
                     Show birthday on public QR page
                   </label>
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="bio" className="block text-[13px] font-medium text-[#a0a0a0]">Bio</label>
-                  <textarea id="bio" rows={3} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(255,99,99,0.5)] focus:ring-1 focus:ring-[rgba(255,99,99,0.2)] transition-all duration-200 hover:border-[rgba(255,255,255,0.14)]" placeholder="Tell us a little about yourself..." value={formData.bio} onChange={handleChange} />
+                  <textarea id="bio" rows={3} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)] focus:ring-1 focus:ring-[rgba(20,184,166,0.25)] transition-all duration-200 hover:border-[rgba(255,255,255,0.14)]" placeholder="Tell us a little about yourself..." value={formData.bio} onChange={handleChange} />
                   <label className="flex items-center gap-2 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-[13px] text-[#a0a0a0]">
-                    <input id="show_bio" type="checkbox" checked={formData.show_bio} onChange={handleChange} className="accent-[#FF6363]" />
+                    <input id="show_bio" type="checkbox" checked={formData.show_bio} onChange={handleChange} className="accent-[#0D9488]" />
                     Show bio on public QR page
                   </label>
                 </div>
@@ -254,7 +252,7 @@ function ProfileEditor({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label htmlFor="batch" className="block text-[13px] font-medium text-[#a0a0a0]">Batch</label>
-                    <select id="batch" value={formData.batch} onChange={handleChange} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(255,99,99,0.5)] focus:ring-1 focus:ring-[rgba(255,99,99,0.2)] transition-all hover:border-[rgba(255,255,255,0.14)]">
+                    <select id="batch" value={formData.batch} onChange={handleChange} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)] focus:ring-1 focus:ring-[rgba(20,184,166,0.25)] transition-all hover:border-[rgba(255,255,255,0.14)]">
                       <option value="">Select batch</option>
                       {formData.batch && !batches?.some((batch) => batch.year === formData.batch) && <option value={formData.batch}>{formData.batch}</option>}
                       {batches?.map((batch) => <option key={batch.year} value={batch.year}>{batch.year}</option>)}
@@ -268,7 +266,7 @@ function ProfileEditor({
               <div className="space-y-4">
                 <h3 className="text-[15px] font-semibold text-[#fafafa] border-b border-[rgba(255,255,255,0.06)] pb-2">Professional Information</h3>
                 <label className="flex items-center gap-2 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-[13px] text-[#a0a0a0]">
-                  <input id="show_professional_info" type="checkbox" checked={formData.show_professional_info} onChange={handleChange} className="accent-[#FF6363]" />
+                  <input id="show_professional_info" type="checkbox" checked={formData.show_professional_info} onChange={handleChange} className="accent-[#0D9488]" />
                   Show profession and company on public QR page
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -278,7 +276,7 @@ function ProfileEditor({
                   <Input id="country" label="Country" value={formData.country} onChange={handleChange} />
                 </div>
                 <label className="flex items-center gap-2 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-[13px] text-[#a0a0a0]">
-                  <input id="show_location" type="checkbox" checked={formData.show_location} onChange={handleChange} className="accent-[#FF6363]" />
+                  <input id="show_location" type="checkbox" checked={formData.show_location} onChange={handleChange} className="accent-[#0D9488]" />
                   Show city and country on public QR page
                 </label>
               </div>
@@ -286,7 +284,7 @@ function ProfileEditor({
               <div className="space-y-4">
                 <h3 className="text-[15px] font-semibold text-[#fafafa] border-b border-[rgba(255,255,255,0.06)] pb-2">Social Links</h3>
                 <label className="flex items-center gap-2 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-[13px] text-[#a0a0a0]">
-                  <input id="show_social_links" type="checkbox" checked={formData.show_social_links} onChange={handleChange} className="accent-[#FF6363]" />
+                  <input id="show_social_links" type="checkbox" checked={formData.show_social_links} onChange={handleChange} className="accent-[#0D9488]" />
                   Show social links on public QR page
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

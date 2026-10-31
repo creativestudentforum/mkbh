@@ -25,6 +25,8 @@ export default function BloodPage() {
   const [bloodGroup, setBloodGroup] = useState("");
   const [city, setCity] = useState("");
   const [availableOnly, setAvailableOnly] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 8;
 
   const { data: donors, isLoading, error } = useQuery({
     queryKey: ["blood-donors"],
@@ -53,6 +55,12 @@ export default function BloodPage() {
       return true;
     });
   }, [donors, bloodGroup, city, availableOnly]);
+
+  const totalPages = Math.ceil(filteredDonors.length / PAGE_SIZE) || 1;
+  const paginatedDonors = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredDonors.slice(start, start + PAGE_SIZE);
+  }, [filteredDonors, currentPage]);
 
   return (
     <DashboardShell title="Blood Finder">
@@ -87,7 +95,7 @@ export default function BloodPage() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <label htmlFor="blood-group" className="block text-[12px] font-medium text-[#a0a0a0]">Blood group</label>
-                <select id="blood-group" value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)} className="w-full rounded-lg bg-[#101010] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(255,99,99,0.5)]">
+                <select id="blood-group" value={bloodGroup} onChange={(e) => { setBloodGroup(e.target.value); setCurrentPage(1); }} className="w-full rounded-lg bg-[#101010] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)]">
                   <option value="">All groups</option>
                   {BLOOD_GROUPS.map((group) => <option key={group} value={group}>{group}</option>)}
                 </select>
@@ -95,19 +103,19 @@ export default function BloodPage() {
 
               <div className="space-y-2">
                 <label htmlFor="city" className="block text-[12px] font-medium text-[#a0a0a0]">City</label>
-                <select id="city" value={city} onChange={(e) => setCity(e.target.value)} className="w-full rounded-lg bg-[#101010] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(255,99,99,0.5)]">
+                <select id="city" value={city} onChange={(e) => { setCity(e.target.value); setCurrentPage(1); }} className="w-full rounded-lg bg-[#101010] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)]">
                   <option value="">All cities</option>
                   {cities.map((item) => <option key={item} value={item}>{item}</option>)}
                 </select>
               </div>
 
-              <label className="flex items-start gap-2.5 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] p-3 text-[12px] text-[#888] leading-relaxed">
-                <input type="checkbox" checked={availableOnly} onChange={(e) => setAvailableOnly(e.target.checked)} className="mt-0.5 accent-[#FF6363]" />
+              <label className="flex items-start gap-2.5 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] p-3 text-[12px] text-[#888] leading-relaxed cursor-pointer">
+                <input type="checkbox" checked={availableOnly} onChange={(e) => { setAvailableOnly(e.target.checked); setCurrentPage(1); }} className="mt-0.5 accent-[#0D9488]" />
                 Show available donors only
               </label>
 
               {(bloodGroup || city || !availableOnly) && (
-                <Button type="button" variant="secondary" className="w-full" onClick={() => { setBloodGroup(""); setCity(""); setAvailableOnly(true); }}>
+                <Button type="button" variant="secondary" className="w-full" onClick={() => { setBloodGroup(""); setCity(""); setAvailableOnly(true); setCurrentPage(1); }}>
                   Reset Filters
                 </Button>
               )}
@@ -131,10 +139,36 @@ export default function BloodPage() {
                 <p className="text-[13px] text-[#EF4444]">Could not load blood donors.</p>
               </Card>
             ) : filteredDonors.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {filteredDonors.map((donor) => (
-                  <DonorCard key={donor.id} donor={donor} />
-                ))}
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {paginatedDonors.map((donor) => (
+                    <DonorCard key={donor.id} donor={donor} />
+                  ))}
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between border-t border-[rgba(255,255,255,0.06)] pt-4">
+                    <p className="text-[12px] text-[#777]">
+                      Page {currentPage} of {totalPages}
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                        className="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-[rgba(255,255,255,0.04)] text-[#a0a0a0] hover:text-white hover:bg-[rgba(255,255,255,0.08)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      >
+                        Previous
+                      </button>
+                      <button
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                        className="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-[rgba(255,255,255,0.04)] text-[#a0a0a0] hover:text-white hover:bg-[rgba(255,255,255,0.08)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <Card className="p-12 flex flex-col items-center justify-center text-center">

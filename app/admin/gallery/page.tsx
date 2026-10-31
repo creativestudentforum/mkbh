@@ -9,7 +9,7 @@ import DashboardShell from "@/components/organisms/DashboardShell";
 import { useAuth } from "@/lib/auth-context";
 import { createClient } from "@/lib/supabase";
 import type { Album, Photo } from "@/lib/types";
-import { compressAndUploadGalleryImage, formatDate, getErrorMessage } from "@/lib/utils";
+import { uploadImage, getOptimizedImageUrl, formatDate, getErrorMessage } from "@/lib/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Camera, ImagePlus, Images, Plus, Save, Trash2, Upload, X } from "lucide-react";
 import Image from "next/image";
@@ -113,8 +113,7 @@ export default function AdminGalleryPage() {
       for (let index = 0; index < files.length; index += 1) {
         const file = files[index];
         setUploadStatus(`Uploading ${index + 1} of ${files.length}`);
-        const path = `${selectedAlbum.id}/${crypto.randomUUID()}.webp`;
-        const publicUrl = await compressAndUploadGalleryImage(file, path);
+        const publicUrl = await uploadImage(file, { folder: `alumni-hub/gallery/${selectedAlbum.id}` });
         if (publicUrl) {
           rows.push({
             album_id: selectedAlbum.id,
@@ -168,7 +167,7 @@ export default function AdminGalleryPage() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <h2 className="text-[22px] font-bold text-[#fafafa] tracking-tight">Manage Gallery</h2>
-              <Images className="w-5 h-5 text-[#FF6363]" />
+              <Images className="w-5 h-5 text-[#14B8A6]" />
             </div>
             <p className="text-[#777] text-[14px]">Create albums and upload compressed photos.</p>
           </div>
@@ -183,7 +182,7 @@ export default function AdminGalleryPage() {
             ) : albums.length > 0 ? (
               <div className="space-y-2">
                 {albums.map((album) => (
-                  <button key={album.id} type="button" onClick={() => setSelectedAlbum(album)} className={`w-full text-left p-3 rounded-lg border transition-all ${selectedAlbum?.id === album.id ? "bg-[rgba(255,99,99,0.08)] border-[rgba(255,99,99,0.18)]" : "bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.12)]"}`}>
+                  <button key={album.id} type="button" onClick={() => setSelectedAlbum(album)} className={`w-full text-left p-3 rounded-lg border transition-all ${selectedAlbum?.id === album.id ? "bg-[rgba(20,184,166,0.08)] border-[rgba(20,184,166,0.18)]" : "bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.12)]"}`}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="text-[13px] font-semibold text-[#fafafa] truncate">{album.title}</p>
@@ -207,10 +206,10 @@ export default function AdminGalleryPage() {
                     <div>
                       <h3 className="text-[18px] font-bold text-[#fafafa]">{selectedAlbum.title}</h3>
                       {selectedAlbum.description && <p className="text-[13px] text-[#777] mt-1">{selectedAlbum.description}</p>}
-                      <Link href={`/gallery/${selectedAlbum.id}`} className="inline-flex mt-2 text-[12px] text-[#FF6363] hover:text-[#FF4F4F]">View public album</Link>
+                      <Link href={`/gallery/${selectedAlbum.id}`} className="inline-flex mt-2 text-[12px] text-[#14B8A6] hover:text-[#0D9488]">View public album</Link>
                     </div>
                     <div className="flex items-center gap-2">
-                      <label className="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium bg-[#FF6363] text-white hover:bg-[#FF4F4F] cursor-pointer transition-all">
+                      <label className="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium bg-[#0D9488] text-white hover:bg-[#0F766E] cursor-pointer transition-all">
                         <Upload className="w-4 h-4" /> Upload Photos
                         <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" onChange={handleUpload} disabled={uploading} />
                       </label>
@@ -227,7 +226,7 @@ export default function AdminGalleryPage() {
                     {selectedPhotos.map((photo) => (
                       <Card key={photo.id} className="overflow-hidden group relative">
                         <div className="relative aspect-square">
-                          <Image src={photo.url} alt={photo.caption || "Gallery photo"} fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover" />
+                          <Image src={getOptimizedImageUrl(photo.url, { width: 300, crop: "fill" })} alt={photo.caption || "Gallery photo"} fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover" />
                         </div>
                         <button type="button" onClick={() => handleDeletePhoto(photo)} className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-4 h-4" /></button>
                         {photo.caption && <p className="p-2 text-[11px] text-[#777] truncate">{photo.caption}</p>}
@@ -251,7 +250,7 @@ export default function AdminGalleryPage() {
           <Input label="Cover Photo URL" type="url" value={coverUrl} onChange={(event) => setCoverUrl(event.target.value)} placeholder="Optional" />
           <div className="space-y-2">
             <label htmlFor="album-description" className="block text-[13px] font-medium text-[#a0a0a0]">Description</label>
-            <textarea id="album-description" rows={4} value={description} onChange={(event) => setDescription(event.target.value)} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(255,99,99,0.5)] focus:ring-1 focus:ring-[rgba(255,99,99,0.2)] transition-all duration-200 hover:border-[rgba(255,255,255,0.14)]" placeholder="Short description..." />
+            <textarea id="album-description" rows={4} value={description} onChange={(event) => setDescription(event.target.value)} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)] focus:ring-1 focus:ring-[rgba(20,184,166,0.25)] transition-all duration-200 hover:border-[rgba(255,255,255,0.14)]" placeholder="Short description..." />
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t border-[rgba(255,255,255,0.06)]">
             <Button type="button" variant="secondary" onClick={() => setShowAlbumModal(false)}>Cancel</Button>

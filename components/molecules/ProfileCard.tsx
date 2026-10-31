@@ -48,7 +48,7 @@ export default function ProfileCard({ profile, onClick }: ProfileCardProps) {
                 <Link
                   href={`/batches/${encodeURIComponent(profile.batch)}`}
                   onClick={(event) => event.stopPropagation()}
-                  className="hover:text-[#FF6363] transition-colors"
+                  className="hover:text-[#14B8A6] transition-colors"
                 >
                   Batch {profile.batch}
                 </Link>

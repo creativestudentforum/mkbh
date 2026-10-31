@@ -6,6 +6,7 @@ import DashboardShell from "@/components/organisms/DashboardShell";
 import { createClient } from "@/lib/supabase";
 import type { Album, Photo } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
+import { getOptimizedImageUrl } from "@/lib/cloudinary";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ImageIcon, X } from "lucide-react";
 import Image from "next/image";
@@ -42,7 +43,7 @@ export default function AlbumPage({ params }: { params: Promise<{ albumId: strin
     <DashboardShell title={album?.title || "Album"}>
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="slide-up stagger-1">
-          <Link href="/gallery" className="inline-flex items-center gap-2 text-[12px] text-[#777] hover:text-[#FF6363] transition-colors mb-3"><ArrowLeft className="w-4 h-4" />Back to gallery</Link>
+          <Link href="/gallery" className="inline-flex items-center gap-2 text-[12px] text-[#777] hover:text-[#14B8A6] transition-colors mb-3"><ArrowLeft className="w-4 h-4" />Back to gallery</Link>
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
               <h2 className="text-[24px] font-bold text-[#fafafa] tracking-tight">{album?.title || "Album"}</h2>
@@ -60,8 +61,8 @@ export default function AlbumPage({ params }: { params: Promise<{ albumId: strin
         ) : photos.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 slide-up stagger-2">
             {photos.map((photo) => (
-              <button key={photo.id} type="button" onClick={() => setSelectedPhoto(photo)} className="group relative aspect-square rounded-xl overflow-hidden bg-[#141414] border border-[rgba(255,255,255,0.06)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF6363]">
-                <Image src={photo.url} alt={photo.caption || "Gallery photo"} fill sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw" className="object-cover transition-transform duration-300 group-hover:scale-105" />
+              <button key={photo.id} type="button" onClick={() => setSelectedPhoto(photo)} className="group relative aspect-square rounded-xl overflow-hidden bg-[#141414] border border-[rgba(255,255,255,0.06)] animate-card-in hover:border-[rgba(20,184,166,0.3)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.4)] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#14B8A6]">
+                <Image src={getOptimizedImageUrl(photo.url, { width: 400, crop: "fill" })} alt={photo.caption || "Gallery photo"} fill sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw" className="object-cover transition-transform duration-300 group-hover:scale-105" />
                 {photo.caption && <div className="absolute inset-x-0 bottom-0 bg-black/60 p-2 text-left text-[11px] text-white line-clamp-2">{photo.caption}</div>}
               </button>
             ))}
@@ -76,7 +77,7 @@ export default function AlbumPage({ params }: { params: Promise<{ albumId: strin
           <button type="button" onClick={() => setSelectedPhoto(null)} className="absolute top-4 right-4 p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"><X className="w-5 h-5" /></button>
           <div className="max-w-5xl w-full" onClick={(event) => event.stopPropagation()}>
             <div className="relative w-full h-[75vh]">
-              <Image src={selectedPhoto.url} alt={selectedPhoto.caption || "Gallery photo"} fill sizes="100vw" className="object-contain" />
+              <Image src={getOptimizedImageUrl(selectedPhoto.url, { width: 1600, crop: "limit" })} alt={selectedPhoto.caption || "Gallery photo"} fill sizes="100vw" className="object-contain" />
             </div>
             {selectedPhoto.caption && <p className="text-center text-[13px] text-[#e5e5e5] mt-3">{selectedPhoto.caption}</p>}
           </div>

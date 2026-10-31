@@ -38,14 +38,14 @@ export default function Home() {
       </div>
 
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[720px] h-[720px] bg-[radial-gradient(circle,rgba(255,99,99,0.08)_0%,transparent_70%)] -translate-y-1/3 translate-x-1/4" />
-        <div className="absolute bottom-0 left-0 w-[560px] h-[560px] bg-[radial-gradient(circle,rgba(255,154,99,0.05)_0%,transparent_70%)] translate-y-1/3 -translate-x-1/4" />
+        <div className="absolute top-0 right-0 w-[720px] h-[720px] bg-[radial-gradient(circle,rgba(13,148,136,0.12)_0%,transparent_70%)] -translate-y-1/3 translate-x-1/4" />
+        <div className="absolute bottom-0 left-0 w-[560px] h-[560px] bg-[radial-gradient(circle,rgba(20,184,166,0.08)_0%,transparent_70%)] translate-y-1/3 -translate-x-1/4" />
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 py-8 sm:py-12">
         <nav className="hero-fade flex items-center justify-between mb-20" style={delay(200)}>
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#FF6363] to-[#FF9A63] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#0D9488] to-[#14B8A6] flex items-center justify-center shadow-[0_0_16px_rgba(20,184,166,0.3)]">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
             <span className="font-semibold tracking-tight">{siteConfig.shortName}</span>
@@ -61,10 +61,10 @@ export default function Home() {
         <section className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
           <div className="space-y-7">
             <div
-              className="hero-rise inline-flex items-center gap-2 rounded-full border border-[rgba(255,99,99,0.18)] bg-[rgba(255,99,99,0.08)] px-3 py-1 text-[12px] text-[#FF9A63]"
+              className="hero-rise inline-flex items-center gap-2 rounded-full border border-[rgba(20,184,166,0.3)] bg-[rgba(20,184,166,0.12)] px-3 py-1 text-[12px] text-[#14B8A6] font-medium"
               style={delay(300)}
             >
-              <ShieldCheck className="w-4 h-4" /> Members-only alumni network
+              <ShieldCheck className="w-4 h-4 text-[#14B8A6]" /> Members-only alumni network
             </div>
 
             <div>
@@ -73,7 +73,7 @@ export default function Home() {
                 style={delay(450)}
               >
                 A private home for the{" "}
-                <span className="font-serif italic font-medium text-[#FF7A6B]">MKBH High School</span>{" "}
+                <span className="font-serif italic font-medium text-[#14B8A6]">MKBH High School</span>{" "}
                 alumni community.
               </h1>
               <p
@@ -107,13 +107,13 @@ export default function Home() {
             {features.map((item, i) => (
               <div
                 key={item.title}
-                className="hero-rise rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#141414]/70 backdrop-blur-md p-5 transition-colors hover:border-[rgba(255,255,255,0.16)]"
+                className="hero-rise rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#141414]/70 backdrop-blur-md p-5 transition-all duration-300 hover:border-[rgba(20,184,166,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.4),0_0_20px_rgba(13,148,136,0.1)]"
                 style={delay(800 + i * 120)}
               >
-                <div className="w-10 h-10 rounded-xl bg-[rgba(255,99,99,0.08)] flex items-center justify-center mb-4">
-                  <item.icon className="w-5 h-5 text-[#FF6363]" />
+                <div className="w-10 h-10 rounded-xl bg-[rgba(20,184,166,0.12)] flex items-center justify-center mb-4">
+                  <item.icon className="w-5 h-5 text-[#14B8A6]" />
                 </div>
-                <h3 className="font-semibold mb-2">{item.title}</h3>
+                <h2 className="text-base font-semibold mb-2">{item.title}</h2>
                 <p className="text-[13px] text-[#9a9a9a] leading-6">{item.text}</p>
               </div>
             ))}
@@ -126,8 +126,8 @@ export default function Home() {
         >
           <p>© 2026 {siteConfig.shortName}</p>
           <div className="flex gap-4">
-            <Link href="/privacy" className="hover:text-[#FF6363]">Privacy</Link>
-            <Link href="/terms" className="hover:text-[#FF6363]">Terms</Link>
+            <Link href="/privacy" className="hover:text-[#14B8A6] transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-[#14B8A6] transition-colors">Terms</Link>
           </div>
         </footer>
       </div>

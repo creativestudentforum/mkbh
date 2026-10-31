@@ -115,7 +115,7 @@ export default function AdminBatchesPage() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <h2 className="text-[22px] font-bold text-[#fafafa] tracking-tight">Manage Batches</h2>
-              <CalendarRange className="w-5 h-5 text-[#FF6363]" />
+              <CalendarRange className="w-5 h-5 text-[#14B8A6]" />
             </div>
             <p className="text-[#777] text-[14px]">Set coordinators, descriptions, and group photo URLs.</p>
           </div>
@@ -148,7 +148,7 @@ export default function AdminBatchesPage() {
                     <div className="flex items-center gap-2"><ImageIcon className="w-4 h-4 text-[#555]" />{batch.group_photo_url ? "Photo URL set" : "No photo URL"}</div>
                   </div>
 
-                  <Link href={`/batches/${encodeURIComponent(batch.year)}`} className="inline-flex mt-4 text-[12px] text-[#FF6363] hover:text-[#FF4F4F] transition-colors">
+                  <Link href={`/batches/${encodeURIComponent(batch.year)}`} className="inline-flex mt-4 text-[12px] text-[#14B8A6] hover:text-[#0D9488] transition-colors">
                     View batch page
                   </Link>
                 </Card>
@@ -169,7 +169,7 @@ export default function AdminBatchesPage() {
 
           <div className="space-y-2">
             <label htmlFor="coordinator" className="block text-[13px] font-medium text-[#a0a0a0]">Coordinator</label>
-            <select id="coordinator" value={coordinatorId} onChange={(event) => setCoordinatorId(event.target.value)} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(255,99,99,0.5)] focus:ring-1 focus:ring-[rgba(255,99,99,0.2)] transition-all hover:border-[rgba(255,255,255,0.14)]">
+            <select id="coordinator" value={coordinatorId} onChange={(event) => setCoordinatorId(event.target.value)} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)] focus:ring-1 focus:ring-[rgba(20,184,166,0.25)] transition-all hover:border-[rgba(255,255,255,0.14)]">
               <option value="">No coordinator</option>
               {alumni.map((member) => <option key={member.id} value={member.id}>{member.full_name} {member.batch ? `(${member.batch})` : ""}</option>)}
             </select>
@@ -179,7 +179,7 @@ export default function AdminBatchesPage() {
 
           <div className="space-y-2">
             <label htmlFor="description" className="block text-[13px] font-medium text-[#a0a0a0]">Description</label>
-            <textarea id="description" rows={4} value={description} onChange={(event) => setDescription(event.target.value)} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(255,99,99,0.5)] focus:ring-1 focus:ring-[rgba(255,99,99,0.2)] transition-all duration-200 hover:border-[rgba(255,255,255,0.14)]" placeholder="Short note about this batch..." />
+            <textarea id="description" rows={4} value={description} onChange={(event) => setDescription(event.target.value)} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)] focus:ring-1 focus:ring-[rgba(20,184,166,0.25)] transition-all duration-200 hover:border-[rgba(255,255,255,0.14)]" placeholder="Short note about this batch..." />
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-[rgba(255,255,255,0.06)]">

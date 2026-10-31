@@ -54,8 +54,8 @@ export default function TeachersPage() {
                     <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-[#34D399] border-2 border-[#141414]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-[14px] font-bold text-[#fafafa] leading-tight mb-0.5 group-hover:text-[#FF8A63] transition-colors">{teacher.full_name}</h3>
-                    <p className="text-[13px] font-medium text-[#FF6363]">{teacher.designation}</p>
+                    <h3 className="text-[14px] font-bold text-[#fafafa] leading-tight mb-0.5 group-hover:text-[#14B8A6] transition-colors">{teacher.full_name}</h3>
+                    <p className="text-[13px] font-medium text-[#14B8A6]">{teacher.designation}</p>
                     <div className="flex items-center gap-1 mt-1 text-[11px] text-[#666]"><BookOpen className="w-3.5 h-3.5 flex-shrink-0" /><span className="truncate">{teacher.department}</span></div>
                   </div>
                 </div>
@@ -64,17 +64,17 @@ export default function TeachersPage() {
                   <div className="mb-4">
                     <p className="text-[10px] font-semibold text-[#555] uppercase tracking-wider mb-2">Specialization</p>
                     <div className="flex flex-wrap gap-1.5">
-                      {teacher.specialization.split(",").map((spec, i) => (<span key={i} className="px-2.5 py-1 rounded-md bg-[rgba(255,99,99,0.06)] text-[11px] text-[#FF8A63] border border-[rgba(255,99,99,0.1)] font-medium">{spec.trim()}</span>))}
+                      {teacher.specialization.split(",").map((spec, i) => (<span key={i} className="px-2.5 py-1 rounded-md bg-[rgba(20,184,166,0.1)] text-[11px] text-[#14B8A6] border border-[rgba(20,184,166,0.2)] font-medium">{spec.trim()}</span>))}
                     </div>
                   </div>
                 )}
                 <div className="pt-4 border-t border-[rgba(255,255,255,0.06)] mt-auto space-y-2">
-                  {teacher.email && (<a href={`mailto:${teacher.email}`} className="flex items-center gap-2 text-[13px] text-[#777] hover:text-[#FF6363] transition-colors"><Mail className="w-4 h-4 flex-shrink-0" /><span className="truncate">{teacher.email}</span></a>)}
-                  {teacher.phone && (<a href={`tel:${teacher.phone}`} className="flex items-center gap-2 text-[13px] text-[#777] hover:text-[#FF6363] transition-colors"><Phone className="w-4 h-4 flex-shrink-0" /><span className="truncate">{teacher.phone}</span></a>)}
+                  {teacher.email && (<a href={`mailto:${teacher.email}`} className="flex items-center gap-2 text-[13px] text-[#777] hover:text-[#14B8A6] transition-colors"><Mail className="w-4 h-4 flex-shrink-0" /><span className="truncate">{teacher.email}</span></a>)}
+                  {teacher.phone && (<a href={`tel:${teacher.phone}`} className="flex items-center gap-2 text-[13px] text-[#777] hover:text-[#14B8A6] transition-colors"><Phone className="w-4 h-4 flex-shrink-0" /><span className="truncate">{teacher.phone}</span></a>)}
                   {(teacher.linkedin_url || teacher.website_url) && (
                     <div className="flex gap-3 mt-3 pt-2">
-                      {teacher.linkedin_url && (<Link href={teacher.linkedin_url} target="_blank" className="p-2 rounded-lg bg-[rgba(255,255,255,0.03)] text-[#555] hover:text-[#FF6363] hover:bg-[rgba(255,255,255,0.06)] transition-all"><LinkedinIcon className="w-4 h-4" /></Link>)}
-                      {teacher.website_url && (<Link href={teacher.website_url} target="_blank" className="p-2 rounded-lg bg-[rgba(255,255,255,0.03)] text-[#555] hover:text-[#FF6363] hover:bg-[rgba(255,255,255,0.06)] transition-all"><Globe className="w-4 h-4" /></Link>)}
+                      {teacher.linkedin_url && (<Link href={teacher.linkedin_url} target="_blank" className="p-2 rounded-lg bg-[rgba(255,255,255,0.03)] text-[#555] hover:text-[#14B8A6] hover:bg-[rgba(255,255,255,0.06)] transition-all"><LinkedinIcon className="w-4 h-4" /></Link>)}
+                      {teacher.website_url && (<Link href={teacher.website_url} target="_blank" className="p-2 rounded-lg bg-[rgba(255,255,255,0.03)] text-[#555] hover:text-[#14B8A6] hover:bg-[rgba(255,255,255,0.06)] transition-all"><Globe className="w-4 h-4" /></Link>)}
                     </div>
                   )}
                 </div>

@@ -4,7 +4,7 @@ export default function TermsPage() {
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-[#e5e5e5] px-4 py-10">
       <div className="max-w-3xl mx-auto space-y-8">
-        <Link href="/" className="text-[13px] text-[#FF6363] hover:text-[#FF4F4F]">Back to home</Link>
+        <Link href="/" className="text-[13px] text-[#14B8A6] hover:text-[#0D9488]">Back to home</Link>
         <div>
           <h1 className="text-3xl font-bold tracking-tight mb-3">Terms of Use</h1>
           <p className="text-[#888] text-sm">Last updated: October 2026</p>

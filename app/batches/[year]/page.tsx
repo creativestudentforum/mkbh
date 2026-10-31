@@ -81,14 +81,14 @@ export default function BatchDetailPage({ params }: { params: Promise<{ year: st
     <DashboardShell title={`Batch ${year}`}>
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="slide-up stagger-1">
-          <Link href="/batches" className="inline-flex items-center gap-2 text-[12px] text-[#777] hover:text-[#FF6363] transition-colors mb-3">
+          <Link href="/batches" className="inline-flex items-center gap-2 text-[12px] text-[#777] hover:text-[#14B8A6] transition-colors mb-3">
             <ArrowLeft className="w-4 h-4" /> Back to batches
           </Link>
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <h2 className="text-[24px] font-bold text-[#fafafa] tracking-tight">Batch {year}</h2>
-                <CalendarRange className="w-5 h-5 text-[#FF6363]" />
+                <CalendarRange className="w-5 h-5 text-[#14B8A6]" />
               </div>
               <p className="text-[#777] text-[14px]">Members, coordinator and batch information.</p>
             </div>
@@ -134,7 +134,7 @@ export default function BatchDetailPage({ params }: { params: Promise<{ year: st
                       <Input label="Group Photo URL" type="url" value={groupPhotoUrl} onChange={(event) => setGroupPhotoUrl(event.target.value)} placeholder="https://..." />
                       <div className="space-y-2">
                         <label htmlFor="batch-description" className="block text-[13px] font-medium text-[#a0a0a0]">Description</label>
-                        <textarea id="batch-description" rows={4} value={description} onChange={(event) => setDescription(event.target.value)} className="w-full rounded-lg bg-[#101010] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(255,99,99,0.5)] focus:ring-1 focus:ring-[rgba(255,99,99,0.2)] transition-all duration-200 hover:border-[rgba(255,255,255,0.14)]" />
+                        <textarea id="batch-description" rows={4} value={description} onChange={(event) => setDescription(event.target.value)} className="w-full rounded-lg bg-[#101010] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)] focus:ring-1 focus:ring-[rgba(20,184,166,0.25)] transition-all duration-200 hover:border-[rgba(255,255,255,0.14)]" />
                       </div>
                       <div className="flex justify-end gap-2">
                         <Button type="button" variant="secondary" onClick={() => setIsEditing(false)}>Cancel</Button>
@@ -167,7 +167,7 @@ export default function BatchDetailPage({ params }: { params: Promise<{ year: st
 
             <section className="space-y-4 slide-up stagger-3">
               <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-[#FF6363]" />
+                <Users className="w-4 h-4 text-[#14B8A6]" />
                 <h3 className="text-[15px] font-semibold text-[#fafafa]">Members</h3>
               </div>
 
@@ -193,9 +193,9 @@ export default function BatchDetailPage({ params }: { params: Promise<{ year: st
               <Avatar src={selectedProfile.avatar_url} name={selectedProfile.full_name} size="xl" />
               <div className="min-w-0">
                 <h3 className="text-[18px] font-bold text-[#fafafa] truncate">{selectedProfile.full_name}</h3>
-                <p className="text-[#FF6363] font-medium text-[13px]">{selectedProfile.profession || "Alumni"}{selectedProfile.company && ` @ ${selectedProfile.company}`}</p>
+                <p className="text-[#14B8A6] font-medium text-[13px]">{selectedProfile.profession || "Alumni"}{selectedProfile.company && ` @ ${selectedProfile.company}`}</p>
                 <p className="text-[12px] text-[#777] mt-2">{[selectedProfile.city, selectedProfile.country].filter(Boolean).join(", ") || "Location not provided"}</p>
-                {selectedProfile.phone && <a href={`tel:${selectedProfile.phone}`} className="inline-flex mt-4 text-[13px] text-[#FF6363] hover:text-[#FF4F4F]">{selectedProfile.phone}</a>}
+                {selectedProfile.phone && <a href={`tel:${selectedProfile.phone}`} className="inline-flex mt-4 text-[13px] text-[#14B8A6] hover:text-[#0D9488]">{selectedProfile.phone}</a>}
               </div>
             </div>
           </Card>

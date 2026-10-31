@@ -7,10 +7,10 @@
   --color-surface-tertiary: #1f1f1f;
   --color-border: rgba(255, 255, 255, 0.08);
   --color-border-hover: rgba(255, 255, 255, 0.14);
-  --color-border-focus: rgba(255, 87, 87, 0.5);
-  --color-accent: #FF6363;
-  --color-accent-hover: #FF4F4F;
-  --color-accent-muted: rgba(255, 99, 99, 0.12);
+  --color-border-focus: rgba(20, 184, 166, 0.5);
+  --color-accent: #0D9488;
+  --color-accent-hover: #0F766E;
+  --color-accent-muted: rgba(20, 184, 166, 0.12);
   --color-text-primary: #FAFAFA;
   --color-text-secondary: #A0A0A0;
   --color-text-tertiary: #666666;
@@ -62,7 +62,7 @@ body {
 
 /* Selection color */
 ::selection {
-  background-color: rgba(255, 99, 99, 0.25);
+  background-color: rgba(20, 184, 166, 0.25);
   color: white;
 }
 
@@ -155,6 +155,22 @@ body {
   animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+@keyframes cardEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-card-in {
+  animation: cardEntrance 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
 /* Staggered animations */
 .stagger-1 { animation-delay: 50ms; }
 .stagger-2 { animation-delay: 100ms; }
@@ -166,15 +182,15 @@ body {
    Design System Utilities
    ============================ */
 
-/* Gradient text — Raycast-style warm gradient */
+/* Gradient text — Deep Teal & Emerald Cyber Gradient */
 .gradient-text {
-  background: linear-gradient(135deg, #FF6363 0%, #FF9A63 50%, #FFD363 100%);
+  background: linear-gradient(135deg, #0D9488 0%, #14B8A6 50%, #2DD4BF 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Glass effect — very subtle, Raycast-style */
+/* Glass effect — subtle, frosted card style */
 .glass {
   background: rgba(20, 20, 20, 0.8);
   backdrop-filter: blur(24px) saturate(1.4);
@@ -182,13 +198,13 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* Pulse glow */
+/* Pulse glow — Deep Teal */
 @keyframes pulseGlow {
   0%, 100% {
-    box-shadow: 0 0 8px rgba(255, 99, 99, 0.2);
+    box-shadow: 0 0 8px rgba(20, 184, 166, 0.2);
   }
   50% {
-    box-shadow: 0 0 24px rgba(255, 99, 99, 0.4);
+    box-shadow: 0 0 24px rgba(20, 184, 166, 0.4);
   }
 }
 
@@ -257,7 +273,7 @@ body {
   right: -10%;
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(255, 99, 99, 0.04) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(13, 148, 136, 0.08) 0%, transparent 70%);
   border-radius: 50%;
   animation: subtlePulse 8s ease-in-out infinite;
 }
@@ -269,7 +285,7 @@ body {
   left: -10%;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(255, 160, 99, 0.03) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.05) 0%, transparent 70%);
   border-radius: 50%;
   animation: subtlePulse 10s ease-in-out infinite 2s;
 }
@@ -328,8 +344,8 @@ body {
 
 /* Step 3: CTA glow, runs twice then stops */
 @keyframes heroCtaGlow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 99, 99, 0); }
-  50%      { box-shadow: 0 0 28px 2px rgba(255, 99, 99, 0.45); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0); }
+  50%      { box-shadow: 0 0 28px 2px rgba(20, 184, 166, 0.45); }
 }
 
 /* Rotating word: each word shows for ~3s of a 9s loop */

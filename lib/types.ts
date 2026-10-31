@@ -203,6 +203,44 @@ export interface BirthdayProfile {
 
 export type FundKind = "income" | "expense";
 export type FundStatus = "pending" | "verified" | "rejected";
+export type CampaignStatus = "active" | "paused" | "completed";
+export type PaymentMethodType = "mobile_banking" | "bank" | "cash";
+
+export interface FundCampaign {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  target_amount: number;
+  start_date: string;
+  end_date: string | null;
+  banner_url: string | null;
+  status: CampaignStatus;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  // Computed / Joined
+  raised_amount?: number;
+  donor_count?: number;
+}
+
+export interface FundPaymentMethod {
+  id: string;
+  name: string;
+  type: PaymentMethodType;
+  account_number: string | null;
+  account_type: string | null;
+  bank_name: string | null;
+  branch_name: string | null;
+  routing_number: string | null;
+  account_holder: string | null;
+  instructions: string;
+  contact_person: string | null;
+  is_active: boolean;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface FundEntry {
   id: string;
@@ -216,18 +254,46 @@ export interface FundEntry {
   trx_id: string | null;
   status: FundStatus;
   receipt_url: string | null;
+  voucher_url?: string | null;
   note: string;
+  campaign_id?: string | null;
+  sender_number?: string | null;
+  receipt_number?: string | null;
+  rejection_reason?: string | null;
+  verified_by?: string | null;
+  verified_at?: string | null;
+  vendor_name?: string | null;
+  donor_name?: string | null;
+  is_anonymous?: boolean;
+  is_adjustment?: boolean;
   created_at: string;
   profiles?: {
     full_name: string;
     batch: string;
     phone: string | null;
+    avatar_url?: string | null;
+  } | null;
+  fund_campaigns?: FundCampaign | null;
+}
+
+export interface FundAuditLog {
+  id: string;
+  action: string;
+  entry_id: string | null;
+  campaign_id: string | null;
+  performed_by: string | null;
+  details: Record<string, unknown>;
+  created_at: string;
+  profiles?: {
+    full_name: string;
   } | null;
 }
 
 export interface FundSummary {
   income: number;
   expense: number;
+  pending_income?: number;
+  pending_count?: number;
 }
 
 export interface Memorial {

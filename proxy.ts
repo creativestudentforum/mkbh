@@ -14,6 +14,7 @@ const PUBLIC_ROUTES = [
   "/manifest.webmanifest",
   "/robots.txt",
   "/og",
+  "/fund",
 ];
 const AUTH_ENTRY_ROUTES = ["/login", "/signup"];
 

@@ -11,7 +11,7 @@ const features = [
   { icon: Users, title: "Directory", text: "Approved members can find and connect with alumni." },
   { icon: CalendarDays, title: "Events", text: "RSVP to reunions and alumni gatherings." },
   { icon: ShieldCheck, title: "Verified ID", text: "Public QR verification shows only safe details." },
-  { icon: GraduationCap, title: "School Network", text: "Teachers, batches, gallery, fund and more." },
+  { icon: GraduationCap, title: "Fund & Transparency", text: "Open campaigns, digital money receipts, and audited ledger." },
 ];
 
 export default function Home() {
@@ -51,6 +51,7 @@ export default function Home() {
             <span className="font-semibold tracking-tight">{siteConfig.shortName}</span>
           </div>
           <div className="flex items-center gap-2">
+            <Link href="/fund"><Button variant="ghost">Fund & Transparency</Button></Link>
             <Link href="/login"><Button variant="ghost">Login</Button></Link>
             <span className="hero-cta rounded-lg">
               <Link href="/signup"><Button>Join</Button></Link>

@@ -16,11 +16,23 @@ export default function Card({
   return (
     <div
       onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick(e as unknown as React.MouseEvent<HTMLDivElement>);
+              }
+            }
+          : undefined
+      }
       className={cn(
-        "bg-[#141414] border border-[rgba(255,255,255,0.06)] rounded-xl animate-card-in",
+        "bg-[#13151b] border border-white/[0.08] rounded-xl text-[#f3f4f6]",
         hover &&
-          "hover:border-[rgba(20,184,166,0.3)] hover:bg-[#181818] transition-all duration-300 cursor-pointer hover:shadow-[0_8px_30px_rgba(0,0,0,0.4),0_0_20px_rgba(13,148,136,0.12)] hover:-translate-y-0.5",
-        onClick && "cursor-pointer",
+          "hover:border-white/20 hover:bg-[#181b23] transition-colors duration-150 ease-out cursor-pointer",
+        onClick && "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20",
         className
       )}
     >

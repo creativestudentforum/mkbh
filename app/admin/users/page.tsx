@@ -161,10 +161,10 @@ export default function AdminUsersPage() {
   };
 
   const statCards = [
-    { label: "Total Users", value: stats?.total || 0, icon: Users, color: "text-[#14B8A6]", bg: "bg-[rgba(20,184,166,0.12)]" },
-    { label: "Pending", value: stats?.pending || 0, icon: Clock, color: "text-[#FBBF24]", bg: "bg-[rgba(251,191,36,0.08)]" },
-    { label: "Approved", value: stats?.approved || 0, icon: UserCheck, color: "text-[#34D399]", bg: "bg-[rgba(52,211,153,0.08)]" },
-    { label: "Rejected", value: stats?.rejected || 0, icon: UserX, color: "text-[#EF4444]", bg: "bg-[rgba(239,68,68,0.08)]" },
+    { label: "Total Users", value: stats?.total || 0, icon: Users, color: "text-foreground", bg: "bg-surface border border-border" },
+    { label: "Pending", value: stats?.pending || 0, icon: Clock, color: "text-accent", bg: "bg-accent/10 border border-accent/20" },
+    { label: "Approved", value: stats?.approved || 0, icon: UserCheck, color: "text-brand", bg: "bg-brand/10 border border-brand/20" },
+    { label: "Rejected", value: stats?.rejected || 0, icon: UserX, color: "text-danger", bg: "bg-danger/10 border border-danger/20" },
   ];
 
   const filterButtons: { label: string; value: StatusFilter; count?: number }[] = [
@@ -180,11 +180,11 @@ export default function AdminUsersPage() {
   return (
     <DashboardShell title="User Management">
       <div className="space-y-6">
-        <div className="slide-up stagger-1">
+        <div>
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
-              <h2 className="text-[22px] font-bold text-[#fafafa] mb-1 tracking-tight">User Management</h2>
-              <p className="text-[#777] text-[14px]">Approve, reject, and manage alumni accounts</p>
+              <h2 className="text-2xl font-serif font-bold text-foreground mb-1 tracking-tight">User Management</h2>
+              <p className="text-muted text-[14px]">Approve, reject, and manage alumni accounts</p>
             </div>
             <Link href="/admin/users/export" target="_blank">
               <Button variant="secondary"><Download className="w-4 h-4" />Export CSV</Button>
@@ -192,23 +192,23 @@ export default function AdminUsersPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 slide-up stagger-2">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {statCards.map((stat) => (
-            <Card key={stat.label} className="p-4">
+            <Card key={stat.label} className="p-4 bg-surface border-border">
               <div className="flex items-center gap-3">
-                <div className={`p-2.5 rounded-lg ${stat.bg}`}><stat.icon className={`w-5 h-5 ${stat.color}`} /></div>
-                <div className="min-w-0"><p className="text-2xl font-bold text-[#fafafa]">{stat.value}</p><p className="text-[11px] text-[#666] truncate">{stat.label}</p></div>
+                <div className={`p-2.5 rounded-md ${stat.bg}`}><stat.icon className={`w-5 h-5 ${stat.color}`} /></div>
+                <div className="min-w-0"><p className="text-2xl font-serif font-bold text-foreground">{stat.value}</p><p className="text-[11px] text-muted truncate">{stat.label}</p></div>
               </div>
             </Card>
           ))}
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 slide-up stagger-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
             {filterButtons.map((btn) => (
-              <button key={btn.value} onClick={() => { setStatusFilter(btn.value); setCurrentPage(1); }} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium whitespace-nowrap transition-all duration-200 ${statusFilter === btn.value ? "bg-[rgba(20,184,166,0.12)] text-[#14B8A6] border border-[rgba(20,184,166,0.25)]" : "bg-[rgba(255,255,255,0.03)] text-[#777] border border-[rgba(255,255,255,0.06)] hover:bg-[rgba(255,255,255,0.06)] hover:text-[#a0a0a0]"}`}>
+              <button key={btn.value} onClick={() => { setStatusFilter(btn.value); setCurrentPage(1); }} className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md text-[13px] font-medium whitespace-nowrap transition-colors ${statusFilter === btn.value ? "bg-brand text-white font-semibold" : "bg-canvas text-muted border border-border hover:text-foreground"}`}>
                 {btn.label}
-                {btn.count !== undefined && (<span className={`text-[11px] px-1.5 py-0.5 rounded-md ${statusFilter === btn.value ? "bg-[rgba(20,184,166,0.2)]" : "bg-[rgba(255,255,255,0.06)]"}`}>{btn.count}</span>)}
+                {btn.count !== undefined && (<span className={`text-[11px] px-1.5 py-0.5 rounded-md ${statusFilter === btn.value ? "bg-white/20 text-white" : "bg-surface text-muted"}`}>{btn.count}</span>)}
               </button>
             ))}
           </div>
@@ -216,7 +216,7 @@ export default function AdminUsersPage() {
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center items-center py-20"><div className="w-8 h-8 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin" /></div>
+          <div className="flex justify-center items-center py-20"><div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" /></div>
         ) : (
           <div className="space-y-4 slide-up stagger-4">
             <div className="space-y-3">
@@ -338,7 +338,7 @@ export default function AdminUsersPage() {
               </div>
               <div className="space-y-2">
                 <label htmlFor="achievement" className="block text-[13px] font-medium text-[#a0a0a0]">Achievement</label>
-                <textarea id="achievement" rows={3} value={achievement} onChange={(event) => setAchievement(event.target.value)} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)]" placeholder="Notable achievement to show on dashboard..." />
+                <textarea id="achievement" rows={3} value={achievement} onChange={(event) => setAchievement(event.target.value)} className="w-full rounded-md bg-[#0e1015] border border-border text-foreground placeholder-muted px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-brand" placeholder="Notable achievement to show on dashboard..." />
               </div>
               <Button variant="secondary" isLoading={featuredSaving} onClick={saveFeatured}>
                 <Star className="w-4 h-4" />

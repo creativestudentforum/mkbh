@@ -36,7 +36,7 @@ export default function Avatar({
     return (
       <div
         className={cn(
-          "relative rounded-full overflow-hidden ring-1 ring-[rgba(255,255,255,0.08)] flex-shrink-0",
+          "relative rounded-full overflow-hidden ring-1 ring-white/10 flex-shrink-0 bg-[#14161d]",
           sizes[size],
           className
         )}
@@ -55,7 +55,7 @@ export default function Avatar({
   return (
     <div
       className={cn(
-        "rounded-full flex items-center justify-center font-semibold bg-gradient-to-br from-[#0D9488] to-[#14B8A6] text-white ring-1 ring-[rgba(255,255,255,0.08)] flex-shrink-0",
+        "rounded-full flex items-center justify-center font-medium bg-[#1a1d25] text-[#f3f4f6] border border-white/10 flex-shrink-0 select-none",
         sizes[size],
         className
       )}

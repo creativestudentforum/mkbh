@@ -49,38 +49,40 @@ export default function Modal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+    >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-in fade-in"
+        className="fixed inset-0 bg-black/75 transition-opacity"
         onClick={onClose}
+        aria-hidden="true"
       />
 
-      {/* Modal Content */}
+      {/* Modal Box */}
       <div
-        className={`relative w-full ${sizes[size]} bg-[#141414] border border-[rgba(255,255,255,0.06)] shadow-[0_24px_64px_rgba(0,0,0,0.5)]
-          /* Mobile: bottom sheet style */
+        className={`relative w-full ${sizes[size]} bg-[#13151b] border border-white/10 shadow-2xl
           rounded-t-xl sm:rounded-xl
-          max-h-[90vh] sm:max-h-[85vh]
-          animate-in slide-up sm:zoom-in-95 duration-200
-          flex flex-col
+          max-h-[92vh] sm:max-h-[85vh]
+          flex flex-col z-10
         `}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-[rgba(255,255,255,0.06)] flex-shrink-0">
-          {/* Mobile drag indicator */}
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-[rgba(255,255,255,0.1)] sm:hidden" />
-          <h3 className="text-[15px] font-semibold text-[#fafafa] mt-1 sm:mt-0">{title}</h3>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.08] flex-shrink-0">
+          <h3 className="font-serif text-lg font-semibold text-[#f3f4f6] tracking-tight">{title}</h3>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg text-[#666] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-colors -mr-1"
+            aria-label="Close dialog"
+            className="p-1.5 rounded-md text-[#9ca3af] hover:text-white hover:bg-white/[0.08] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-4 sm:p-5 overflow-y-auto flex-1 overscroll-contain">
+        <div className="p-5 overflow-y-auto flex-1 overscroll-contain text-sm text-[#d1d5db]">
           {children}
         </div>
       </div>

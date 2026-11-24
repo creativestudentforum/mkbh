@@ -68,8 +68,8 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <DashboardShell title="My Profile">
-        <Card className="max-w-4xl mx-auto p-8 text-center">
-          <p className="text-[13px] text-[#777]">Loading profile...</p>
+        <Card className="max-w-4xl mx-auto p-8 text-center bg-surface border-border">
+          <p className="text-[13px] text-muted">Loading profile...</p>
         </Card>
       </DashboardShell>
     );
@@ -78,9 +78,9 @@ export default function ProfilePage() {
   if (!profile || !user) {
     return (
       <DashboardShell title="My Profile">
-        <Card className="max-w-4xl mx-auto p-8 text-center">
-          <h2 className="text-[18px] font-semibold text-[#fafafa] mb-2">Profile not found</h2>
-          <p className="text-[13px] text-[#777]">Your account is signed in, but no profile row was loaded.</p>
+        <Card className="max-w-4xl mx-auto p-8 text-center bg-surface border-border">
+          <h2 className="text-xl font-serif font-bold text-foreground mb-2">Profile not found</h2>
+          <p className="text-[13px] text-muted">Your account is signed in, but no profile record was loaded.</p>
         </Card>
       </DashboardShell>
     );
@@ -170,122 +170,122 @@ function ProfileEditor({
   return (
     <DashboardShell title="My Profile">
       <div className="max-w-4xl mx-auto space-y-6">
-        <div className="slide-up stagger-1">
-          <h2 className="text-[22px] font-bold text-[#fafafa] mb-1 tracking-tight">Edit Profile</h2>
-          <p className="text-[#777] text-[14px]">Update your personal and professional information</p>
+        <div>
+          <h2 className="text-2xl font-serif font-bold text-foreground mb-1 tracking-tight">Edit Profile</h2>
+          <p className="text-muted text-[14px]">Update your personal, academic, and professional information.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 slide-up stagger-2">
-          <Card className="p-6 md:col-span-1 h-fit flex flex-col items-center text-center">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="p-6 md:col-span-1 h-fit flex flex-col items-center text-center bg-surface border-border">
             <div className="relative group mb-4">
               <Avatar src={profile?.avatar_url} name={profile?.full_name || "User"} size="xl" className="w-32 h-32" />
-              <label htmlFor="avatar-upload" className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity backdrop-blur-sm">
+              <label htmlFor="avatar-upload" className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
                 {uploading ? (
                   <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  <><Camera className="w-6 h-6 text-white mb-1" /><span className="text-xs text-white font-medium">Change</span></>
+                  <><Camera className="w-5 h-5 text-white mb-1" /><span className="text-xs text-white font-medium">Change Photo</span></>
                 )}
               </label>
               <input id="avatar-upload" type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
             </div>
-            <h3 className="text-[16px] font-bold text-[#fafafa]">{profile?.full_name}</h3>
-            <p className="text-[13px] text-[#777] mb-4">{profile?.email}</p>
-            <div className="w-full text-left bg-[rgba(255,255,255,0.03)] rounded-lg p-4 border border-[rgba(255,255,255,0.06)]">
-              <p className="text-[10px] text-[#555] uppercase tracking-wider font-semibold mb-2">Account Status</p>
+            <h3 className="text-base font-semibold text-foreground">{profile?.full_name}</h3>
+            <p className="text-[13px] text-muted mb-4">{profile?.email}</p>
+            <div className="w-full text-left bg-canvas rounded-lg p-3.5 border border-border">
+              <p className="text-[10px] text-muted uppercase tracking-wider font-semibold mb-1.5">Account Status</p>
               <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${profile?.status === 'approved' ? 'bg-[#34D399]' : 'bg-[#FBBF24]'}`} />
-                <span className="text-[13px] font-medium capitalize text-[#a0a0a0]">{profile?.status}</span>
+                <div className={`w-2 h-2 rounded-full ${profile?.status === 'approved' ? 'bg-brand' : 'bg-accent'}`} />
+                <span className="text-[13px] font-medium capitalize text-foreground">{profile?.status}</span>
               </div>
             </div>
           </Card>
 
-          <Card className="p-6 md:col-span-2">
+          <Card className="p-6 md:col-span-2 bg-surface border-border">
             <form onSubmit={handleUpdate} className="space-y-6">
               <div className="space-y-4">
-                <h3 className="text-[15px] font-semibold text-[#fafafa] border-b border-[rgba(255,255,255,0.06)] pb-2">Basic Information</h3>
+                <h3 className="text-sm font-semibold text-foreground border-b border-border pb-2">Personal Information</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input id="full_name" label="Full Name" value={formData.full_name} onChange={handleChange} required />
                   <Input id="phone" label="Phone Number" value={formData.phone} onChange={handleChange} />
                   <Input id="date_of_birth" label="Date of Birth" type="date" value={formData.date_of_birth} onChange={handleChange} />
                   <div className="space-y-2">
-                    <label htmlFor="blood_group" className="block text-[13px] font-medium text-[#a0a0a0]">Blood Group</label>
-                    <select id="blood_group" value={formData.blood_group} onChange={handleChange} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)] focus:ring-1 focus:ring-[rgba(20,184,166,0.25)] transition-all hover:border-[rgba(255,255,255,0.14)]">
+                    <label htmlFor="blood_group" className="block text-[13px] font-medium text-foreground">Blood Group</label>
+                    <select id="blood_group" value={formData.blood_group} onChange={handleChange} className="w-full rounded-md bg-[#0e1015] border border-border text-foreground px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-brand transition-colors">
                       <option value="">Select blood group</option>
                       {BLOOD_GROUPS.map((group) => <option key={group} value={group}>{group}</option>)}
                     </select>
                   </div>
                   <Input id="last_donation_date" label="Last Donation Date" type="date" value={formData.last_donation_date} onChange={handleChange} />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <label className="flex items-center gap-2 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-[13px] text-[#a0a0a0]">
-                    <input id="show_email" type="checkbox" checked={formData.show_email} onChange={handleChange} className="accent-[#0D9488]" />
-                    Show email on public QR page
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <label className="flex items-center gap-2 rounded-md bg-canvas border border-border px-3.5 py-2.5 text-[13px] text-muted cursor-pointer hover:border-border-hover">
+                    <input id="show_email" type="checkbox" checked={formData.show_email} onChange={handleChange} className="accent-brand" />
+                    <span>Show email on verified credential</span>
                   </label>
-                  <label className="flex items-center gap-2 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-[13px] text-[#a0a0a0]">
-                    <input id="is_blood_donor" type="checkbox" checked={formData.is_blood_donor} onChange={handleChange} className="accent-[#0D9488]" />
+                  <label className="flex items-center gap-2 rounded-md bg-canvas border border-border px-3.5 py-2.5 text-[13px] text-muted cursor-pointer hover:border-border-hover">
+                    <input id="is_blood_donor" type="checkbox" checked={formData.is_blood_donor} onChange={handleChange} className="accent-brand" />
                     <span>
                       Available as blood donor
-                      <span className="block text-[11px] text-[#555]">My phone number will be visible to members in Blood Finder.</span>
+                      <span className="block text-[11px] text-muted mt-0.5">Phone visible in Blood Finder</span>
                     </span>
                   </label>
-                  <label className="flex items-center gap-2 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-[13px] text-[#a0a0a0]">
-                    <input id="show_phone" type="checkbox" checked={formData.show_phone} onChange={handleChange} className="accent-[#0D9488]" />
-                    Show phone in directory
+                  <label className="flex items-center gap-2 rounded-md bg-canvas border border-border px-3.5 py-2.5 text-[13px] text-muted cursor-pointer hover:border-border-hover">
+                    <input id="show_phone" type="checkbox" checked={formData.show_phone} onChange={handleChange} className="accent-brand" />
+                    <span>Show phone in directory</span>
                   </label>
-                  <label className="flex items-center gap-2 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-[13px] text-[#a0a0a0]">
-                    <input id="show_birthday" type="checkbox" checked={formData.show_birthday} onChange={handleChange} className="accent-[#0D9488]" />
-                    Show birthday on public QR page
+                  <label className="flex items-center gap-2 rounded-md bg-canvas border border-border px-3.5 py-2.5 text-[13px] text-muted cursor-pointer hover:border-border-hover">
+                    <input id="show_birthday" type="checkbox" checked={formData.show_birthday} onChange={handleChange} className="accent-brand" />
+                    <span>Show birthday on public card</span>
                   </label>
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="bio" className="block text-[13px] font-medium text-[#a0a0a0]">Bio</label>
-                  <textarea id="bio" rows={3} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)] focus:ring-1 focus:ring-[rgba(20,184,166,0.25)] transition-all duration-200 hover:border-[rgba(255,255,255,0.14)]" placeholder="Tell us a little about yourself..." value={formData.bio} onChange={handleChange} />
-                  <label className="flex items-center gap-2 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-[13px] text-[#a0a0a0]">
-                    <input id="show_bio" type="checkbox" checked={formData.show_bio} onChange={handleChange} className="accent-[#0D9488]" />
-                    Show bio on public QR page
+                  <label htmlFor="bio" className="block text-[13px] font-medium text-foreground">Bio</label>
+                  <textarea id="bio" rows={3} className="w-full rounded-md bg-[#0e1015] border border-border text-foreground placeholder-muted px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-brand transition-colors" placeholder="Brief summary of your background..." value={formData.bio} onChange={handleChange} />
+                  <label className="flex items-center gap-2 rounded-md bg-canvas border border-border px-3.5 py-2.5 text-[13px] text-muted cursor-pointer hover:border-border-hover">
+                    <input id="show_bio" type="checkbox" checked={formData.show_bio} onChange={handleChange} className="accent-brand" />
+                    <span>Show bio on public credential</span>
                   </label>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-[15px] font-semibold text-[#fafafa] border-b border-[rgba(255,255,255,0.06)] pb-2">Academic Information</h3>
+                <h3 className="text-sm font-semibold text-foreground border-b border-border pb-2">Academic Information</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label htmlFor="batch" className="block text-[13px] font-medium text-[#a0a0a0]">Batch</label>
-                    <select id="batch" value={formData.batch} onChange={handleChange} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)] focus:ring-1 focus:ring-[rgba(20,184,166,0.25)] transition-all hover:border-[rgba(255,255,255,0.14)]">
+                    <label htmlFor="batch" className="block text-[13px] font-medium text-foreground">Batch</label>
+                    <select id="batch" value={formData.batch} onChange={handleChange} className="w-full rounded-md bg-[#0e1015] border border-border text-foreground px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-brand transition-colors">
                       <option value="">Select batch</option>
                       {formData.batch && !batches?.some((batch) => batch.year === formData.batch) && <option value={formData.batch}>{formData.batch}</option>}
                       {batches?.map((batch) => <option key={batch.year} value={batch.year}>{batch.year}</option>)}
                     </select>
                   </div>
-                  <Input id="department" label="Group" value={formData.department} onChange={handleChange} placeholder="Science / Commerce / Arts" />
+                  <Input id="department" label="Group" value={formData.department} onChange={handleChange} placeholder="Science / Humanities / Business" />
                   <Input id="student_id" label="Student ID" value={formData.student_id} onChange={handleChange} />
                 </div>
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-[15px] font-semibold text-[#fafafa] border-b border-[rgba(255,255,255,0.06)] pb-2">Professional Information</h3>
-                <label className="flex items-center gap-2 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-[13px] text-[#a0a0a0]">
-                  <input id="show_professional_info" type="checkbox" checked={formData.show_professional_info} onChange={handleChange} className="accent-[#0D9488]" />
-                  Show profession and company on public QR page
+                <h3 className="text-sm font-semibold text-foreground border-b border-border pb-2">Professional Information</h3>
+                <label className="flex items-center gap-2 rounded-md bg-canvas border border-border px-3.5 py-2.5 text-[13px] text-muted cursor-pointer hover:border-border-hover">
+                  <input id="show_professional_info" type="checkbox" checked={formData.show_professional_info} onChange={handleChange} className="accent-brand" />
+                  <span>Show career details on public credential</span>
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Input id="profession" label="Profession" value={formData.profession} onChange={handleChange} placeholder="Software Engineer" />
-                  <Input id="company" label="Company" value={formData.company} onChange={handleChange} />
+                  <Input id="profession" label="Profession" value={formData.profession} onChange={handleChange} placeholder="e.g. Software Engineer" />
+                  <Input id="company" label="Company / Institution" value={formData.company} onChange={handleChange} />
                   <Input id="city" label="City" value={formData.city} onChange={handleChange} />
                   <Input id="country" label="Country" value={formData.country} onChange={handleChange} />
                 </div>
-                <label className="flex items-center gap-2 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-[13px] text-[#a0a0a0]">
-                  <input id="show_location" type="checkbox" checked={formData.show_location} onChange={handleChange} className="accent-[#0D9488]" />
-                  Show city and country on public QR page
+                <label className="flex items-center gap-2 rounded-md bg-canvas border border-border px-3.5 py-2.5 text-[13px] text-muted cursor-pointer hover:border-border-hover">
+                  <input id="show_location" type="checkbox" checked={formData.show_location} onChange={handleChange} className="accent-brand" />
+                  <span>Show city and country on public credential</span>
                 </label>
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-[15px] font-semibold text-[#fafafa] border-b border-[rgba(255,255,255,0.06)] pb-2">Social Links</h3>
-                <label className="flex items-center gap-2 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-[13px] text-[#a0a0a0]">
-                  <input id="show_social_links" type="checkbox" checked={formData.show_social_links} onChange={handleChange} className="accent-[#0D9488]" />
-                  Show social links on public QR page
+                <h3 className="text-sm font-semibold text-foreground border-b border-border pb-2">Social & External Links</h3>
+                <label className="flex items-center gap-2 rounded-md bg-canvas border border-border px-3.5 py-2.5 text-[13px] text-muted cursor-pointer hover:border-border-hover">
+                  <input id="show_social_links" type="checkbox" checked={formData.show_social_links} onChange={handleChange} className="accent-brand" />
+                  <span>Show social links on public credential</span>
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input id="linkedin_url" label="LinkedIn URL" type="url" value={formData.linkedin_url} onChange={handleChange} />
@@ -295,7 +295,7 @@ function ProfileEditor({
                 </div>
               </div>
 
-              <div className="flex justify-end pt-4 border-t border-[rgba(255,255,255,0.06)]">
+              <div className="flex justify-end pt-4 border-t border-border">
                 <Button type="submit" isLoading={loading} size="lg"><Save className="w-4 h-4 mr-2" />Save Changes</Button>
               </div>
             </form>

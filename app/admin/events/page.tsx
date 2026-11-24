@@ -13,7 +13,7 @@ import { formatDate } from "@/lib/utils";
 import type { Event } from "@/lib/types";
 import {
   CalendarDays, MapPin, Clock, Plus, Trash2,
-  Edit3, ToggleLeft, ToggleRight, Sparkles, Users,
+  Edit3, ToggleLeft, ToggleRight, Users,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -135,13 +135,10 @@ export default function AdminEventsPage() {
     <DashboardShell title="Manage Events">
       <div className="max-w-5xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-start justify-between flex-wrap gap-4 slide-up stagger-1">
+        <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h2 className="text-[22px] font-bold text-[#fafafa] tracking-tight">Manage Events</h2>
-              <Sparkles className="w-5 h-5 text-[#FBBF24]" />
-            </div>
-            <p className="text-[#777] text-[14px]">Create and manage alumni events</p>
+            <h2 className="text-2xl font-serif font-bold text-foreground tracking-tight mb-1">Manage Events</h2>
+            <p className="text-muted text-[14px]">Create, update, and manage official alumni events</p>
           </div>
           <Button onClick={openCreateModal}>
             <Plus className="w-4 h-4" />
@@ -150,11 +147,11 @@ export default function AdminEventsPage() {
         </div>
 
         {/* Events list */}
-        <div className="space-y-3 slide-up stagger-2">
+        <div className="space-y-3">
           {isLoading ? (
             <div className="space-y-3">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="skeleton h-28 rounded-xl" />
+                <div key={i} className="h-28 bg-surface animate-pulse rounded-xl border border-border" />
               ))}
             </div>
           ) : events && events.length > 0 ? (
@@ -163,14 +160,14 @@ export default function AdminEventsPage() {
               const isPast = eventDate < new Date();
 
               return (
-                <Card key={event.id} className={`p-0 overflow-hidden ${!event.is_active ? "opacity-50" : ""}`}>
+                <Card key={event.id} className={`p-0 overflow-hidden bg-surface border-border ${!event.is_active ? "opacity-50" : ""}`}>
                   <div className="flex">
                     {/* Date column */}
-                    <div className={`w-20 flex-shrink-0 flex flex-col items-center justify-center py-5 ${isPast ? "bg-[rgba(255,255,255,0.02)]" : "bg-[rgba(20,184,166,0.1)]"}`}>
-                      <span className={`text-[10px] font-bold tracking-wider uppercase ${isPast ? "text-[#555]" : "text-[#14B8A6]"}`}>
+                    <div className={`w-20 flex-shrink-0 flex flex-col items-center justify-center py-5 ${isPast ? "bg-canvas border-r border-border" : "bg-brand/10 border-r border-brand/20"}`}>
+                      <span className={`text-[10px] font-bold tracking-wider uppercase ${isPast ? "text-muted" : "text-brand"}`}>
                         {eventDate.toLocaleString("default", { month: "short" }).toUpperCase()}
                       </span>
-                      <span className={`text-[28px] font-bold leading-none mt-1 ${isPast ? "text-[#666]" : "text-[#fafafa]"}`}>
+                      <span className={`text-2xl font-serif font-bold leading-none mt-1 ${isPast ? "text-muted" : "text-foreground"}`}>
                         {eventDate.getDate()}
                       </span>
                     </div>
@@ -180,28 +177,28 @@ export default function AdminEventsPage() {
                       <div className="flex items-start justify-between gap-3 mb-2">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <h4 className="text-[14px] font-semibold text-[#fafafa] truncate">{event.title}</h4>
+                            <h4 className="text-[14px] font-semibold text-foreground truncate">{event.title}</h4>
                             {!event.is_active && <Badge variant="warning">Hidden</Badge>}
                             {isPast && event.is_active && <Badge variant="default">Past</Badge>}
                             {!isPast && event.is_active && <Badge variant="success">Active</Badge>}
                           </div>
                           {event.description && (
-                            <p className="text-[12px] text-[#777] line-clamp-1 mb-2">{event.description}</p>
+                            <p className="text-[12px] text-muted line-clamp-1 mb-2">{event.description}</p>
                           )}
                           <div className="flex items-center gap-4 flex-wrap">
                             {event.event_time && (
-                              <div className="flex items-center gap-1.5 text-[11px] text-[#666]">
+                              <div className="flex items-center gap-1.5 text-[11px] text-muted">
                                 <Clock className="w-3 h-3" />
                                 <span>{event.event_time}</span>
                               </div>
                             )}
                             {event.location && (
-                              <div className="flex items-center gap-1.5 text-[11px] text-[#666]">
+                              <div className="flex items-center gap-1.5 text-[11px] text-muted">
                                 <MapPin className="w-3 h-3" />
                                 <span>{event.location}</span>
                               </div>
                             )}
-                            <span className="text-[11px] text-[#444]">Created {formatDate(event.created_at)}</span>
+                            <span className="text-[11px] text-muted">Created {formatDate(event.created_at)}</span>
                           </div>
                         </div>
 
@@ -209,28 +206,28 @@ export default function AdminEventsPage() {
                         <div className="flex items-center gap-1 flex-shrink-0">
                           <button
                             onClick={() => handleToggleActive(event)}
-                            className="p-1.5 rounded-lg transition-colors text-[#555] hover:bg-[rgba(255,255,255,0.04)] hover:text-[#a0a0a0]"
+                            className="p-1.5 rounded-lg transition-colors text-muted hover:bg-canvas hover:text-foreground"
                             title={event.is_active ? "Hide event" : "Show event"}
                           >
-                            {event.is_active ? <ToggleRight className="w-4 h-4 text-[#34D399]" /> : <ToggleLeft className="w-4 h-4" />}
+                            {event.is_active ? <ToggleRight className="w-4 h-4 text-brand" /> : <ToggleLeft className="w-4 h-4" />}
                           </button>
                           <Link
                             href={`/admin/events/${event.id}/rsvps`}
-                            className="p-1.5 rounded-lg text-[#555] hover:text-[#34D399] hover:bg-[rgba(52,211,153,0.06)] transition-colors"
+                            className="p-1.5 rounded-lg text-muted hover:text-brand hover:bg-brand/10 transition-colors"
                             title="View RSVPs"
                           >
                             <Users className="w-3.5 h-3.5" />
                           </Link>
                           <button
                             onClick={() => openEditModal(event)}
-                            className="p-1.5 rounded-lg text-[#555] hover:text-[#14B8A6] hover:bg-[rgba(20,184,166,0.1)] transition-colors"
+                            className="p-1.5 rounded-lg text-muted hover:text-brand hover:bg-brand/10 transition-colors"
                             title="Edit"
                           >
                             <Edit3 className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleDelete(event.id)}
-                            className="p-1.5 rounded-lg text-[#555] hover:text-[#EF4444] hover:bg-[rgba(239,68,68,0.06)] transition-colors"
+                            className="p-1.5 rounded-lg text-muted hover:text-danger hover:bg-danger/10 transition-colors"
                             title="Delete"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -243,11 +240,11 @@ export default function AdminEventsPage() {
               );
             })
           ) : (
-            <Card className="p-12 flex flex-col items-center justify-center text-center">
-              <div className="w-14 h-14 rounded-xl bg-[rgba(255,255,255,0.03)] flex items-center justify-center mb-3">
-                <CalendarDays className="w-7 h-7 text-[#444]" />
+            <Card className="p-12 flex flex-col items-center justify-center text-center bg-surface border-border">
+              <div className="w-14 h-14 rounded-xl bg-canvas border border-border flex items-center justify-center mb-3">
+                <CalendarDays className="w-6 h-6 text-muted" />
               </div>
-              <p className="text-[13px] text-[#555] mb-3">No events created yet</p>
+              <p className="text-[13px] text-muted mb-3">No events created yet</p>
               <Button variant="ghost" size="sm" onClick={openCreateModal}>
                 <Plus className="w-4 h-4" />
                 Create First Event
@@ -274,13 +271,13 @@ export default function AdminEventsPage() {
           />
 
           <div className="space-y-2">
-            <label htmlFor="event-description" className="block text-[13px] font-medium text-[#a0a0a0]">
+            <label htmlFor="event-description" className="block text-[13px] font-medium text-foreground">
               Description
             </label>
             <textarea
               id="event-description"
               rows={3}
-              className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)] focus:ring-1 focus:ring-[rgba(20,184,166,0.25)] transition-all duration-200 hover:border-[rgba(255,255,255,0.14)]"
+              className="w-full rounded-md bg-[#0e1015] border border-border text-foreground placeholder-muted px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-brand transition-colors"
               placeholder="Describe the event..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}

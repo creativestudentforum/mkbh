@@ -134,31 +134,31 @@ export default function AdminRosterPage() {
   return (
     <DashboardShell title="Alumni Roster">
       <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex items-start justify-between flex-wrap gap-4 slide-up stagger-1">
+        <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h2 className="text-[22px] font-bold text-[#fafafa] tracking-tight">Alumni Roster</h2>
-              <ListChecks className="w-5 h-5 text-[#14B8A6]" />
+            <div className="flex items-center gap-2.5 mb-1">
+              <h2 className="text-2xl font-serif font-bold text-foreground tracking-tight">Alumni Roster</h2>
+              <ListChecks className="w-5 h-5 text-accent" />
             </div>
-            <p className="text-[#777] text-[14px]">Import old alumni lists and use them to verify pending signups.</p>
+            <p className="text-muted text-[14px]">Import archived alumni lists and verify applicant signups against official records.</p>
           </div>
-          <label className="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium bg-[#0D9488] text-white hover:bg-[#0F766E] cursor-pointer transition-all">
+          <label className="inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-[13px] font-medium bg-brand text-white hover:bg-brand-hover cursor-pointer transition-colors shadow-sm">
             <FileUp className="w-4 h-4" /> Upload CSV
             <input type="file" accept=".csv,text/csv" onChange={handleFile} className="hidden" />
           </label>
         </div>
 
-        <Card className="p-5 slide-up stagger-2">
-          <h3 className="text-[14px] font-semibold text-[#fafafa] mb-2">CSV format</h3>
-          <p className="text-[13px] text-[#777] leading-relaxed">Use UTF-8 CSV with headers: <span className="text-[#fafafa]">full_name,batch,department,phone,email</span>. Phone numbers are normalized to local BD format.</p>
+        <Card className="p-5 bg-surface border-border">
+          <h3 className="text-sm font-semibold text-foreground mb-1.5">CSV File Specification</h3>
+          <p className="text-[13px] text-muted leading-relaxed">Use UTF-8 encoded CSV with headers: <span className="text-foreground font-mono">full_name,batch,department,phone,email</span>. Phone numbers are automatically normalized to local Bangladesh format.</p>
         </Card>
 
         {previewRows.length > 0 && (
-          <Card className="p-0 overflow-hidden slide-up stagger-3">
-            <div className="p-4 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between gap-3 flex-wrap">
+          <Card className="p-0 overflow-hidden bg-surface border-border">
+            <div className="p-4 border-b border-border flex items-center justify-between gap-3 flex-wrap">
               <div>
-                <h3 className="text-[14px] font-semibold text-[#fafafa]">Preview</h3>
-                <p className="text-[12px] text-[#777]">{validRows.length} valid, {invalidRows} invalid</p>
+                <h3 className="text-sm font-semibold text-foreground">Preview Import</h3>
+                <p className="text-[12px] text-muted">{validRows.length} valid, {invalidRows} invalid</p>
               </div>
               <Button onClick={importRows} isLoading={importing} disabled={validRows.length === 0}><Upload className="w-4 h-4" />Import Valid Rows</Button>
             </div>
@@ -166,15 +166,15 @@ export default function AdminRosterPage() {
           </Card>
         )}
 
-        {result && <Card className="p-4"><p className="text-[13px] text-[#34D399]">{result}</p></Card>}
+        {result && <Card className="p-4 bg-surface border-border"><p className="text-[13px] text-brand">{result}</p></Card>}
 
-        <Card className="p-0 overflow-hidden slide-up stagger-4">
-          <div className="p-4 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between gap-3">
-            <h3 className="text-[14px] font-semibold text-[#fafafa]">Recent roster entries</h3>
+        <Card className="p-0 overflow-hidden bg-surface border-border">
+          <div className="p-4 border-b border-border flex items-center justify-between gap-3">
+            <h3 className="text-sm font-semibold text-foreground">Recent Roster Entries</h3>
             <Badge variant="info">{roster?.length || 0} shown</Badge>
           </div>
           {isLoading ? (
-            <div className="p-6 space-y-3">{Array.from({ length: 5 }).map((_, index) => <div key={index} className="skeleton h-10 rounded-lg" />)}</div>
+            <div className="p-6 space-y-3">{Array.from({ length: 5 }).map((_, index) => <div key={index} className="h-10 bg-surface animate-pulse rounded-md" />)}</div>
           ) : roster && roster.length > 0 ? (
             <RosterTable rows={roster.map((entry, index) => ({ ...entry, rowNumber: index + 1 }))} />
           ) : (

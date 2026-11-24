@@ -25,8 +25,12 @@ export default function IDCardPage() {
       link.href = image;
       link.download = `Alumni-ID-${profile?.full_name?.replace(/\s+/g, '-')}.png`;
       link.click();
-    } catch (error) { console.error("Error generating ID card:", error); alert("Failed to generate image.");
-    } finally { setDownloading(false); }
+    } catch (error) {
+      console.error("Error generating ID card:", error);
+      alert("Failed to generate image.");
+    } finally {
+      setDownloading(false);
+    }
   };
 
   const handlePrint = () => { window.print(); };
@@ -34,8 +38,8 @@ export default function IDCardPage() {
   if (loading) {
     return (
       <DashboardShell title="Digital ID Card">
-        <Card className="max-w-3xl mx-auto p-8 text-center">
-          <p className="text-[13px] text-[#777]">Loading digital ID...</p>
+        <Card className="max-w-2xl mx-auto p-8 text-center">
+          <p className="text-xs text-[#9ca3af]">Loading membership card...</p>
         </Card>
       </DashboardShell>
     );
@@ -44,9 +48,9 @@ export default function IDCardPage() {
   if (!profile) {
     return (
       <DashboardShell title="Digital ID Card">
-        <Card className="max-w-3xl mx-auto p-8 text-center">
-          <h2 className="text-[18px] font-semibold text-[#fafafa] mb-2">Profile not found</h2>
-          <p className="text-[13px] text-[#777]">A profile is required before a digital ID card can be generated.</p>
+        <Card className="max-w-2xl mx-auto p-8 text-center">
+          <h2 className="font-serif text-lg font-semibold text-[#f3f4f6] mb-1">Profile Not Found</h2>
+          <p className="text-xs text-[#9ca3af]">An approved membership profile is required to generate a digital ID card.</p>
         </Card>
       </DashboardShell>
     );
@@ -58,112 +62,124 @@ export default function IDCardPage() {
 
   return (
     <DashboardShell title="Digital ID Card">
-      <div className="max-w-3xl mx-auto space-y-8">
-        <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center slide-up stagger-1">
+      <div className="max-w-3xl mx-auto space-y-6">
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
           <div>
-            <h2 className="text-[22px] font-bold text-[#fafafa] mb-1 tracking-tight">Your Digital ID</h2>
-            <p className="text-[#777] text-[14px]">Use this to access alumni events and facilities</p>
-            <a href={verificationUrl} target="_blank" rel="noreferrer" className="inline-flex mt-2 text-[12px] text-[#14B8A6] hover:text-[#0D9488] transition-colors">
-              Public verification link
+            <h2 className="font-serif text-2xl sm:text-3xl font-semibold text-[#f3f4f6] tracking-tight mb-1">
+              Digital Membership Card
+            </h2>
+            <p className="text-sm text-[#9ca3af]">
+              Official alumni identification for reunions, events, and school facility access.
+            </p>
+            <a
+              href={verificationUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex mt-1 text-xs text-[#34d399] hover:underline"
+            >
+              Public verification link →
             </a>
           </div>
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={handlePrint}>
-              <Printer className="w-4 h-4" />
+            <Button variant="secondary" size="sm" onClick={handlePrint}>
+              <Printer className="w-3.5 h-3.5 mr-1.5" />
               Print
             </Button>
-            <Button onClick={handleDownload} isLoading={downloading}>
-              <Download className="w-4 h-4" />
-              Download
+            <Button size="sm" onClick={handleDownload} isLoading={downloading}>
+              <Download className="w-3.5 h-3.5 mr-1.5" />
+              Download PNG
             </Button>
           </div>
         </div>
 
-        <div className="flex justify-center slide-up stagger-2 p-4 sm:p-8 bg-[#0f0f0f] rounded-2xl border border-[rgba(255,255,255,0.06)] overflow-hidden">
+        {/* Card Canvas */}
+        <div className="flex justify-center p-6 sm:p-10 bg-[#0e1015] rounded-xl border border-white/10 overflow-hidden">
           <div
             ref={cardRef}
             id="id-card-container"
-            className="relative w-full max-w-[380px] aspect-[1.6/1] rounded-2xl overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.5)] flex flex-col border border-[rgba(255,255,255,0.1)] print:shadow-none print:border-none"
-            style={{ background: 'linear-gradient(145deg, #111111 0%, #0d0d0d 40%, #0d1a18 100%)' }}
+            className="relative w-full max-w-[400px] aspect-[1.6/1] rounded-xl overflow-hidden flex flex-col border border-white/20 bg-[#12141a] text-[#f3f4f6] shadow-xl print:shadow-none print:border-none"
           >
-            {/* Subtle background pattern */}
-            <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 0.5px, transparent 0)', backgroundSize: '20px 20px' }} />
-            
-            {/* Top accent bar with gradient */}
-            <div className="h-1.5 w-full bg-gradient-to-r from-[#0F766E] via-[#0D9488] to-[#14B8A6] relative z-10 flex-shrink-0" />
+            {/* Top decorative stripe */}
+            <div className="h-1.5 w-full bg-[#1a634b] flex-shrink-0" />
+            <div className="h-0.5 w-full bg-[#c89542] flex-shrink-0" />
 
-            {/* Ambient glow */}
-            <div className="absolute top-0 right-0 w-40 h-40 bg-[radial-gradient(circle,rgba(20,184,166,0.1)_0%,transparent_70%)]" />
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-[radial-gradient(circle,rgba(13,148,136,0.08)_0%,transparent_70%)]" />
-
-            {/* Card content */}
-            <div className="flex-1 flex flex-col relative z-10 p-5 sm:p-6">
-              {/* Header: Logo + Avatar */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#0D9488] to-[#14B8A6] flex items-center justify-center shadow-[0_0_16px_rgba(20,184,166,0.25)]">
-                    <GraduationCap className="w-4 h-4 text-white" />
+            {/* Inner Content */}
+            <div className="flex-1 flex flex-col p-5 sm:p-6 justify-between">
+              {/* Header: Crest + Title + Avatar */}
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-white border border-white/20 flex items-center justify-center relative flex-shrink-0">
+                    <Image
+                      src="/logo.png"
+                      alt="M.K.B.H High School"
+                      fill
+                      className="object-cover"
+                      sizes="32px"
+                    />
                   </div>
                   <div>
-                    <p className="text-[11px] font-bold text-[#fafafa] tracking-wider uppercase leading-none">Alumni Hub</p>
-                    <p className="text-[8px] text-[#555] tracking-[0.15em] uppercase mt-0.5">Identity Card</p>
+                    <p className="font-serif text-xs font-semibold text-[#f3f4f6] tracking-tight uppercase leading-none">
+                      MKBH High School
+                    </p>
+                    <p className="text-[8px] text-[#c89542] font-semibold tracking-widest uppercase mt-0.5">
+                      Alumni Association
+                    </p>
                   </div>
                 </div>
 
-                {/* Avatar */}
-                <div className="w-16 h-16 rounded-xl overflow-hidden border-2 border-[rgba(20,184,166,0.3)] shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
+                <div className="w-14 h-14 rounded-lg overflow-hidden border border-white/20 bg-[#0e1015] flex-shrink-0">
                   {profile.avatar_url ? (
                     <div className="w-full h-full relative">
-                      <Image src={getAvatarUrl(profile.avatar_url)} alt={profile.full_name} fill className="object-cover" crossOrigin="anonymous" />
+                      <Image
+                        src={getAvatarUrl(profile.avatar_url)}
+                        alt={profile.full_name}
+                        fill
+                        className="object-cover"
+                        crossOrigin="anonymous"
+                      />
                     </div>
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-[#0D9488] to-[#14B8A6] flex items-center justify-center text-xl font-bold text-white">{profile.full_name.charAt(0)}</div>
+                    <div className="w-full h-full bg-[#181b22] flex items-center justify-center text-sm font-semibold text-white">
+                      {profile.full_name.charAt(0)}
+                    </div>
                   )}
                 </div>
               </div>
 
-              {/* Name */}
-              <h3 className="text-[18px] font-bold text-[#fafafa] tracking-tight leading-tight mb-4">{profile.full_name}</h3>
-
-              {/* Info rows */}
-              <div className="space-y-2.5 mt-auto pr-24">
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-[rgba(20,184,166,0.12)] flex items-center justify-center flex-shrink-0">
-                    <Users className="w-3.5 h-3.5 text-[#14B8A6]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[9px] text-[#555] uppercase tracking-wider font-medium">Batch</p>
-                    <p className="text-[13px] font-semibold text-[#e5e5e5] truncate">{profile.batch || "N/A"}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-[rgba(20,184,166,0.1)] flex items-center justify-center flex-shrink-0">
-                    <Phone className="w-3.5 h-3.5 text-[#14B8A6]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[9px] text-[#555] uppercase tracking-wider font-medium">Mobile</p>
-                    <p className="text-[13px] font-semibold text-[#e5e5e5] truncate">{profile.phone || "N/A"}</p>
-                  </div>
-                </div>
+              {/* Name & Details */}
+              <div className="my-2">
+                <h3 className="font-serif text-lg font-semibold text-[#f3f4f6] leading-tight">
+                  {profile.full_name}
+                </h3>
+                <p className="text-[11px] text-[#9ca3af] mt-0.5">
+                  Batch {profile.batch || "N/A"}{profile.department ? ` • ${profile.department}` : ""}
+                </p>
               </div>
-            </div>
 
-            <div className="absolute right-5 bottom-9 z-20 w-[72px] h-[72px] rounded-lg bg-white p-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.35)]">
-              {profile.public_code ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={qrUrl} alt="ID verification QR code" className="w-full h-full" crossOrigin="anonymous" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-[#111]"><QrCode className="w-8 h-8" /></div>
-              )}
-            </div>
+              {/* Bottom: QR Code + Verification Stamp */}
+              <div className="flex items-end justify-between pt-2 border-t border-white/[0.08]">
+                <div className="space-y-0.5">
+                  <p className="text-[8px] font-mono tracking-widest text-[#6b7280] uppercase">
+                    ID: {(profile.public_code || profile.id.split('-')[0]).toUpperCase()}
+                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#34d399]" />
+                    <span className="text-[9px] font-medium text-[#34d399] uppercase tracking-wider">
+                      Verified Member
+                    </span>
+                  </div>
+                </div>
 
-            {/* Bottom bar */}
-            <div className="px-5 sm:px-6 pb-4 flex items-center justify-between relative z-10">
-              <p className="text-[8px] text-[#444] font-mono tracking-widest uppercase">ID: {(profile.public_code || profile.id.split('-')[0]).toUpperCase()}</p>
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#34D399]" />
-                <span className="text-[8px] text-[#555] font-medium uppercase tracking-wider">Verified</span>
+                <div className="w-14 h-14 bg-white p-1 rounded-md border border-white/20 flex-shrink-0">
+                  {profile.public_code ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={qrUrl} alt="QR verification code" className="w-full h-full" crossOrigin="anonymous" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-[#111]">
+                      <QrCode className="w-6 h-6" />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -32,7 +32,9 @@ export function useI18n() {
 export function translateTitle(title: string | undefined, t: (key: I18nKey) => string) {
   const titleMap: Record<string, I18nKey> = {
     Dashboard: "dashboard.title",
+    Alumni: "nav.directory",
     "Alumni Directory": "nav.directory",
+    Directory: "nav.directory",
     Events: "events.title",
     Batches: "nav.batches",
     "My Profile": "nav.profile",

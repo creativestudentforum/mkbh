@@ -15,13 +15,13 @@ export default function SearchBar({
 }: SearchBarProps) {
   return (
     <div className="relative group">
-      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555] group-focus-within:text-[#888] transition-colors duration-200" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6b7280] group-focus-within:text-[#9ca3af] transition-colors duration-150 pointer-events-none" />
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full pl-10 pr-4 py-2.5 bg-[#141414] border border-[rgba(255,255,255,0.08)] rounded-lg text-[13px] text-[#fafafa] placeholder-[#444] focus:outline-none focus:border-[rgba(20,184,166,0.6)] focus:ring-1 focus:ring-[rgba(20,184,166,0.25)] transition-all duration-200 hover:border-[rgba(255,255,255,0.14)]"
+        className="w-full pl-9 pr-3.5 py-2 bg-[#0e1015] border border-white/10 rounded-lg text-sm text-[#f3f4f6] placeholder-[#555d6e] focus:outline-none focus:border-[#22785c] focus:ring-1 focus:ring-[#22785c] hover:border-white/20 transition-colors duration-150"
       />
     </div>
   );

@@ -78,73 +78,124 @@ export default function DirectoryPage() {
 
   return (
     <DashboardShell title={t("nav.directory")}>
-      <div className="space-y-5">
-        <div className="flex flex-col gap-4 slide-up stagger-1">
+      <div className="space-y-6">
+        <div className="flex flex-col gap-4">
           <div>
-            <h2 className="text-[22px] font-bold text-[#fafafa] mb-1 tracking-tight">{t("directory.title")}</h2>
-            <p className="text-[#777] text-[14px]">{t("directory.subtitle")} ({profiles?.length || 0}{profiles?.length === 72 ? "+" : ""})</p>
+            <h2 className="font-serif text-2xl sm:text-3xl font-semibold text-[#f3f4f6] tracking-tight mb-1">
+              {t("directory.title")}
+            </h2>
+            <p className="text-sm text-[#9ca3af]">
+              {t("directory.subtitle")} ({profiles?.length || 0}{profiles?.length === 72 ? "+" : ""})
+            </p>
           </div>
+
           <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex-1"><SearchBar value={searchQuery} onChange={(v) => { setSearchQuery(v); setCurrentPage(1); }} placeholder={t("directory.search")} /></div>
+            <div className="flex-1">
+              <SearchBar
+                value={searchQuery}
+                onChange={(v) => { setSearchQuery(v); setCurrentPage(1); }}
+                placeholder={t("directory.search")}
+              />
+            </div>
             <div className="flex gap-2">
-              <select value={batchFilter} onChange={(e) => { setBatchFilter(e.target.value); setCurrentPage(1); }} className="bg-[#141414] border border-[rgba(255,255,255,0.08)] rounded-lg text-[13px] text-[#a0a0a0] px-3 py-2.5 focus:outline-none focus:border-[rgba(20,184,166,0.6)] focus:ring-1 focus:ring-[rgba(20,184,166,0.25)] hover:border-[rgba(255,255,255,0.14)] transition-all appearance-none cursor-pointer">
+              <select
+                value={batchFilter}
+                onChange={(e) => { setBatchFilter(e.target.value); setCurrentPage(1); }}
+                className="bg-[#0e1015] border border-white/10 rounded-lg text-sm text-[#f3f4f6] px-3 py-2 focus:outline-none focus:border-[#22785c] focus:ring-1 focus:ring-[#22785c] hover:border-white/20 transition-colors cursor-pointer"
+              >
                 <option value="">{t("directory.allBatches")}</option>
                 {batches.map((b) => (<option key={b} value={b}>{b}</option>))}
               </select>
-              <select value={deptFilter} onChange={(e) => { setDeptFilter(e.target.value); setCurrentPage(1); }} className="bg-[#141414] border border-[rgba(255,255,255,0.08)] rounded-lg text-[13px] text-[#a0a0a0] px-3 py-2.5 focus:outline-none focus:border-[rgba(20,184,166,0.6)] focus:ring-1 focus:ring-[rgba(20,184,166,0.25)] hover:border-[rgba(255,255,255,0.14)] transition-all appearance-none cursor-pointer">
+              <select
+                value={deptFilter}
+                onChange={(e) => { setDeptFilter(e.target.value); setCurrentPage(1); }}
+                className="bg-[#0e1015] border border-white/10 rounded-lg text-sm text-[#f3f4f6] px-3 py-2 focus:outline-none focus:border-[#22785c] focus:ring-1 focus:ring-[#22785c] hover:border-white/20 transition-colors cursor-pointer"
+              >
                 <option value="">{t("directory.allGroups")}</option>
                 {departments.map((d) => (<option key={d} value={d}>{d}</option>))}
               </select>
             </div>
           </div>
+
           {(batchFilter || deptFilter) && (
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[11px] text-[#555]">Filters:</span>
-              {batchFilter && (<button onClick={() => { setBatchFilter(""); setCurrentPage(1); }} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[rgba(20,184,166,0.1)] text-[#14B8A6] text-[11px] border border-[rgba(20,184,166,0.2)] hover:bg-[rgba(20,184,166,0.15)] transition-colors">Batch: {batchFilter}<span className="ml-1">×</span></button>)}
-              {deptFilter && (<button onClick={() => { setDeptFilter(""); setCurrentPage(1); }} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[rgba(20,184,166,0.1)] text-[#14B8A6] text-[11px] border border-[rgba(20,184,166,0.2)] hover:bg-[rgba(20,184,166,0.15)] transition-colors">Dept: {deptFilter}<span className="ml-1">×</span></button>)}
-              <button onClick={() => { setBatchFilter(""); setDeptFilter(""); setCurrentPage(1); }} className="text-[11px] text-[#555] hover:text-[#a0a0a0] transition-colors">Clear all</button>
+              <span className="text-xs text-[#6b7280]">Active Filters:</span>
+              {batchFilter && (
+                <button
+                  onClick={() => { setBatchFilter(""); setCurrentPage(1); }}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#1a634b]/15 text-[#34d399] text-xs border border-[#22785c]/30 hover:bg-[#1a634b]/25 transition-colors"
+                >
+                  Batch: {batchFilter}
+                  <span className="ml-1">×</span>
+                </button>
+              )}
+              {deptFilter && (
+                <button
+                  onClick={() => { setDeptFilter(""); setCurrentPage(1); }}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#1a634b]/15 text-[#34d399] text-xs border border-[#22785c]/30 hover:bg-[#1a634b]/25 transition-colors"
+                >
+                  Group: {deptFilter}
+                  <span className="ml-1">×</span>
+                </button>
+              )}
+              <button
+                onClick={() => { setBatchFilter(""); setDeptFilter(""); setCurrentPage(1); }}
+                className="text-xs text-[#9ca3af] hover:text-white transition-colors underline"
+              >
+                Clear all
+              </button>
             </div>
           )}
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{Array.from({ length: 6 }).map((_, i) => (<ProfileCardSkeleton key={i} />))}</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (<ProfileCardSkeleton key={i} />))}
+          </div>
         ) : (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 slide-up stagger-2">
-              {paginatedProfiles.map((profile) => (<ProfileCard key={profile.id} profile={profile} onClick={() => setSelectedProfile(profile)} />))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {paginatedProfiles.map((profile) => (
+                <ProfileCard
+                  key={profile.id}
+                  profile={profile}
+                  onClick={() => setSelectedProfile(profile)}
+                />
+              ))}
               {filteredProfiles.length === 0 && (
-                <div className="col-span-full text-center py-20">
-                  <div className="w-16 h-16 rounded-xl bg-[rgba(255,255,255,0.03)] flex items-center justify-center mx-auto mb-4"><Users className="w-8 h-8 text-[#444]" /></div>
-                  <p className="text-[#666] mb-1">{t("directory.noFound")}</p>
-                  <p className="text-[11px] text-[#444]">{t("directory.adjust")}</p>
+                <div className="col-span-full text-center py-16 bg-[#13151b] border border-white/10 rounded-xl p-8">
+                  <div className="w-12 h-12 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center mx-auto mb-3 text-[#9ca3af]">
+                    <Users className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-base font-semibold text-[#f3f4f6]">{t("directory.noFound")}</h3>
+                  <p className="text-xs text-[#9ca3af] mt-1">{t("directory.adjust")}</p>
                 </div>
               )}
             </div>
 
             {/* Pagination controls */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between border-t border-[rgba(255,255,255,0.06)] pt-5">
-                <p className="text-[12px] text-[#777]">
-                  Showing <span className="text-[#fafafa] font-medium">{(currentPage - 1) * PAGE_SIZE + 1}</span> to{" "}
-                  <span className="text-[#fafafa] font-medium">{Math.min(currentPage * PAGE_SIZE, filteredProfiles.length)}</span> of{" "}
-                  <span className="text-[#fafafa] font-medium">{filteredProfiles.length}</span> alumni
+              <div className="flex items-center justify-between border-t border-white/[0.08] pt-5">
+                <p className="text-xs text-[#9ca3af]">
+                  Showing <span className="text-[#f3f4f6] font-medium">{(currentPage - 1) * PAGE_SIZE + 1}</span> to{" "}
+                  <span className="text-[#f3f4f6] font-medium">{Math.min(currentPage * PAGE_SIZE, filteredProfiles.length)}</span> of{" "}
+                  <span className="text-[#f3f4f6] font-medium">{filteredProfiles.length}</span> alumni
                 </p>
                 <div className="flex items-center gap-2">
                   <button
                     disabled={currentPage === 1}
                     onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                    className="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-[rgba(255,255,255,0.04)] text-[#a0a0a0] hover:text-white hover:bg-[rgba(255,255,255,0.08)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#181b22] border border-white/10 text-[#9ca3af] hover:text-white hover:border-white/20 disabled:opacity-20 disabled:pointer-events-none transition-colors"
                   >
                     Previous
                   </button>
-                  <span className="text-[12px] text-[#777] px-1">
+                  <span className="text-xs text-[#6b7280] px-1">
                     {currentPage} / {totalPages}
                   </span>
                   <button
                     disabled={currentPage === totalPages}
                     onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                    className="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-[rgba(255,255,255,0.04)] text-[#a0a0a0] hover:text-white hover:bg-[rgba(255,255,255,0.08)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#181b22] border border-white/10 text-[#9ca3af] hover:text-white hover:border-white/20 disabled:opacity-20 disabled:pointer-events-none transition-colors"
                   >
                     Next
                   </button>
@@ -161,62 +212,82 @@ export default function DirectoryPage() {
             <div className="flex flex-col sm:flex-row items-start gap-4">
               <Avatar src={selectedProfile.avatar_url} name={selectedProfile.full_name} size="xl" />
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <h3 className="text-[18px] font-bold text-[#fafafa]">{selectedProfile.full_name}</h3>
-                </div>
-                <p className="text-[#14B8A6] font-medium text-[13px]">{selectedProfile.profession || "Alumni"}{selectedProfile.company && ` @ ${selectedProfile.company}`}</p>
+                <h3 className="font-serif text-xl font-semibold text-[#f3f4f6] mb-1">{selectedProfile.full_name}</h3>
+                <p className="text-[#34d399] font-medium text-xs">
+                  {selectedProfile.profession || "Alumni Member"}{selectedProfile.company && ` @ ${selectedProfile.company}`}
+                </p>
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-3">
-                <h4 className="text-[11px] font-semibold text-[#555] uppercase tracking-wider">Contact Info</h4>
-                <div className="space-y-2">
-                  {selectedProfile.phone && (<div className="flex items-center gap-2 text-[13px] text-[#a0a0a0]"><Phone className="w-4 h-4 text-[#555] flex-shrink-0" /><a href={`tel:${selectedProfile.phone}`} className="hover:text-[#14B8A6] transition-colors">{selectedProfile.phone}</a></div>)}
-                  {(selectedProfile.city || selectedProfile.country) && (<div className="flex items-center gap-2 text-[13px] text-[#a0a0a0]"><MapPin className="w-4 h-4 text-[#555] flex-shrink-0" />{[selectedProfile.city, selectedProfile.country].filter(Boolean).join(", ")}</div>)}
-                  {!selectedProfile.phone && <p className="text-[13px] text-[#555]">Phone hidden by privacy settings.</p>}
-                </div>
-              </div>
-              <div className="space-y-3">
-                <h4 className="text-[11px] font-semibold text-[#555] uppercase tracking-wider">Academic Info</h4>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-[13px] text-[#a0a0a0]"><GraduationCap className="w-4 h-4 text-[#555] flex-shrink-0" />{selectedProfile.batch ? <Link href={`/batches/${encodeURIComponent(selectedProfile.batch)}`} className="hover:text-[#14B8A6] transition-colors">Batch {selectedProfile.batch}</Link> : <span>Batch N/A</span>}</div>
-                  <div className="flex items-center gap-2 text-[13px] text-[#a0a0a0]"><Briefcase className="w-4 h-4 text-[#555] flex-shrink-0" /><span>{selectedProfile.department || "N/A"}</span></div>
-                </div>
-              </div>
-            </div>
-            {selectedProfile.bio && (
-              <div className="space-y-2 pt-4 border-t border-[rgba(255,255,255,0.06)]">
-                <h4 className="text-[11px] font-semibold text-[#555] uppercase tracking-wider">Bio</h4>
-                <p className="text-[13px] text-[#a0a0a0] leading-relaxed">{selectedProfile.bio}</p>
-              </div>
-            )}
-            <div className="space-y-3 pt-4 border-t border-[rgba(255,255,255,0.06)]">
-              <h4 className="text-[11px] font-semibold text-[#555] uppercase tracking-wider">Digital ID</h4>
-              <div className="flex flex-col sm:flex-row gap-4 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] p-4">
-                <div className="w-28 h-28 rounded-xl bg-white p-2 flex items-center justify-center flex-shrink-0">
-                  {qrUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={qrUrl} alt={`${selectedProfile.full_name} digital ID QR code`} className="w-full h-full" crossOrigin="anonymous" />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-white/[0.08]">
+              <div className="space-y-2.5">
+                <h4 className="text-[10px] font-semibold text-[#6b7280] uppercase tracking-wider">Contact & Location</h4>
+                <div className="space-y-2 text-xs">
+                  {selectedProfile.phone ? (
+                    <div className="flex items-center gap-2 text-[#d1d5db]">
+                      <Phone className="w-3.5 h-3.5 text-[#6b7280] flex-shrink-0" />
+                      <a href={`tel:${selectedProfile.phone}`} className="hover:text-white transition-colors">{selectedProfile.phone}</a>
+                    </div>
                   ) : (
-                    <QrCode className="w-10 h-10 text-[#111]" />
+                    <p className="text-[#6b7280]">Phone hidden by privacy settings.</p>
+                  )}
+                  {(selectedProfile.city || selectedProfile.country) && (
+                    <div className="flex items-center gap-2 text-[#d1d5db]">
+                      <MapPin className="w-3.5 h-3.5 text-[#6b7280] flex-shrink-0" />
+                      {[selectedProfile.city, selectedProfile.country].filter(Boolean).join(", ")}
+                    </div>
                   )}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(52,211,153,0.08)] border border-[rgba(52,211,153,0.16)] px-2.5 py-1 text-[11px] font-medium text-[#34D399] mb-2"><ShieldCheck className="w-3.5 h-3.5" />Verified Alumni ID</div>
-                  <p className="text-[13px] text-[#a0a0a0] leading-relaxed mb-3">Scan this QR code to verify the alumni ID and view only the details this alumni made public.</p>
-                  {verificationUrl && <Link href={verificationUrl} target="_blank" className="text-[12px] text-[#14B8A6] hover:text-[#0D9488] transition-colors break-all">{verificationUrl}</Link>}
+              </div>
+
+              <div className="space-y-2.5">
+                <h4 className="text-[10px] font-semibold text-[#6b7280] uppercase tracking-wider">School Record</h4>
+                <div className="space-y-2 text-xs">
+                  <div className="flex items-center gap-2 text-[#d1d5db]">
+                    <GraduationCap className="w-3.5 h-3.5 text-[#6b7280] flex-shrink-0" />
+                    {selectedProfile.batch ? (
+                      <Link href={`/batches/${encodeURIComponent(selectedProfile.batch)}`} className="text-[#34d399] hover:underline">
+                        Batch {selectedProfile.batch}
+                      </Link>
+                    ) : (
+                      <span>Batch N/A</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-[#d1d5db]">
+                    <Briefcase className="w-3.5 h-3.5 text-[#6b7280] flex-shrink-0" />
+                    <span>Group: {selectedProfile.department || "General"}</span>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="space-y-3 pt-4 border-t border-[rgba(255,255,255,0.06)]">
-              <h4 className="text-[11px] font-semibold text-[#555] uppercase tracking-wider">Social Links</h4>
-              <div className="flex gap-3 flex-wrap">
-                {selectedProfile.linkedin_url && (<Link href={selectedProfile.linkedin_url} target="_blank" className="p-2.5 rounded-lg bg-[rgba(255,255,255,0.04)] text-[#666] hover:text-white hover:bg-[rgba(255,255,255,0.08)] transition-colors"><LinkedinIcon className="w-5 h-5" /></Link>)}
-                {selectedProfile.facebook_url && (<Link href={selectedProfile.facebook_url} target="_blank" className="p-2.5 rounded-lg bg-[rgba(255,255,255,0.04)] text-[#666] hover:text-white hover:bg-[rgba(255,255,255,0.08)] transition-colors"><FacebookIcon className="w-5 h-5" /></Link>)}
-                {selectedProfile.website_url && (<Link href={selectedProfile.website_url} target="_blank" className="p-2.5 rounded-lg bg-[rgba(255,255,255,0.04)] text-[#666] hover:text-white hover:bg-[rgba(255,255,255,0.08)] transition-colors"><Globe className="w-5 h-5" /></Link>)}
-                {!selectedProfile.linkedin_url && !selectedProfile.facebook_url && !selectedProfile.website_url && (<p className="text-[13px] text-[#555]">No public social links provided.</p>)}
+
+            {selectedProfile.bio && (
+              <div className="rounded-lg bg-[#0e1015] border border-white/[0.08] p-3.5 text-xs text-[#d1d5db] leading-relaxed italic">
+                "{selectedProfile.bio}"
               </div>
-            </div>
+            )}
+
+            {/* Verification QR section */}
+            {verificationUrl && (
+              <div className="p-3.5 rounded-lg bg-[#0e1015] border border-white/[0.08] flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-md bg-[#1a634b]/20 text-[#34d399] border border-[#22785c]/30 flex items-center justify-center">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-[#f3f4f6]">Official Digital ID Verification</p>
+                    <p className="text-[10px] text-[#6b7280]">Public tamper-proof credential URL</p>
+                  </div>
+                </div>
+                <Link
+                  href={verificationUrl}
+                  target="_blank"
+                  className="px-3 py-1.5 rounded-md text-xs font-medium bg-[#181b22] border border-white/10 text-[#d1d5db] hover:text-white hover:border-white/20 transition-colors"
+                >
+                  Verify →
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </Modal>

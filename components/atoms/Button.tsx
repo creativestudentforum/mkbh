@@ -22,23 +22,23 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-[0.97]";
+      "inline-flex items-center justify-center font-medium transition-colors duration-150 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c0d11] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer select-none";
 
     const variants = {
       primary:
-        "bg-[#0f766e] text-white hover:bg-[#115e59] focus-visible:ring-[#14B8A6] font-semibold shadow-[0_1px_2px_rgba(0,0,0,0.3),0_0_0_1px_rgba(20,184,166,0.2)] hover:shadow-[0_2px_12px_rgba(13,148,136,0.35),0_0_0_1px_rgba(20,184,166,0.3)]",
+        "bg-[#1a634b] text-white hover:bg-[#22785c] active:bg-[#15503c] border border-[#2a7a5e]/50 focus-visible:ring-[#2e9e7b]",
       secondary:
-        "bg-[#1a1a1a] text-[#e5e5e5] hover:bg-[#222222] focus-visible:ring-[#444] border border-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.14)]",
+        "bg-[#181b22] text-[#f3f4f6] hover:bg-[#20242e] active:bg-[#15181f] border border-white/10 hover:border-white/20 focus-visible:ring-white/30",
       ghost:
-        "text-[#a0a0a0] hover:text-white hover:bg-[rgba(255,255,255,0.06)] focus-visible:ring-[#444]",
+        "text-[#9ca3af] hover:text-[#f3f4f6] hover:bg-white/[0.06] active:bg-white/[0.1] focus-visible:ring-white/20",
       danger:
-        "bg-[#DC2626] text-white hover:bg-[#B91C1C] focus-visible:ring-[#DC2626] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_0_0_1px_rgba(220,38,38,0.15)]",
+        "bg-[#991b1b] text-white hover:bg-[#b91c1c] active:bg-[#7f1d1d] border border-red-500/30 focus-visible:ring-red-400",
     };
 
     const sizes = {
-      sm: "text-[13px] px-3 py-1.5 gap-1.5",
-      md: "text-[13px] px-4 py-2 gap-2",
-      lg: "text-sm px-5 py-2.5 gap-2.5",
+      sm: "text-xs px-2.5 py-1.5 rounded-md gap-1.5",
+      md: "text-sm px-3.5 py-2 rounded-lg gap-2",
+      lg: "text-sm px-4.5 py-2.5 rounded-lg gap-2.5 font-medium",
     };
 
     return (
@@ -48,7 +48,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || isLoading}
         {...props}
       >
-        {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+        {isLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
         {children}
       </button>
     );

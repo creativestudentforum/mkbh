@@ -16,6 +16,7 @@ import {
   fetchPaymentMethods,
   isDuplicateTrxId,
   logFundAction,
+  parseFundEntryMeta,
 } from "@/lib/fund-service";
 import { createClient } from "@/lib/supabase";
 import type {
@@ -28,9 +29,10 @@ import { formatDate, uploadImage } from "@/lib/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
-  ArrowDownCircle,
-  ArrowUpCircle,
-  Banknote,
+  ArrowDownRight,
+  ArrowUpRight,
+  Award,
+  Building2,
   Check,
   CheckCircle2,
   Clock,
@@ -43,8 +45,10 @@ import {
   Landmark,
   LogIn,
   Receipt,
-  Sparkles,
+  Search,
+  ShieldCheck,
   Upload,
+  Users,
   Wallet,
   XCircle,
 } from "lucide-react";
@@ -59,7 +63,7 @@ function formatCurrency(value: number) {
   }).format(value || 0);
 }
 
-const PRESET_AMOUNTS = [500, 1000, 2000, 5000, 10000];
+const PRESET_AMOUNTS = [500, 1000, 2500, 5000, 10000];
 
 export default function FundPage() {
   const { profile, user } = useAuth();
@@ -68,7 +72,7 @@ export default function FundPage() {
 
   // Tab navigation
   const [activeTab, setActiveTab] = useState<
-    "campaigns" | "donate" | "my-donations" | "ledger"
+    "campaigns" | "donate" | "honor" | "my-donations" | "ledger"
   >("campaigns");
 
   // Donation form state
@@ -92,8 +96,10 @@ export default function FundPage() {
   const [receiptEntry, setReceiptEntry] = useState<FundEntry | null>(null);
   const [voucherUrlModal, setVoucherUrlModal] = useState<string | null>(null);
 
-  // Ledger filter
+  // Filter states
   const [ledgerFilter, setLedgerFilter] = useState<"all" | "income" | "expense">("all");
+  const [ledgerSearch, setLedgerSearch] = useState("");
+  const [honorSearch, setHonorSearch] = useState("");
 
   // 1. Fetch campaigns
   const { data: campaigns = DEFAULT_CAMPAIGNS } = useQuery({
@@ -114,7 +120,7 @@ export default function FundPage() {
       queryFn: () => fetchFundSummary(supabase),
     });
 
-  // 4. Fetch public verified entries for ledger
+  // 4. Fetch public verified entries for ledger & wall of honor
   const { data: verifiedEntries = [], isLoading: ledgerLoading } = useQuery({
     queryKey: ["fund-verified-entries"],
     queryFn: async () => {
@@ -123,17 +129,16 @@ export default function FundPage() {
         .select("*, profiles(full_name, batch, avatar_url), fund_campaigns(title)")
         .eq("status", "verified")
         .order("entry_date", { ascending: false })
-        .limit(60);
+        .limit(80);
 
       if (error) {
         console.warn("fetch verified entries fallback:", error.message);
-        // Fallback without relation joins if tables are newly added
         const { data: fallbackData } = await supabase
           .from("fund_entries")
           .select("*")
           .eq("status", "verified")
           .order("entry_date", { ascending: false })
-          .limit(60);
+          .limit(80);
         return (fallbackData || []) as FundEntry[];
       }
       return (data || []) as FundEntry[];
@@ -194,27 +199,26 @@ export default function FundPage() {
 
     const numericAmount = Number(amount);
     if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-      alert("অনুগ্রহ করে সঠিক অনুদানের পরিমাণ লিখুন।");
+      alert("Please enter a valid donation amount.");
       return;
     }
 
     if (!user) {
-      alert("অনুগ্রহ করে অনুদান জমা দেওয়ার পূর্বে লগইন করুন।");
+      alert("Please sign in before submitting your contribution.");
       return;
     }
 
     const cleanTrx = trxId.trim();
     if (selectedMethod.type !== "cash" && !cleanTrx) {
-      alert("অনুগ্রহ করে আপনার TrxID / রেফারেন্স নম্বর প্রদান করুন।");
+      alert("Please enter your Transaction ID (TrxID) or reference number.");
       return;
     }
 
-    // Check duplicate TrxID if provided
     if (cleanTrx) {
       const duplicate = await isDuplicateTrxId(supabase, cleanTrx);
       if (duplicate) {
         setTrxError(
-          "এই TrxID-টি ইতিপূর্বে জমা দেওয়া হয়েছে। অনুগ্রহ করে সঠিক TrxID পরীক্ষা করে পুনরায় চেষ্টা করুন।"
+          "This Transaction ID has already been submitted. Please check the reference and try again."
         );
         return;
       }
@@ -233,9 +237,8 @@ export default function FundPage() {
       const selectedCampaign = campaigns.find((c) => c.id === selectedCampaignId);
       const title = selectedCampaign
         ? `${selectedCampaign.title} - ${selectedMethod.name}`
-        : `${selectedMethod.name} অনুদান`;
+        : `${selectedMethod.name} Contribution`;
 
-      // Payload matching schema
       const payload: Record<string, unknown> = {
         kind: "income",
         category: selectedCampaign ? "campaign" : "donation",
@@ -254,14 +257,12 @@ export default function FundPage() {
         is_anonymous: isAnonymous,
       };
 
-      // Try inserting with all fields
       let { data: inserted, error } = await supabase
         .from("fund_entries")
         .insert([payload])
         .select()
         .single();
 
-      // Fallback if extended columns are not yet applied in Supabase
       if (error && error.message.includes("column")) {
         console.warn("Falling back to standard columns for fund_entries:", error.message);
         const fallbackNote = [
@@ -300,7 +301,6 @@ export default function FundPage() {
         throw new Error(error.message);
       }
 
-      // Log audit
       await logFundAction(
         supabase,
         "payment_submitted",
@@ -309,7 +309,6 @@ export default function FundPage() {
         selectedCampaignId || null
       );
 
-      // Invalidate queries
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["fund-summary"] }),
         queryClient.invalidateQueries({ queryKey: ["my-fund-entries"] }),
@@ -325,7 +324,7 @@ export default function FundPage() {
       setScreenshotFile(null);
       setScreenshotPreview(null);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "অনুদান জমা দিতে সমস্যা হয়েছে।";
+      const msg = err instanceof Error ? err.message : "Failed to submit contribution.";
       alert("Error: " + msg);
     } finally {
       setSubmitting(false);
@@ -333,105 +332,149 @@ export default function FundPage() {
   };
 
   const balance = summary.income - summary.expense;
+
+  // Filter verified entries for ledger
   const filteredLedger = verifiedEntries.filter((item) => {
-    if (ledgerFilter === "income") return item.kind === "income";
-    if (ledgerFilter === "expense") return item.kind === "expense";
+    if (ledgerFilter === "income" && item.kind !== "income") return false;
+    if (ledgerFilter === "expense" && item.kind !== "expense") return false;
+    if (ledgerSearch.trim()) {
+      const q = ledgerSearch.toLowerCase();
+      const meta = parseFundEntryMeta(item);
+      const donor = meta.isAnonymous ? "anonymous" : (meta.donorName || "").toLowerCase();
+      const title = (item.title || "").toLowerCase();
+      const category = (item.category || "").toLowerCase();
+      const method = (item.method || "").toLowerCase();
+      return (
+        title.includes(q) ||
+        donor.includes(q) ||
+        category.includes(q) ||
+        method.includes(q)
+      );
+    }
     return true;
   });
 
+  // Filter donor list for Wall of Honor (only verified income entries)
+  const donorEntries = verifiedEntries.filter((e) => e.kind === "income");
+  const filteredDonors = donorEntries.filter((item) => {
+    if (!honorSearch.trim()) return true;
+    const q = honorSearch.toLowerCase();
+    const meta = parseFundEntryMeta(item);
+    const donor = meta.isAnonymous ? "anonymous" : (meta.donorName || "").toLowerCase();
+    const batch = (meta.donorBatch || "").toLowerCase();
+    const camp = (meta.campaignTitle || item.title || "").toLowerCase();
+    return donor.includes(q) || batch.includes(q) || camp.includes(q);
+  });
+
+  // Calculate user total contributions
+  const userTotalContributed = myEntries
+    .filter((e) => e.status === "verified")
+    .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+
   return (
-    <DashboardShell title="Fund">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Portal Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-[rgba(255,255,255,0.06)] slide-up stagger-1">
+    <DashboardShell title="Alumni Fund">
+      <div className="max-w-6xl mx-auto space-y-7 pb-12">
+        {/* Executive Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-5 border-b border-border">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h2 className="text-[24px] font-bold text-[#fafafa] tracking-tight">
-                Alumni Fund & Campaigns
-              </h2>
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#14B8A6]/15 text-[#14B8A6] border border-[#14B8A6]/30">
-                <Sparkles className="w-3 h-3" /> স্বচ্ছ তহবিল
+            <div className="flex items-center gap-2.5 mb-2">
+              <span className="w-8 h-8 rounded-lg bg-surface border border-border flex items-center justify-center text-foreground">
+                <Landmark className="w-4 h-4 text-accent" />
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-surface text-muted border border-border">
+                <ShieldCheck className="w-3.5 h-3.5 text-brand" /> Verified & Audited Treasury
               </span>
             </div>
-            <p className="text-[#888] text-[14px]">
-              চলমান ক্যাম্পেইনে অনুদান দিন, ডিজিটাল মানি রসিদ বুঝে নিন এবং তহবিলের উন্মুক্ত হিসাব দেখুন।
+            <h1 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-foreground">
+              Alumni Endowment & Welfare Fund
+            </h1>
+            <p className="text-muted text-[14px] max-w-2xl mt-1 leading-relaxed">
+              Institutional fund dedicated to school infrastructure, student merit scholarships, and emergency teacher support.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <Button
               variant={activeTab === "donate" ? "primary" : "secondary"}
               onClick={() => {
                 setActiveTab("donate");
                 setSubmitSuccess(null);
               }}
-              className="gap-2"
+              className="gap-2 font-medium"
             >
-              <Heart className="w-4 h-4 text-[#EF4444] fill-[#EF4444]" />
-              ডোনেট করুন
+              <Heart className="w-4 h-4 text-muted" />
+              Make a Donation
             </Button>
           </div>
         </div>
 
-        {/* Live Metrics Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 slide-up stagger-2">
-          <Card className="p-4 bg-[rgba(52,211,153,0.03)] border-[rgba(52,211,153,0.15)]">
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-[11px] text-[#888] uppercase tracking-wider font-medium">মোট অনুমোদিত জমা</p>
-              <ArrowUpCircle className="w-4 h-4 text-[#34D399]" />
+        {/* Live Executive Metrics Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <Card className="p-5 bg-surface border-border hover:border-border-hover transition-colors">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[11px] text-muted uppercase tracking-wider font-semibold">
+                Current Fund Balance
+              </p>
+              <Wallet className="w-4 h-4 text-accent" />
             </div>
-            <p className="text-[22px] sm:text-[26px] font-bold text-[#34D399]">
-              {formatCurrency(summary.income)}
-            </p>
-            <p className="text-[11px] text-[#666] mt-1">শুধু যাচাইকৃত প্রাপ্তি</p>
-          </Card>
-
-          <Card className="p-4 bg-[rgba(239,68,68,0.03)] border-[rgba(239,68,68,0.15)]">
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-[11px] text-[#888] uppercase tracking-wider font-medium">মোট ব্যয়</p>
-              <ArrowDownCircle className="w-4 h-4 text-[#EF4444]" />
-            </div>
-            <p className="text-[22px] sm:text-[26px] font-bold text-[#EF4444]">
-              {formatCurrency(summary.expense)}
-            </p>
-            <p className="text-[11px] text-[#666] mt-1">ভাউচারযুক্ত প্রাতিষ্ঠানিক খরচ</p>
-          </Card>
-
-          <Card className="p-4 bg-[rgba(20,184,166,0.04)] border-[rgba(20,184,166,0.18)]">
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-[11px] text-[#888] uppercase tracking-wider font-medium">বর্তমান তহবিল ব্যালেন্স</p>
-              <Wallet className="w-4 h-4 text-[#14B8A6]" />
-            </div>
-            <p className="text-[22px] sm:text-[26px] font-bold text-[#fafafa]">
+            <p className="text-2xl sm:text-3xl font-serif font-bold text-foreground tracking-tight">
               {formatCurrency(balance)}
             </p>
-            <p className="text-[11px] text-[#14B8A6] mt-1">অবশিষ্ট ব্যালেন্স (জমা − খরচ)</p>
+            <p className="text-[11px] text-muted mt-1">Net Balance (Receipts − Expenses)</p>
           </Card>
 
-          <Card className="p-4">
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-[11px] text-[#888] uppercase tracking-wider font-medium">সক্রিয় ক্যাম্পেইন</p>
-              <HandCoins className="w-4 h-4 text-[#FBBF24]" />
+          <Card className="p-5 bg-surface border-border hover:border-border-hover transition-colors">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[11px] text-muted uppercase tracking-wider font-semibold">
+                Total Approved Receipts
+              </p>
+              <ArrowUpRight className="w-4 h-4 text-brand" />
             </div>
-            <p className="text-[22px] sm:text-[26px] font-bold text-[#FBBF24]">
-              {campaigns.filter((c) => c.status === "active").length} টি
+            <p className="text-2xl sm:text-3xl font-serif font-bold text-foreground tracking-tight">
+              {formatCurrency(summary.income)}
             </p>
-            <p className="text-[11px] text-[#666] mt-1">উন্নয়ন ও সহায়তা প্রকল্প</p>
+            <p className="text-[11px] text-muted mt-1">Audited & Verified Contributions</p>
+          </Card>
+
+          <Card className="p-5 bg-surface border-border hover:border-border-hover transition-colors">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[11px] text-muted uppercase tracking-wider font-semibold">
+                Disbursed Expenses
+              </p>
+              <ArrowDownRight className="w-4 h-4 text-muted" />
+            </div>
+            <p className="text-2xl sm:text-3xl font-serif font-bold text-muted tracking-tight">
+              {formatCurrency(summary.expense)}
+            </p>
+            <p className="text-[11px] text-muted mt-1">Voucher-backed Institutional Costs</p>
+          </Card>
+
+          <Card className="p-5 bg-surface border-border hover:border-border-hover transition-colors">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[11px] text-muted uppercase tracking-wider font-semibold">
+                Active Projects
+              </p>
+              <Building2 className="w-4 h-4 text-muted" />
+            </div>
+            <p className="text-2xl sm:text-3xl font-serif font-bold text-foreground tracking-tight">
+              {campaigns.filter((c) => c.status === "active").length} Campaigns
+            </p>
+            <p className="text-[11px] text-muted mt-1">Ongoing Development Initiatives</p>
           </Card>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex items-center gap-1 p-1 bg-[#121212] rounded-xl border border-[rgba(255,255,255,0.06)] overflow-x-auto slide-up stagger-2">
+        <div className="flex items-center gap-1.5 p-1 bg-surface rounded-lg border border-border overflow-x-auto scrollbar-none">
           <button
             onClick={() => setActiveTab("campaigns")}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13px] font-medium transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-md text-[13px] font-medium transition-colors whitespace-nowrap ${
               activeTab === "campaigns"
-                ? "bg-[#1f1f1f] text-white shadow-sm border border-[rgba(255,255,255,0.08)]"
-                : "text-[#888] hover:text-[#ccc]"
+                ? "bg-brand text-white shadow-sm"
+                : "text-muted hover:text-foreground hover:bg-white/5"
             }`}
           >
-            <HandCoins className="w-4 h-4" />
-            চলমান ক্যাম্পেইন ({campaigns.length})
+            <Building2 className="w-4 h-4" />
+            Campaigns ({campaigns.length})
           </button>
 
           <button
@@ -439,46 +482,60 @@ export default function FundPage() {
               setActiveTab("donate");
               setSubmitSuccess(null);
             }}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13px] font-medium transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-md text-[13px] font-medium transition-colors whitespace-nowrap ${
               activeTab === "donate"
-                ? "bg-[#14B8A6] text-white shadow-[0_0_15px_rgba(20,184,166,0.3)]"
-                : "text-[#888] hover:text-[#ccc]"
+                ? "bg-brand text-white shadow-sm"
+                : "text-muted hover:text-foreground hover:bg-white/5"
             }`}
           >
             <Heart className="w-4 h-4" />
-            অনুদান দিন
+            Donate Now
+          </button>
+
+          <button
+            onClick={() => setActiveTab("honor")}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-md text-[13px] font-medium transition-colors whitespace-nowrap ${
+              activeTab === "honor"
+                ? "bg-brand text-white shadow-sm"
+                : "text-muted hover:text-foreground hover:bg-white/5"
+            }`}
+          >
+            <Award className="w-4 h-4" />
+            Wall of Honor ({donorEntries.length})
           </button>
 
           {user && (
             <button
               onClick={() => setActiveTab("my-donations")}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13px] font-medium transition-all whitespace-nowrap ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-md text-[13px] font-medium transition-colors whitespace-nowrap ${
                 activeTab === "my-donations"
-                  ? "bg-[#1f1f1f] text-white shadow-sm border border-[rgba(255,255,255,0.08)]"
-                  : "text-[#888] hover:text-[#ccc]"
+                  ? "bg-brand text-white shadow-sm"
+                  : "text-muted hover:text-foreground hover:bg-white/5"
               }`}
             >
               <Receipt className="w-4 h-4" />
-              আমার অনুদান ও রসিদ ({myEntries.length})
+              My Receipts ({myEntries.length})
             </button>
           )}
 
           <button
             onClick={() => setActiveTab("ledger")}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13px] font-medium transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-md text-[13px] font-medium transition-colors whitespace-nowrap ${
               activeTab === "ledger"
-                ? "bg-[#1f1f1f] text-white shadow-sm border border-[rgba(255,255,255,0.08)]"
-                : "text-[#888] hover:text-[#ccc]"
+                ? "bg-brand text-white shadow-sm"
+                : "text-muted hover:text-foreground hover:bg-white/5"
             }`}
           >
             <FileText className="w-4 h-4" />
-            পাবলিক স্বচ্ছতা লেজার
+            Public Ledger
           </button>
         </div>
 
-        {/* TAB 1: RUNNING CAMPAIGNS */}
+        {/* ========================================================
+            TAB 1: RUNNING CAMPAIGNS
+           ======================================================== */}
         {activeTab === "campaigns" && (
-          <div className="space-y-4 slide-up">
+          <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {campaigns.map((campaign) => {
                 const target = Number(campaign.target_amount) || 0;
@@ -486,123 +543,133 @@ export default function FundPage() {
                 const percent = target > 0 ? Math.min(Math.round((raised / target) * 100), 100) : 0;
 
                 return (
-                  <Card
+                  <div
                     key={campaign.id}
-                    className="p-6 relative overflow-hidden flex flex-col justify-between hover:border-[rgba(20,184,166,0.4)] transition-all group"
+                    className="p-6 rounded-xl bg-surface border border-border hover:border-border-hover transition-colors flex flex-col justify-between"
                   >
                     <div>
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <h3 className="text-[17px] font-bold text-[#fafafa] group-hover:text-[#14B8A6] transition-colors">
-                          {campaign.title}
-                        </h3>
-                        <Badge variant={campaign.status === "active" ? "success" : "default"}>
-                          {campaign.status === "active" ? "চলমান" : "সম্পন্ন"}
-                        </Badge>
+                      {/* Overline & Status */}
+                      <div className="flex items-center justify-between gap-3 mb-3">
+                        <span className="text-[11px] font-semibold tracking-wider text-muted uppercase">
+                          Project Fund
+                        </span>
+                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-canvas text-foreground border border-border">
+                          {campaign.status === "active" ? "Active" : "Completed"}
+                        </span>
                       </div>
 
-                      <p className="text-[13px] text-[#888] leading-relaxed mb-5">
+                      {/* Title & Description */}
+                      <h3 className="text-lg font-serif font-bold text-foreground tracking-tight mb-2">
+                        {campaign.title}
+                      </h3>
+                      <p className="text-[13px] text-muted leading-relaxed mb-6">
                         {campaign.description}
                       </p>
 
-                      {/* Progress bar */}
-                      <div className="space-y-2 mb-5">
+                      {/* Progress Metrics */}
+                      <div className="space-y-2.5 mb-6 p-4 rounded-lg bg-canvas border border-border">
                         <div className="flex items-center justify-between text-[12px]">
-                          <span className="text-[#a0a0a0]">
-                            সংগৃহীত: <span className="text-[#34D399] font-semibold">{formatCurrency(raised)}</span>
+                          <span className="text-muted">
+                            Raised: <span className="text-foreground font-semibold font-mono">{formatCurrency(raised)}</span>
                           </span>
-                          <span className="text-[#888]">
-                            লক্ষ্যমাত্রা: <span className="text-[#fafafa] font-semibold">{formatCurrency(target)}</span>
+                          <span className="text-muted">
+                            Goal: <span className="text-foreground font-semibold font-mono">{formatCurrency(target)}</span>
                           </span>
                         </div>
 
-                        <div className="w-full h-2.5 bg-[#1e1e1e] rounded-full overflow-hidden">
+                        {/* Progress track */}
+                        <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-gradient-to-r from-[#0D9488] to-[#34D399] rounded-full transition-all duration-700"
+                            className="h-full bg-brand rounded-full transition-all duration-300"
                             style={{ width: `${percent}%` }}
                           />
                         </div>
 
-                        <div className="flex items-center justify-between text-[11px] text-[#666]">
-                          <span>{percent}% অর্জিত</span>
-                          {campaign.end_date && <span>মেয়াদ: {formatDate(campaign.end_date)} পর্যন্ত</span>}
+                        <div className="flex items-center justify-between text-[11px] text-muted">
+                          <span className="font-medium text-foreground">{percent}% Funded</span>
+                          {campaign.end_date && <span>Deadline: {formatDate(campaign.end_date)}</span>}
                         </div>
                       </div>
                     </div>
 
-                    <div className="pt-4 border-t border-[rgba(255,255,255,0.06)] flex items-center justify-between gap-3">
-                      <span className="text-[12px] text-[#777]">
-                        {campaign.donor_count ? `${campaign.donor_count} জন অনুদান দিয়েছেন` : "প্রথম অনুদানকারী হোন"}
+                    <div className="pt-4 border-t border-border flex items-center justify-between gap-3">
+                      <span className="text-[12px] text-muted">
+                        {campaign.donor_count
+                          ? `${campaign.donor_count} donors contributed`
+                          : "Be the first donor"}
                       </span>
                       <Button
                         size="sm"
                         onClick={() => handleSelectCampaignForDonation(campaign.id)}
                         className="gap-1.5"
                       >
-                        <Heart className="w-3.5 h-3.5 text-[#EF4444]" /> ডোনেট করুন
+                        <Heart className="w-3.5 h-3.5 text-muted" /> Donate Now
                       </Button>
                     </div>
-                  </Card>
+                  </div>
                 );
               })}
             </div>
           </div>
         )}
 
-        {/* TAB 2: DONATION WORKFLOW */}
+        {/* ========================================================
+            TAB 2: DONATION WORKFLOW (2-Step Single-Page Checkout)
+           ======================================================== */}
         {activeTab === "donate" && (
-          <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6 slide-up">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-6">
             {/* Left: Donation Form */}
             <div className="space-y-5">
               {!user ? (
-                <Card className="p-6 text-center space-y-4 bg-[rgba(20,184,166,0.04)] border-[rgba(20,184,166,0.2)]">
-                  <div className="w-12 h-12 rounded-full bg-[rgba(20,184,166,0.15)] flex items-center justify-center mx-auto text-[#14B8A6]">
-                    <LogIn className="w-6 h-6" />
+                <Card className="p-8 text-center space-y-4 bg-surface border-border">
+                  <div className="w-12 h-12 rounded-xl bg-canvas border border-border flex items-center justify-center mx-auto text-foreground">
+                    <LogIn className="w-5 h-5 text-accent" />
                   </div>
                   <div>
-                    <h3 className="text-[17px] font-semibold text-white">অনুদান দিতে অনুগ্রহ করে লগইন করুন</h3>
-                    <p className="text-[13px] text-[#888] max-w-md mx-auto mt-1">
-                      লগইন অবস্থায় অনুদান জমা দিলে আপনার নামে স্বয়ংক্রিয় ডিজিটাল রসিদ তৈরি হবে এবং ডোনেশন হিস্ট্রি সংরক্ষিত থাকবে।
+                    <h3 className="text-lg font-serif font-bold text-foreground">Sign in to Make a Contribution</h3>
+                    <p className="text-[13px] text-muted max-w-md mx-auto mt-1 leading-relaxed">
+                      Contributions from verified alumni accounts receive automated official money receipts and live audit tracking.
                     </p>
                   </div>
                   <div className="flex items-center justify-center gap-3 pt-2">
                     <Link href="/login">
-                      <Button>লগইন করুন</Button>
+                      <Button>Sign In</Button>
                     </Link>
                     <Link href="/signup">
-                      <Button variant="secondary">অ্যালামনাই রেজিস্ট্রেশন</Button>
+                      <Button variant="secondary">Register Account</Button>
                     </Link>
                   </div>
                 </Card>
               ) : submitSuccess ? (
-                <Card className="p-6 sm:p-8 text-center space-y-5 bg-[rgba(52,211,153,0.04)] border-[rgba(52,211,153,0.25)]">
-                  <div className="w-14 h-14 rounded-full bg-[rgba(52,211,153,0.15)] flex items-center justify-center mx-auto text-[#34D399]">
-                    <Clock className="w-7 h-7" />
+                <Card className="p-8 text-center space-y-6 bg-surface border-border">
+                  <div className="w-14 h-14 rounded-xl bg-canvas border border-border flex items-center justify-center mx-auto text-foreground">
+                    <Clock className="w-6 h-6 text-accent" />
                   </div>
                   <div>
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-medium bg-[#FBBF24]/15 text-[#FBBF24] border border-[#FBBF24]/30 mb-2">
-                      <Clock className="w-3.5 h-3.5" /> স্ট্যাটাস: যাচাই চলছে (Pending)
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-canvas text-foreground border border-border mb-3">
+                      <Clock className="w-3.5 h-3.5 text-accent" /> Status: Pending Verification
                     </span>
-                    <h3 className="text-[20px] font-bold text-white mt-2">
-                      আপনার অনুদানের তথ্য সফলভাবে জমা হয়েছে!
+                    <h3 className="text-xl font-serif font-bold text-foreground tracking-tight">
+                      Contribution Submitted Successfully!
                     </h3>
-                    <p className="text-[13px] text-[#a0a0a0] max-w-lg mx-auto mt-2 leading-relaxed">
-                      অ্যাডমিন প্যানেল থেকে আপনার প্রেরিত ট্রানজেকশন আইডি ({submitSuccess.trx_id || "ক্যাশ"}) এবং স্টেটমেন্ট যাচাই শেষে অনুদানটি অনুমোদিত হবে এবং আপনার অ্যাকাউন্টে ডিজিটাল মানি রসিদ দৃশ্যমান হবে।
+                    <p className="text-[13px] text-muted max-w-md mx-auto mt-2 leading-relaxed">
+                      Your transaction ID ({submitSuccess.trx_id || "Cash"}) has been recorded. Once verified against bank/mobile banking statements, an official verified receipt will be issued to your account.
                     </p>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-[#141414] border border-[rgba(255,255,255,0.06)] text-left max-w-sm mx-auto space-y-1.5 text-[12px]">
+                  <div className="p-4 rounded-lg bg-canvas border border-border text-left max-w-sm mx-auto space-y-2 text-[12px]">
                     <div className="flex justify-between">
-                      <span className="text-[#666]">পরিমাণ:</span>
-                      <span className="text-[#34D399] font-bold">{formatCurrency(submitSuccess.amount)}</span>
+                      <span className="text-muted">Amount:</span>
+                      <span className="text-foreground font-semibold font-mono">{formatCurrency(submitSuccess.amount)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-[#666]">পেমেন্ট মাধ্যম:</span>
-                      <span className="text-white">{submitSuccess.method}</span>
+                      <span className="text-muted">Payment Method:</span>
+                      <span className="text-foreground">{submitSuccess.method}</span>
                     </div>
                     {submitSuccess.trx_id && (
                       <div className="flex justify-between">
-                        <span className="text-[#666]">TrxID:</span>
-                        <span className="text-white font-mono">{submitSuccess.trx_id}</span>
+                        <span className="text-muted">TrxID:</span>
+                        <span className="text-foreground font-mono">{submitSuccess.trx_id}</span>
                       </div>
                     )}
                   </div>
@@ -613,33 +680,40 @@ export default function FundPage() {
                         setSubmitSuccess(null);
                         setActiveTab("my-donations");
                       }}
+                      className="gap-2"
                     >
-                      <Receipt className="w-4 h-4" /> আমার অনুদান হিস্ট্রি দেখুন
+                      <Receipt className="w-4 h-4" /> View My Receipts
                     </Button>
                     <Button variant="secondary" onClick={() => setSubmitSuccess(null)}>
-                      আরেকটি অনুদান দিন
+                      Submit Another Contribution
                     </Button>
                   </div>
                 </Card>
               ) : (
-                <Card className="p-6">
-                  <h3 className="text-[16px] font-bold text-white mb-4 flex items-center gap-2">
-                    <Heart className="w-4 h-4 text-[#EF4444]" />
-                    অনুদান ফর্ম পূরণ করুন
-                  </h3>
+                <div className="p-6 rounded-xl bg-surface border border-border space-y-5">
+                  <div className="flex items-center justify-between border-b border-border pb-4">
+                    <div>
+                      <h3 className="text-base font-serif font-bold text-foreground tracking-tight">
+                        Enter Contribution Details
+                      </h3>
+                      <p className="text-[12px] text-muted">
+                        Send contribution via mobile banking or direct bank transfer, then submit details below
+                      </p>
+                    </div>
+                  </div>
 
                   <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Select Campaign */}
                     <div className="space-y-1.5">
-                      <label className="block text-[13px] font-medium text-[#a0a0a0]">
-                        ক্যাম্পেইন / তহবিলের খাত নির্বাচন করুন
+                      <label className="block text-[12px] font-medium text-muted uppercase tracking-wider">
+                        Select Campaign / Fund Allocation
                       </label>
                       <select
                         value={selectedCampaignId}
                         onChange={(e) => setSelectedCampaignId(e.target.value)}
-                        className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[#14B8A6]"
+                        className="w-full rounded-md bg-[#0e1015] border border-border text-foreground px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-brand"
                       >
-                        <option value="">সাধারণ অ্যালামনাই উন্নয়ন তহবিল (General)</option>
+                        <option value="">General Alumni Welfare Fund</option>
                         {campaigns
                           .filter((c) => c.status === "active")
                           .map((c) => (
@@ -652,8 +726,8 @@ export default function FundPage() {
 
                     {/* Amount & Presets */}
                     <div className="space-y-2">
-                      <label className="block text-[13px] font-medium text-[#a0a0a0]">
-                        টাকার পরিমাণ (BDT) *
+                      <label className="block text-[12px] font-medium text-muted uppercase tracking-wider">
+                        Contribution Amount (BDT) *
                       </label>
                       <div className="flex gap-2 flex-wrap mb-2">
                         {PRESET_AMOUNTS.map((amt) => (
@@ -661,10 +735,10 @@ export default function FundPage() {
                             key={amt}
                             type="button"
                             onClick={() => setAmount(String(amt))}
-                            className={`px-3 py-1.5 rounded-lg text-[12px] font-medium border transition-colors ${
+                            className={`px-3 py-1.5 rounded-md text-[12px] font-medium border transition-colors ${
                               amount === String(amt)
-                                ? "bg-[#14B8A6]/20 border-[#14B8A6] text-[#14B8A6]"
-                                : "bg-[#141414] border-[rgba(255,255,255,0.08)] text-[#888] hover:text-white"
+                                ? "bg-brand text-white border-brand font-semibold"
+                                : "bg-canvas border-border text-muted hover:text-foreground"
                             }`}
                           >
                             ৳ {amt.toLocaleString()}
@@ -674,7 +748,7 @@ export default function FundPage() {
                       <Input
                         type="number"
                         min="1"
-                        placeholder="যেমন: 2000"
+                        placeholder="e.g. 2500"
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
                         required
@@ -683,10 +757,10 @@ export default function FundPage() {
 
                     {/* Payment Method Selector */}
                     <div className="space-y-2">
-                      <label className="block text-[13px] font-medium text-[#a0a0a0]">
-                        পেমেন্ট মাধ্যম বেছে নিন *
+                      <label className="block text-[12px] font-medium text-muted uppercase tracking-wider">
+                        Select Payment Method *
                       </label>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                         {paymentMethods.map((m) => {
                           const isSelected =
                             selectedMethodName.toLowerCase() === m.name.toLowerCase();
@@ -695,14 +769,16 @@ export default function FundPage() {
                               key={m.id}
                               type="button"
                               onClick={() => setSelectedMethodName(m.name)}
-                              className={`p-3 rounded-xl border text-center transition-all ${
+                              className={`p-3 rounded-lg border text-center transition-colors ${
                                 isSelected
-                                  ? "bg-[rgba(20,184,166,0.15)] border-[#14B8A6] text-white shadow-sm"
-                                  : "bg-[#141414] border-[rgba(255,255,255,0.08)] text-[#888] hover:text-white"
+                                  ? "bg-brand/10 border-brand text-foreground font-semibold"
+                                  : "bg-canvas border-border text-muted hover:text-foreground"
                               }`}
                             >
-                              <p className="text-[13px] font-bold">{m.name}</p>
-                              <p className="text-[10px] text-[#666] capitalize mt-0.5">{m.type.replace("_", " ")}</p>
+                              <p className="text-[13px]">{m.name}</p>
+                              <p className="text-[10px] text-muted capitalize mt-0.5 font-mono">
+                                {m.type.replace("_", " ")}
+                              </p>
                             </button>
                           );
                         })}
@@ -713,8 +789,8 @@ export default function FundPage() {
                     {selectedMethod.type !== "cash" && (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Input
-                          label="যে নম্বর / অ্যাকাউন্ট থেকে পাঠিয়েছেন *"
-                          placeholder="যেমন: 01712345678"
+                          label="Sender Account / Phone Number *"
+                          placeholder="e.g. 01712345678"
                           value={senderNumber}
                           onChange={(e) => setSenderNumber(e.target.value)}
                           required
@@ -723,7 +799,7 @@ export default function FundPage() {
                         <div>
                           <Input
                             label="Transaction ID (TrxID) *"
-                            placeholder="যেমন: BLK93J4KL8"
+                            placeholder="e.g. BLK93J4KL8"
                             value={trxId}
                             onChange={(e) => {
                               setTrxId(e.target.value.toUpperCase());
@@ -732,7 +808,7 @@ export default function FundPage() {
                             required
                           />
                           {trxError && (
-                            <p className="text-[12px] text-[#EF4444] mt-1 flex items-center gap-1">
+                            <p className="text-[12px] text-danger mt-1 flex items-center gap-1 font-medium">
                               <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
                               {trxError}
                             </p>
@@ -743,13 +819,13 @@ export default function FundPage() {
 
                     {/* Screenshot / Voucher Upload */}
                     <div className="space-y-1.5">
-                      <label className="block text-[13px] font-medium text-[#a0a0a0]">
-                        পেমেন্ট স্ক্রিনশট / জমার স্লিপ (ঐচ্ছিক)
+                      <label className="block text-[12px] font-medium text-muted uppercase tracking-wider">
+                        Payment Screenshot / Deposit Slip (Optional)
                       </label>
                       <div className="flex items-center gap-3">
-                        <label className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] hover:border-[#14B8A6] cursor-pointer text-[12px] text-[#a0a0a0] transition-colors">
-                          <Upload className="w-4 h-4 text-[#14B8A6]" />
-                          ছবি নির্বাচন করুন
+                        <label className="flex items-center gap-2 px-3.5 py-2 rounded-md bg-[#0e1015] border border-border hover:border-border-hover cursor-pointer text-[12px] text-muted transition-colors">
+                          <Upload className="w-4 h-4 text-muted" />
+                          Choose File
                           <input
                             type="file"
                             accept="image/*"
@@ -758,13 +834,13 @@ export default function FundPage() {
                           />
                         </label>
                         {screenshotFile && (
-                          <span className="text-[12px] text-[#34D399] truncate max-w-xs">
+                          <span className="text-[12px] text-muted truncate max-w-xs font-mono">
                             {screenshotFile.name}
                           </span>
                         )}
                       </div>
                       {screenshotPreview && (
-                        <div className="mt-2 w-28 h-20 relative rounded-lg overflow-hidden border border-[rgba(255,255,255,0.1)]">
+                        <div className="mt-2 w-28 h-20 relative rounded-md overflow-hidden border border-border">
                           <img
                             src={screenshotPreview}
                             alt="Screenshot Preview"
@@ -776,79 +852,79 @@ export default function FundPage() {
 
                     {/* Optional Note */}
                     <div className="space-y-1.5">
-                      <label className="block text-[13px] font-medium text-[#a0a0a0]">
-                        মন্তব্য বা বার্তা (ঐচ্ছিক)
+                      <label className="block text-[12px] font-medium text-muted uppercase tracking-wider">
+                        Notes or Message (Optional)
                       </label>
                       <textarea
                         rows={2}
                         value={note}
                         onChange={(e) => setNote(e.target.value)}
-                        placeholder="আপনার কোনো বিশেষ নির্দেশনা বা শুভেচ্ছা বার্তা..."
-                        className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[#14B8A6]"
+                        placeholder="Any special note or dedication message..."
+                        className="w-full rounded-md bg-[#0e1015] border border-border text-foreground placeholder-muted px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-brand transition-colors"
                       />
                     </div>
 
                     {/* Anonymous toggle */}
-                    <div className="flex items-center gap-2 pt-1">
+                    <div className="flex items-center gap-2.5 pt-1">
                       <input
                         type="checkbox"
                         id="anonymous"
                         checked={isAnonymous}
                         onChange={(e) => setIsAnonymous(e.target.checked)}
-                        className="rounded border-[rgba(255,255,255,0.2)] bg-[#141414] text-[#14B8A6] focus:ring-0"
+                        className="rounded border-border bg-[#0e1015] text-brand focus:ring-0"
                       />
-                      <label htmlFor="anonymous" className="text-[12px] text-[#888] cursor-pointer">
-                        পাবলিক লেজারে আমার নাম গোপন রাখুন (Anonymous হিসেবে দেখানো হবে)
+                      <label htmlFor="anonymous" className="text-[12px] text-muted cursor-pointer">
+                        Keep my identity private in public lists (Display as Anonymous Alumnus)
                       </label>
                     </div>
 
-                    <Button type="submit" isLoading={submitting} className="w-full py-3 text-[14px]">
+                    <Button type="submit" isLoading={submitting} className="w-full py-3 text-[14px] mt-2">
                       <HandCoins className="w-4 h-4" />
-                      অনুদান জমা দিন (যাচাইয়ের জন্য পাঠান)
+                      Submit Contribution
                     </Button>
                   </form>
-                </Card>
+                </div>
               )}
             </div>
 
             {/* Right: Payment Instructions Card */}
             <div className="space-y-5">
-              <Card className="p-6 bg-[rgba(20,184,166,0.05)] border-[rgba(20,184,166,0.2)] space-y-4">
-                <div className="flex items-center gap-2.5 border-b border-[rgba(20,184,166,0.15)] pb-3">
-                  <div className="w-9 h-9 rounded-lg bg-[#14B8A6]/20 flex items-center justify-center text-[#14B8A6]">
-                    <Landmark className="w-5 h-5" />
+              <div className="p-6 rounded-xl bg-surface border border-border space-y-4">
+                <div className="flex items-center gap-3 border-b border-border pb-4">
+                  <div className="w-9 h-9 rounded-lg bg-canvas border border-border flex items-center justify-center text-foreground">
+                    <Landmark className="w-4 h-4 text-accent" />
                   </div>
                   <div>
-                    <h4 className="text-[15px] font-bold text-white">
-                      {selectedMethod.name} পেমেন্ট নির্দেশনা
+                    <h4 className="text-base font-serif font-bold text-foreground tracking-tight">
+                      {selectedMethod.name} Payment Instructions
                     </h4>
-                    <p className="text-[11px] text-[#888]">অফিসিয়াল একাউন্ট তথ্য</p>
+                    <p className="text-[11px] text-muted">Official Account Details</p>
                   </div>
                 </div>
 
                 {selectedMethod.type === "cash" ? (
-                  <div className="space-y-3 text-[13px] text-[#c0c0c0]">
+                  <div className="space-y-3.5 text-[13px] text-muted">
                     <p className="leading-relaxed">{selectedMethod.instructions}</p>
                     {selectedMethod.contact_person && (
-                      <div className="p-3.5 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.06)] space-y-1">
-                        <p className="text-[11px] text-[#14B8A6] uppercase font-semibold">ক্যাশ গ্রহণকারী কর্মকর্তা</p>
-                        <p className="text-white font-medium">{selectedMethod.contact_person}</p>
+                      <div className="p-4 rounded-lg bg-canvas border border-border space-y-1">
+                        <p className="text-[11px] text-muted uppercase font-semibold">Cash Receiving Officer</p>
+                        <p className="text-foreground font-medium">{selectedMethod.contact_person}</p>
                       </div>
                     )}
-                    <p className="text-[11px] text-[#888]">
-                      সরাসরি ক্যাশ প্রদানের পর অ্যাডমিন নিজে ডাটাবেজে এন্ট্রি দিলে আপনি রসিদ পাবেন।
+                    <p className="text-[11px] text-muted">
+                      An official money receipt will be issued immediately upon cash payment at the office.
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-4 text-[13px]">
                     {/* Account number box */}
                     {selectedMethod.account_number && (
-                      <div className="p-3.5 rounded-xl bg-[#141414] border border-[rgba(20,184,166,0.2)] flex items-center justify-between gap-3">
+                      <div className="p-4 rounded-lg bg-canvas border border-border flex items-center justify-between gap-3">
                         <div>
-                          <p className="text-[10px] text-[#777] uppercase tracking-wider font-semibold">
-                            {selectedMethod.name} নম্বর ({selectedMethod.account_type || "Account"})
+                          <p className="text-[10px] text-muted uppercase tracking-wider font-semibold">
+                            {selectedMethod.name} Number ({selectedMethod.account_type || "Account"})
                           </p>
-                          <p className="text-[17px] font-mono font-bold text-white mt-0.5">
+                          <p className="text-base font-mono font-bold text-foreground mt-0.5">
                             {selectedMethod.account_number}
                           </p>
                         </div>
@@ -860,13 +936,13 @@ export default function FundPage() {
                         >
                           {copiedKey === "acc_num" ? (
                             <>
-                              <Check className="w-3.5 h-3.5 text-[#34D399]" />
-                              কপি হয়েছে
+                              <Check className="w-3.5 h-3.5 text-brand" />
+                              Copied
                             </>
                           ) : (
                             <>
                               <Copy className="w-3.5 h-3.5" />
-                              কপি
+                              Copy
                             </>
                           )}
                         </Button>
@@ -875,122 +951,216 @@ export default function FundPage() {
 
                     {/* Bank specific info */}
                     {selectedMethod.type === "bank" && (
-                      <div className="p-3 rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.06)] space-y-1.5 text-[12px]">
+                      <div className="p-3.5 rounded-lg bg-canvas border border-border space-y-2 text-[12px]">
                         {selectedMethod.bank_name && (
                           <div className="flex justify-between">
-                            <span className="text-[#666]">Bank:</span>
-                            <span className="text-white font-medium">{selectedMethod.bank_name}</span>
+                            <span className="text-muted">Bank:</span>
+                            <span className="text-foreground font-medium">{selectedMethod.bank_name}</span>
                           </div>
                         )}
                         {selectedMethod.account_holder && (
                           <div className="flex justify-between">
-                            <span className="text-[#666]">Account Name:</span>
-                            <span className="text-white font-medium">{selectedMethod.account_holder}</span>
+                            <span className="text-muted">Account Name:</span>
+                            <span className="text-foreground font-medium">{selectedMethod.account_holder}</span>
                           </div>
                         )}
                         {selectedMethod.branch_name && (
                           <div className="flex justify-between">
-                            <span className="text-[#666]">Branch:</span>
-                            <span className="text-white font-medium">{selectedMethod.branch_name}</span>
+                            <span className="text-muted">Branch:</span>
+                            <span className="text-foreground font-medium">{selectedMethod.branch_name}</span>
                           </div>
                         )}
                         {selectedMethod.routing_number && (
                           <div className="flex justify-between">
-                            <span className="text-[#666]">Routing No:</span>
-                            <span className="text-white font-mono">{selectedMethod.routing_number}</span>
+                            <span className="text-muted">Routing No:</span>
+                            <span className="text-foreground font-mono">{selectedMethod.routing_number}</span>
                           </div>
                         )}
                       </div>
                     )}
 
                     {/* Step by step */}
-                    <div className="space-y-2 text-[12px] text-[#a0a0a0]">
-                      <p className="font-semibold text-white">কীভাবে টাকা পাঠাবেন:</p>
+                    <div className="space-y-2 text-[12px] text-muted">
+                      <p className="font-semibold text-foreground">How to send contribution:</p>
                       <ol className="list-decimal list-inside space-y-1.5 pl-1 leading-relaxed">
-                        <li>আপনার {selectedMethod.name} অ্যাপ বা অনলাইন ব্যাংকিংয়ে প্রবেশ করুন।</li>
-                        <li>উপরের নম্বরে টাকা Send Money বা Transfer করুন।</li>
-                        <li>পেমেন্ট সফল হলে প্রাপ্ত Transaction ID (TrxID) টি কপি করুন।</li>
-                        <li>পাশের ফর্মটিতে TrxID ও প্রেরক নম্বর দিয়ে সাবমিট করুন।</li>
+                        <li>Open your {selectedMethod.name} app or online banking.</li>
+                        <li>Send Money or Transfer the amount to the official account shown above.</li>
+                        <li>Copy the Transaction ID (TrxID) upon successful transfer and paste it into the form.</li>
+                        <li>Submit the form. The treasury audit committee will verify and issue your digital receipt.</li>
                       </ol>
                     </div>
 
-                    <div className="p-3 rounded-lg bg-[rgba(251,191,36,0.08)] border border-[rgba(251,191,36,0.2)] text-[12px] text-[#FBBF24] flex items-start gap-2">
-                      <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <div className="p-3.5 rounded-lg bg-canvas border border-border text-[12px] text-muted flex items-start gap-2.5">
+                      <ShieldCheck className="w-4 h-4 flex-shrink-0 mt-0.5 text-brand" />
                       <span>
-                        জমা দেওয়ার সাথে সাথে স্ট্যাটাস <strong>"যাচাই চলছে"</strong> দেখাবে। অ্যাডমিন স্টেটমেন্ট মিলিয়ে অনুমোদন দিলে রসিদ দেখতে পাবেন।
+                        Every contribution is audited and an official digital money receipt is recorded upon verification.
                       </span>
                     </div>
                   </div>
                 )}
-              </Card>
+              </div>
             </div>
           </div>
         )}
 
-        {/* TAB 3: MY DONATIONS & RECEIPTS */}
-        {activeTab === "my-donations" && (
-          <div className="space-y-4 slide-up">
-            <Card className="p-0 overflow-hidden">
-              <div className="p-5 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between">
-                <div>
-                  <h3 className="text-[16px] font-bold text-white">আমার অনুদান ও রসিদসমূহ</h3>
-                  <p className="text-[12px] text-[#888]">আপনার জমাকৃত সকল পেমেন্টের লাইভ স্ট্যাটাস ও মানি রসিদ</p>
-                </div>
+        {/* ========================================================
+            TAB 3: DONORS WALL OF HONOR (Recognition List)
+           ======================================================== */}
+        {activeTab === "honor" && (
+          <div className="space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-xl bg-surface border border-border">
+              <div>
+                <h3 className="text-base font-serif font-bold text-foreground tracking-tight flex items-center gap-2">
+                  <Award className="w-4 h-4 text-accent" />
+                  Donors Wall of Honor
+                </h3>
+                <p className="text-[12px] text-muted mt-0.5">
+                  Recognizing alumni whose contributions support our school community
+                </p>
               </div>
 
-              {myEntriesLoading ? (
-                <div className="p-8 space-y-3">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="h-16 skeleton rounded-lg" />
-                  ))}
-                </div>
-              ) : myEntries.length > 0 ? (
-                <div className="divide-y divide-[rgba(255,255,255,0.06)]">
-                  {myEntries.map((entry) => (
+              <div className="relative w-full sm:w-64">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                <input
+                  type="text"
+                  placeholder="Search by name or batch..."
+                  value={honorSearch}
+                  onChange={(e) => setHonorSearch(e.target.value)}
+                  className="w-full bg-[#0e1015] border border-border text-foreground rounded-md pl-9 pr-3.5 py-2 text-[12px] placeholder-muted focus:outline-none focus:border-brand"
+                />
+              </div>
+            </div>
+
+            {filteredDonors.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredDonors.map((item) => {
+                  const meta = parseFundEntryMeta(item);
+                  const isAnon = meta.isAnonymous;
+                  const name = isAnon ? "Anonymous Alumnus" : meta.donorName || "Alumni Member";
+                  const batch = meta.donorBatch;
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="p-5 rounded-xl bg-surface border border-border hover:border-border-hover transition-colors flex items-start justify-between gap-3.5"
+                    >
+                      <div className="flex items-start gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-lg bg-canvas border border-border flex items-center justify-center flex-shrink-0 text-foreground font-serif font-bold text-sm">
+                          {isAnon ? "?" : name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[14px] font-semibold text-foreground truncate">{name}</p>
+                          <div className="flex items-center gap-2 text-[11px] text-muted mt-0.5 flex-wrap">
+                            {batch && !isAnon && (
+                              <span className="px-2 py-0.2 rounded-md bg-canvas border border-border text-foreground font-mono">
+                                Batch {batch}
+                              </span>
+                            )}
+                            <span>{formatDate(item.entry_date)}</span>
+                          </div>
+                          <p className="text-[11px] text-muted truncate mt-1">
+                            {meta.campaignTitle || item.title}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-[15px] font-semibold text-foreground font-mono">
+                          {formatCurrency(item.amount)}
+                        </p>
+                        <span className="text-[10px] text-muted uppercase tracking-wider">Contributed</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="p-12 text-center rounded-xl bg-surface border border-border">
+                <Users className="w-8 h-8 text-muted mx-auto mb-3" />
+                <p className="text-[13px] text-muted">No donor records found.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ========================================================
+            TAB 4: MY DONATIONS & RECEIPTS
+           ======================================================== */}
+        {activeTab === "my-donations" && (
+          <div className="space-y-4">
+            <div className="p-5 rounded-xl bg-surface border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base font-serif font-bold text-foreground tracking-tight">My Contributions & Receipts</h3>
+                <p className="text-[12px] text-muted mt-0.5">Live tracking and official digital money receipts for all your contributions</p>
+              </div>
+
+              <div className="flex items-center gap-2 bg-canvas px-4 py-2 rounded-lg border border-border">
+                <span className="text-[12px] text-muted">Total Contributed:</span>
+                <span className="text-base font-serif font-bold text-foreground">
+                  {formatCurrency(userTotalContributed)}
+                </span>
+              </div>
+            </div>
+
+            {myEntriesLoading ? (
+              <div className="p-8 space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="h-16 bg-surface animate-pulse rounded-lg" />
+                ))}
+              </div>
+            ) : myEntries.length > 0 ? (
+              <div className="divide-y divide-border rounded-xl bg-surface border border-border overflow-hidden">
+                {myEntries.map((entry) => {
+                  const meta = parseFundEntryMeta(entry);
+
+                  return (
                     <div
                       key={entry.id}
-                      className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[rgba(255,255,255,0.02)] transition-colors"
+                      className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/[0.015] transition-colors"
                     >
                       <div className="space-y-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="text-[14px] font-semibold text-white">
-                            {entry.fund_campaigns?.title || entry.title}
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                          <p className="text-[14px] font-semibold text-foreground">
+                            {meta.campaignTitle || entry.title}
                           </p>
-                          <Badge
-                            variant={
+                          <span
+                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium ${
                               entry.status === "verified"
-                                ? "success"
+                                ? "bg-brand/10 text-brand border border-brand/20"
                                 : entry.status === "pending"
-                                ? "warning"
-                                : "danger"
-                            }
+                                ? "bg-accent/10 text-accent border border-accent/20"
+                                : "bg-danger/10 text-danger border border-danger/20"
+                            }`}
                           >
+                            {entry.status === "verified" && <CheckCircle2 className="w-3 h-3 text-brand" />}
+                            {entry.status === "pending" && <Clock className="w-3 h-3 text-accent" />}
+                            {entry.status === "rejected" && <XCircle className="w-3 h-3 text-danger" />}
                             {entry.status === "verified"
-                              ? "অনুমোদিত (Verified)"
+                              ? "Verified"
                               : entry.status === "pending"
-                              ? "যাচাই চলছে (Pending)"
-                              : "বাতিল (Rejected)"}
-                          </Badge>
+                              ? "Pending Verification"
+                              : "Rejected"}
+                          </span>
                         </div>
 
-                        <div className="flex items-center gap-3 text-[12px] text-[#777] flex-wrap">
-                          <span>তারিখ: {formatDate(entry.entry_date)}</span>
-                          <span>পদ্ধতি: {entry.method || "Direct"}</span>
+                        <div className="flex items-center gap-3 text-[12px] text-muted flex-wrap">
+                          <span>Date: {formatDate(entry.entry_date)}</span>
+                          <span>Method: {entry.method || "Direct"}</span>
                           {entry.trx_id && <span className="font-mono">TrxID: {entry.trx_id}</span>}
                         </div>
 
-                        {entry.status === "rejected" && entry.rejection_reason && (
-                          <div className="mt-2 p-2.5 rounded-lg bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.2)] text-[12px] text-[#EF4444] flex items-start gap-1.5">
-                            <XCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                        {entry.status === "rejected" && meta.rejectionReason && (
+                          <div className="mt-2 p-3 rounded-lg bg-canvas border border-border text-[12px] text-muted flex items-start gap-2">
+                            <XCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-danger" />
                             <span>
-                              <strong>বাতিলের কারণ:</strong> {entry.rejection_reason}
+                              <strong className="text-foreground">Rejection Reason:</strong> {meta.rejectionReason}
                             </span>
                           </div>
                         )}
                       </div>
 
                       <div className="flex items-center gap-3 justify-between sm:justify-end">
-                        <p className="text-[17px] font-bold text-[#34D399]">
+                        <p className="text-lg font-mono font-bold text-foreground">
                           {formatCurrency(entry.amount)}
                         </p>
 
@@ -1001,166 +1171,173 @@ export default function FundPage() {
                             onClick={() => setReceiptEntry(entry)}
                             className="gap-1.5"
                           >
-                            <Receipt className="w-3.5 h-3.5 text-[#14B8A6]" />
-                            মানি রসিদ
+                            <Receipt className="w-3.5 h-3.5 text-muted" />
+                            Money Receipt
                           </Button>
                         )}
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-12 text-center">
-                  <Receipt className="w-8 h-8 text-[#444] mx-auto mb-3" />
-                  <p className="text-[13px] text-[#888]">এখনও কোনো অনুদান জমা দেওয়া হয়নি।</p>
-                  <Button
-                    size="sm"
-                    className="mt-3"
-                    onClick={() => {
-                      setActiveTab("donate");
-                      setSubmitSuccess(null);
-                    }}
-                  >
-                    এখনই অনুদান দিন
-                  </Button>
-                </div>
-              )}
-            </Card>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="p-12 text-center rounded-xl bg-surface border border-border">
+                <Receipt className="w-8 h-8 text-muted mx-auto mb-3" />
+                <p className="text-[13px] text-muted">No contributions submitted yet.</p>
+                <Button
+                  size="sm"
+                  className="mt-3"
+                  onClick={() => {
+                    setActiveTab("donate");
+                    setSubmitSuccess(null);
+                  }}
+                >
+                  Make a Contribution
+                </Button>
+              </div>
+            )}
           </div>
         )}
 
-        {/* TAB 4: PUBLIC TRANSPARENCY LEDGER */}
+        {/* ========================================================
+            TAB 5: PUBLIC TRANSPARENCY LEDGER
+           ======================================================== */}
         {activeTab === "ledger" && (
-          <div className="space-y-4 slide-up">
-            <Card className="p-0 overflow-hidden">
-              <div className="p-5 border-b border-[rgba(255,255,255,0.06)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-[16px] font-bold text-white flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-[#14B8A6]" />
-                    উন্মুক্ত স্বচ্ছতা লেজার (Public Transparency Ledger)
-                  </h3>
-                  <p className="text-[12px] text-[#888]">
-                    সকল অনুমোদিত অনুদান ও খরচের সরাসরি নিরীক্ষিত তালিকা
-                  </p>
+          <div className="space-y-4">
+            <div className="p-5 rounded-xl bg-surface border border-border flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base font-serif font-bold text-foreground tracking-tight flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-accent" />
+                  Public Audited Ledger
+                </h3>
+                <p className="text-[12px] text-muted mt-0.5">
+                  Transparent public audit ledger of all approved contributions and school expenses
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                  <input
+                    type="text"
+                    placeholder="Search ledger..."
+                    value={ledgerSearch}
+                    onChange={(e) => setLedgerSearch(e.target.value)}
+                    className="bg-[#0e1015] border border-border text-foreground rounded-md pl-9 pr-3.5 py-1.5 text-[12px] placeholder-muted focus:outline-none focus:border-brand w-44 sm:w-56"
+                  />
                 </div>
 
-                <div className="flex items-center gap-1.5 bg-[#141414] p-1 rounded-lg border border-[rgba(255,255,255,0.08)]">
+                <div className="flex items-center gap-1 bg-canvas p-1 rounded-lg border border-border">
                   <button
                     onClick={() => setLedgerFilter("all")}
-                    className={`px-3 py-1 rounded text-[12px] font-medium transition-colors ${
-                      ledgerFilter === "all" ? "bg-[#252525] text-white" : "text-[#777] hover:text-white"
+                    className={`px-3 py-1 rounded-md text-[12px] font-medium transition-colors ${
+                      ledgerFilter === "all" ? "bg-brand text-white font-semibold" : "text-muted hover:text-foreground"
                     }`}
                   >
-                    সব ({verifiedEntries.length})
+                    All ({verifiedEntries.length})
                   </button>
                   <button
                     onClick={() => setLedgerFilter("income")}
-                    className={`px-3 py-1 rounded text-[12px] font-medium transition-colors ${
-                      ledgerFilter === "income" ? "bg-[#252525] text-[#34D399]" : "text-[#777] hover:text-white"
+                    className={`px-3 py-1 rounded-md text-[12px] font-medium transition-colors ${
+                      ledgerFilter === "income" ? "bg-brand text-white font-semibold" : "text-muted hover:text-foreground"
                     }`}
                   >
-                    জমা
+                    Receipts
                   </button>
                   <button
                     onClick={() => setLedgerFilter("expense")}
-                    className={`px-3 py-1 rounded text-[12px] font-medium transition-colors ${
-                      ledgerFilter === "expense" ? "bg-[#252525] text-[#EF4444]" : "text-[#777] hover:text-white"
+                    className={`px-3 py-1 rounded-md text-[12px] font-medium transition-colors ${
+                      ledgerFilter === "expense" ? "bg-brand text-white font-semibold" : "text-muted hover:text-foreground"
                     }`}
                   >
-                    খরচ
+                    Disbursements
                   </button>
                 </div>
               </div>
+            </div>
 
-              {ledgerLoading ? (
-                <div className="p-8 space-y-3">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="h-16 skeleton rounded-lg" />
-                  ))}
-                </div>
-              ) : filteredLedger.length > 0 ? (
-                <div className="divide-y divide-[rgba(255,255,255,0.06)]">
-                  {filteredLedger.map((entry) => {
-                    const isIncome = entry.kind === "income";
-                    const displayName = entry.is_anonymous
-                      ? "Anonymous Alumnus (গোপন)"
-                      : entry.donor_name || entry.profiles?.full_name || (isIncome ? "Alumnus" : entry.vendor_name || "Committee Expense");
+            {ledgerLoading ? (
+              <div className="p-8 space-y-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="h-16 bg-surface animate-pulse rounded-lg" />
+                ))}
+              </div>
+            ) : filteredLedger.length > 0 ? (
+              <div className="divide-y divide-border rounded-xl bg-surface border border-border overflow-hidden">
+                {filteredLedger.map((entry) => {
+                  const isIncome = entry.kind === "income";
+                  const meta = parseFundEntryMeta(entry);
+                  const displayName = meta.isAnonymous
+                    ? "Anonymous Alumnus (Private)"
+                    : meta.donorName || (isIncome ? "Alumnus" : entry.vendor_name || "Committee Expense");
 
-                    return (
-                      <div
-                        key={entry.id}
-                        className="p-4 sm:p-5 flex items-start justify-between gap-4 hover:bg-[rgba(255,255,255,0.015)] transition-colors"
-                      >
-                        <div className="flex items-start gap-3.5 min-w-0">
-                          <div
-                            className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                              isIncome ? "bg-[#34D399]/10" : "bg-[#EF4444]/10"
-                            }`}
-                          >
-                            {isIncome ? (
-                              <ArrowUpCircle className="w-5 h-5 text-[#34D399]" />
-                            ) : (
-                              <ArrowDownCircle className="w-5 h-5 text-[#EF4444]" />
-                            )}
-                          </div>
-
-                          <div className="min-w-0 space-y-0.5">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <p className="text-[14px] font-semibold text-white">
-                                {entry.fund_campaigns?.title || entry.title}
-                              </p>
-                              <Badge variant={isIncome ? "success" : "danger"}>
-                                {isIncome ? "জমা" : "ব্যয়"}
-                              </Badge>
-                              <Badge>{entry.category || "General"}</Badge>
-                            </div>
-
-                            <p className="text-[12px] text-[#999]">
-                              {isIncome ? "প্রদানকারী: " : "গ্রহীতা/খাত: "}
-                              <span className="text-[#fafafa] font-medium">{displayName}</span>
-                              {entry.profiles?.batch && !entry.is_anonymous && (
-                                <span className="text-[#14B8A6]"> · Batch {entry.profiles.batch}</span>
-                              )}
-                            </p>
-
-                            <div className="flex items-center gap-3 text-[11px] text-[#666] pt-0.5">
-                              <span>তারিখ: {formatDate(entry.entry_date)}</span>
-                              {entry.method && <span>পদ্ধতি: {entry.method}</span>}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="text-right flex-shrink-0 space-y-1">
-                          <p
-                            className={`text-[15px] font-bold ${
-                              isIncome ? "text-[#34D399]" : "text-[#EF4444]"
-                            }`}
-                          >
-                            {isIncome ? "+" : "-"}
-                            {formatCurrency(entry.amount)}
-                          </p>
-
-                          {/* Proof voucher or receipt */}
-                          {(entry.voucher_url || entry.receipt_url) && (
-                            <button
-                              onClick={() => setVoucherUrlModal(entry.voucher_url || entry.receipt_url)}
-                              className="inline-flex items-center gap-1 text-[11px] text-[#14B8A6] hover:underline"
-                            >
-                              <Eye className="w-3 h-3" /> বিল/ভাউচার দেখুন
-                            </button>
+                  return (
+                    <div
+                      key={entry.id}
+                      className="p-5 flex items-start justify-between gap-4 hover:bg-white/[0.015] transition-colors"
+                    >
+                      <div className="flex items-start gap-3.5 min-w-0">
+                        <div className="w-10 h-10 rounded-lg bg-canvas border border-border flex items-center justify-center flex-shrink-0">
+                          {isIncome ? (
+                            <ArrowUpRight className="w-5 h-5 text-brand" />
+                          ) : (
+                            <ArrowDownRight className="w-5 h-5 text-muted" />
                           )}
                         </div>
+
+                        <div className="min-w-0 space-y-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-[14px] font-semibold text-foreground">
+                              {meta.campaignTitle || entry.title}
+                            </p>
+                            <span className="px-2 py-0.2 rounded-md bg-canvas border border-border text-[11px] font-medium text-foreground">
+                              {isIncome ? "Receipt" : "Disbursement"}
+                            </span>
+                            <span className="px-2 py-0.2 rounded-md bg-white/[0.03] text-[11px] text-muted">
+                              {entry.category || "General"}
+                            </span>
+                          </div>
+
+                          <p className="text-[12px] text-muted">
+                            {isIncome ? "Contributor: " : "Payee / Account: "}
+                            <span className="text-foreground font-medium">{displayName}</span>
+                            {meta.donorBatch && !meta.isAnonymous && (
+                              <span className="text-muted font-mono"> · Batch {meta.donorBatch}</span>
+                            )}
+                          </p>
+
+                          <div className="flex items-center gap-3 text-[11px] text-muted pt-0.5">
+                            <span>Date: {formatDate(entry.entry_date)}</span>
+                            {entry.method && <span>Method: {entry.method}</span>}
+                          </div>
+                        </div>
                       </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="p-12 text-center">
-                  <Banknote className="w-8 h-8 text-[#444] mx-auto mb-3" />
-                  <p className="text-[13px] text-[#888]">এই ফিল্টারে কোনো লেনদেন নেই।</p>
-                </div>
-              )}
-            </Card>
+
+                      <div className="text-right flex-shrink-0 space-y-1">
+                        <p className="text-[16px] font-mono font-bold text-foreground">
+                          {isIncome ? "+" : "-"}
+                          {formatCurrency(entry.amount)}
+                        </p>
+
+                        {(entry.voucher_url || entry.receipt_url) && (
+                          <button
+                            onClick={() => setVoucherUrlModal(entry.voucher_url || entry.receipt_url)}
+                            className="inline-flex items-center gap-1 text-[11px] text-muted hover:text-foreground underline underline-offset-2"
+                          >
+                            <Eye className="w-3 h-3" /> View Voucher
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="p-12 text-center rounded-xl bg-surface border border-border">
+                <FileText className="w-8 h-8 text-muted mx-auto mb-3" />
+                <p className="text-[13px] text-muted">No ledger records found.</p>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -1176,12 +1353,12 @@ export default function FundPage() {
       <Modal
         isOpen={Boolean(voucherUrlModal)}
         onClose={() => setVoucherUrlModal(null)}
-        title="বিলের ছবি / ভাউচার প্রমাণক"
+        title="Expense Voucher / Receipt Document"
         size="lg"
       >
         {voucherUrlModal && (
           <div className="space-y-4">
-            <div className="max-h-[70vh] overflow-auto rounded-xl border border-[rgba(255,255,255,0.08)] bg-black flex items-center justify-center p-2">
+            <div className="max-h-[70vh] overflow-auto rounded-xl border border-white/10 bg-black flex items-center justify-center p-2">
               <img
                 src={voucherUrlModal}
                 alt="Bill Voucher"
@@ -1191,11 +1368,11 @@ export default function FundPage() {
             <div className="flex justify-end gap-2">
               <a href={voucherUrlModal} target="_blank" rel="noopener noreferrer">
                 <Button variant="secondary" size="sm" className="gap-1.5">
-                  <ExternalLink className="w-3.5 h-3.5" /> পূর্ণ আকারে খুলুন
+                  <ExternalLink className="w-3.5 h-3.5" /> Open Full Size
                 </Button>
               </a>
               <Button size="sm" onClick={() => setVoucherUrlModal(null)}>
-                বন্ধ করুন
+                Close
               </Button>
             </div>
           </div>

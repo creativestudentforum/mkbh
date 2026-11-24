@@ -3,7 +3,7 @@
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
 import { createClient } from "@/lib/supabase";
-import { ArrowLeft, Mail } from "lucide-react";
+import { ArrowLeft, Mail, AlertCircle, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -27,27 +27,37 @@ export default function ForgotPasswordPage() {
     if (error) {
       setError(error.message);
     } else {
-      setMessage("Password reset link sent. Please check your email.");
+      setMessage("Password reset instructions have been sent to your email.");
     }
     setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(20,184,166,0.04)_0%,transparent_70%)] -translate-y-1/3 translate-x-1/4" />
-      </div>
-
-      <div className="w-full max-w-[400px] relative z-10">
-        <div className="text-center mb-8 slide-up stagger-1">
-          <h1 className="text-[28px] font-bold text-[#fafafa] mb-2 tracking-tight">Reset password</h1>
-          <p className="text-[#777] text-[15px]">Enter your email and we will send a reset link.</p>
+    <div className="min-h-screen bg-[#0c0d11] text-[#f3f4f6] flex items-center justify-center p-4">
+      <div className="w-full max-w-[420px]">
+        <div className="text-center mb-6">
+          <h1 className="font-serif text-2xl sm:text-3xl font-semibold text-[#f3f4f6] tracking-tight">
+            Reset Password
+          </h1>
+          <p className="text-sm text-[#9ca3af] mt-1">
+            Enter your registered email address to receive reset instructions.
+          </p>
         </div>
 
-        <div className="glass rounded-2xl p-7 sm:p-8 slide-up stagger-2">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {error && <div className="p-3.5 rounded-lg bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.15)] text-[13px] text-[#EF4444]">{error}</div>}
-            {message && <div className="p-3.5 rounded-lg bg-[rgba(52,211,153,0.08)] border border-[rgba(52,211,153,0.15)] text-[13px] text-[#34D399]">{message}</div>}
+        <div className="bg-[#13151b] border border-white/10 rounded-xl p-6 sm:p-8 shadow-xl">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/25 text-xs text-red-300 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                <span>{error}</span>
+              </div>
+            )}
+            {message && (
+              <div className="p-3 rounded-lg bg-[#1a634b]/20 border border-[#22785c]/35 text-xs text-[#34d399] flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 text-[#34d399] flex-shrink-0 mt-0.5" />
+                <span>{message}</span>
+              </div>
+            )}
 
             <Input
               label="Email Address"
@@ -64,9 +74,15 @@ export default function ForgotPasswordPage() {
             </Button>
           </form>
 
-          <Link href="/login" className="mt-6 flex items-center justify-center gap-2 text-[13px] text-[#777] hover:text-[#14B8A6] transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Back to login
-          </Link>
+          <div className="mt-6 pt-4 border-t border-white/[0.08] text-center">
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-1.5 text-xs text-[#9ca3af] hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Return to login
+            </Link>
+          </div>
         </div>
       </div>
     </div>

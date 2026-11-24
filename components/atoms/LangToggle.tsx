@@ -10,7 +10,7 @@ export default function LangToggle() {
     <button
       type="button"
       onClick={() => setLang(nextLang)}
-      className="px-2.5 py-1.5 rounded-lg text-[12px] font-semibold bg-[rgba(255,255,255,0.04)] text-[#a0a0a0] hover:text-[#fafafa] hover:bg-[rgba(255,255,255,0.08)] transition-colors"
+      className="px-2.5 py-1 rounded-md text-xs font-medium border border-white/10 bg-[#181b22] text-[#9ca3af] hover:text-[#f3f4f6] hover:bg-[#20242e] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
       aria-label="Change language"
     >
       {lang === "en" ? "বাংলা" : "EN"}

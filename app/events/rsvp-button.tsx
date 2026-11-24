@@ -52,7 +52,7 @@ export default function RsvpButton({
           <select
             value={guests}
             onChange={(e) => setGuests(Number(e.target.value))}
-            className="bg-[#141414] border border-[rgba(255,255,255,0.08)] rounded-md text-[#a0a0a0] px-2 py-1 focus:outline-none focus:border-[rgba(20,184,166,0.6)]"
+            className="bg-[#0e1015] border border-white/10 rounded-md text-[#f3f4f6] px-2 py-0.5 text-xs focus:outline-none focus:border-[#22785c] focus:ring-1 focus:ring-[#22785c]"
             disabled={isPending}
           >
             {[0, 1, 2, 3, 4, 5].map((count) => <option key={count} value={count}>{count}</option>)}

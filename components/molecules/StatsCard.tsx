@@ -17,31 +17,18 @@ export default function StatsCard({
   value,
   icon: Icon,
   trend,
-  color = "indigo",
 }: StatsCardProps) {
-  const iconBg = {
-    indigo: "bg-[rgba(20,184,166,0.12)] text-[#14B8A6]",
-    emerald: "bg-[rgba(52,211,153,0.1)] text-[#34D399]",
-    amber: "bg-[rgba(251,191,36,0.1)] text-[#FBBF24]",
-    rose: "bg-[rgba(251,113,133,0.1)] text-[#FB7185]",
-  };
-
   return (
-    <Card className="p-5">
-      <div className="flex items-start justify-between">
-        <div className="space-y-1.5">
-          <p className="text-[13px] text-[#666] font-medium">{title}</p>
-          <p className="text-2xl font-bold text-[#fafafa] tracking-tight">{value}</p>
+    <Card className="p-4 sm:p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-1">
+          <p className="text-xs text-[#9ca3af] font-medium tracking-wide uppercase">{title}</p>
+          <p className="font-serif text-2xl sm:text-3xl font-semibold text-[#f3f4f6] tracking-tight">{value}</p>
           {trend && (
-            <p className="text-xs text-[#34D399] font-medium">{trend}</p>
+            <p className="text-xs text-[#34d399] font-medium pt-0.5">{trend}</p>
           )}
         </div>
-        <div
-          className={cn(
-            "p-2.5 rounded-lg",
-            iconBg[color]
-          )}
-        >
+        <div className="p-2.5 rounded-lg bg-white/[0.04] text-[#9ca3af] border border-white/[0.08] flex-shrink-0">
           <Icon className="w-5 h-5" />
         </div>
       </div>

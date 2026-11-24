@@ -65,69 +65,86 @@ export default function BloodPage() {
   return (
     <DashboardShell title="Blood Finder">
       <div className="max-w-6xl mx-auto space-y-6">
-        <div className="slide-up stagger-1">
-          <div className="flex items-center gap-2 mb-1">
-            <h2 className="text-[22px] font-bold text-[#fafafa] tracking-tight">Blood Finder</h2>
-            <Droplets className="w-5 h-5 text-[#EF4444]" />
-          </div>
-          <p className="text-[#777] text-[14px]">Find alumni who agreed to share their phone number for urgent blood needs.</p>
+        <div>
+          <h2 className="font-serif text-2xl sm:text-3xl font-semibold text-[#f3f4f6] tracking-tight mb-1">
+            Emergency Blood Finder
+          </h2>
+          <p className="text-sm text-[#9ca3af]">
+            Directory of alumni volunteers who consented to share contact numbers for urgent blood donation needs.
+          </p>
         </div>
 
-        <Card className="p-4 sm:p-5 bg-[rgba(239,68,68,0.04)] border-[rgba(239,68,68,0.12)] slide-up stagger-2">
-          <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-lg bg-[rgba(239,68,68,0.08)] flex items-center justify-center flex-shrink-0">
-              <ShieldAlert className="w-5 h-5 text-[#EF4444]" />
-            </div>
-            <div>
-              <p className="text-[13px] font-semibold text-[#fafafa] mb-1">Contact directory only</p>
-              <p className="text-[12px] text-[#888] leading-relaxed">Medical screening and donation eligibility must be confirmed by the hospital or blood bank.</p>
-            </div>
+        <div className="p-4 rounded-xl bg-red-500/[0.04] border border-red-500/20 flex items-start gap-3">
+          <ShieldAlert className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+          <div className="text-xs text-[#9ca3af] leading-relaxed">
+            <span className="font-semibold text-red-300">Community Directory Notice:</span> This tool facilitates peer contact only. All medical screening, cross-matching, and donation eligibility must be conducted through certified hospitals or licensed blood banks.
           </div>
-        </Card>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5">
-          <Card className="p-4 h-fit slide-up stagger-3">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5 items-start">
+          <Card className="p-4 sm:p-5 h-fit">
             <div className="flex items-center gap-2 mb-4">
-              <Search className="w-4 h-4 text-[#555]" />
-              <h3 className="text-[14px] font-semibold text-[#fafafa]">Filters</h3>
+              <Search className="w-4 h-4 text-[#6b7280]" />
+              <h3 className="text-xs font-semibold text-[#6b7280] uppercase tracking-wider">Search Filters</h3>
             </div>
 
             <div className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="blood-group" className="block text-[12px] font-medium text-[#a0a0a0]">Blood group</label>
-                <select id="blood-group" value={bloodGroup} onChange={(e) => { setBloodGroup(e.target.value); setCurrentPage(1); }} className="w-full rounded-lg bg-[#101010] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)]">
-                  <option value="">All groups</option>
+              <div className="space-y-1.5">
+                <label htmlFor="blood-group" className="block text-xs font-medium text-[#9ca3af]">Blood Group</label>
+                <select
+                  id="blood-group"
+                  value={bloodGroup}
+                  onChange={(e) => { setBloodGroup(e.target.value); setCurrentPage(1); }}
+                  className="w-full rounded-lg bg-[#0e1015] border border-white/10 text-[#f3f4f6] px-3 py-2 text-sm focus:outline-none focus:border-[#22785c] focus:ring-1 focus:ring-[#22785c]"
+                >
+                  <option value="">All Blood Groups</option>
                   {BLOOD_GROUPS.map((group) => <option key={group} value={group}>{group}</option>)}
                 </select>
               </div>
 
-              <div className="space-y-2">
-                <label htmlFor="city" className="block text-[12px] font-medium text-[#a0a0a0]">City</label>
-                <select id="city" value={city} onChange={(e) => { setCity(e.target.value); setCurrentPage(1); }} className="w-full rounded-lg bg-[#101010] border border-[rgba(255,255,255,0.08)] text-[#fafafa] px-3 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)]">
-                  <option value="">All cities</option>
+              <div className="space-y-1.5">
+                <label htmlFor="city" className="block text-xs font-medium text-[#9ca3af]">City / Location</label>
+                <select
+                  id="city"
+                  value={city}
+                  onChange={(e) => { setCity(e.target.value); setCurrentPage(1); }}
+                  className="w-full rounded-lg bg-[#0e1015] border border-white/10 text-[#f3f4f6] px-3 py-2 text-sm focus:outline-none focus:border-[#22785c] focus:ring-1 focus:ring-[#22785c]"
+                >
+                  <option value="">All Locations</option>
                   {cities.map((item) => <option key={item} value={item}>{item}</option>)}
                 </select>
               </div>
 
-              <label className="flex items-start gap-2.5 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] p-3 text-[12px] text-[#888] leading-relaxed cursor-pointer">
-                <input type="checkbox" checked={availableOnly} onChange={(e) => { setAvailableOnly(e.target.checked); setCurrentPage(1); }} className="mt-0.5 accent-[#0D9488]" />
-                Show available donors only
+              <label className="flex items-start gap-2.5 rounded-lg bg-white/[0.03] border border-white/[0.08] p-3 text-xs text-[#9ca3af] leading-relaxed cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={availableOnly}
+                  onChange={(e) => { setAvailableOnly(e.target.checked); setCurrentPage(1); }}
+                  className="mt-0.5 accent-[#1a634b]"
+                />
+                <span>Available donors only</span>
               </label>
 
               {(bloodGroup || city || !availableOnly) && (
-                <Button type="button" variant="secondary" className="w-full" onClick={() => { setBloodGroup(""); setCity(""); setAvailableOnly(true); setCurrentPage(1); }}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => { setBloodGroup(""); setCity(""); setAvailableOnly(true); setCurrentPage(1); }}
+                >
                   Reset Filters
                 </Button>
               )}
             </div>
           </Card>
 
-          <div className="space-y-4 slide-up stagger-4">
+          <div className="space-y-4">
             <div className="flex items-center justify-between gap-3 flex-wrap">
-              <p className="text-[13px] text-[#777]">
-                Showing <span className="text-[#fafafa] font-semibold">{filteredDonors.length}</span> donor{filteredDonors.length === 1 ? "" : "s"}
+              <p className="text-xs text-[#9ca3af]">
+                Showing <span className="text-[#f3f4f6] font-semibold">{filteredDonors.length}</span> volunteer donor{filteredDonors.length === 1 ? "" : "s"}
               </p>
-              <Badge variant="danger">Voluntary donors</Badge>
+              <Badge variant="danger">Verified Volunteer Registry</Badge>
             </div>
 
             {isLoading ? (
@@ -136,7 +153,7 @@ export default function BloodPage() {
               </div>
             ) : error ? (
               <Card className="p-8 text-center">
-                <p className="text-[13px] text-[#EF4444]">Could not load blood donors.</p>
+                <p className="text-xs text-red-400">Could not load blood donor volunteers.</p>
               </Card>
             ) : filteredDonors.length > 0 ? (
               <div className="space-y-4">
@@ -147,22 +164,22 @@ export default function BloodPage() {
                 </div>
 
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-between border-t border-[rgba(255,255,255,0.06)] pt-4">
-                    <p className="text-[12px] text-[#777]">
+                  <div className="flex items-center justify-between border-t border-white/[0.08] pt-4">
+                    <p className="text-xs text-[#6b7280]">
                       Page {currentPage} of {totalPages}
                     </p>
                     <div className="flex gap-2">
                       <button
                         disabled={currentPage === 1}
                         onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                        className="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-[rgba(255,255,255,0.04)] text-[#a0a0a0] hover:text-white hover:bg-[rgba(255,255,255,0.08)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#181b22] border border-white/10 text-[#9ca3af] hover:text-white disabled:opacity-20 disabled:pointer-events-none transition-colors"
                       >
                         Previous
                       </button>
                       <button
                         disabled={currentPage === totalPages}
                         onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                        className="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-[rgba(255,255,255,0.04)] text-[#a0a0a0] hover:text-white hover:bg-[rgba(255,255,255,0.08)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#181b22] border border-white/10 text-[#9ca3af] hover:text-white disabled:opacity-20 disabled:pointer-events-none transition-colors"
                       >
                         Next
                       </button>
@@ -172,11 +189,11 @@ export default function BloodPage() {
               </div>
             ) : (
               <Card className="p-12 flex flex-col items-center justify-center text-center">
-                <div className="w-14 h-14 rounded-xl bg-[rgba(255,255,255,0.03)] flex items-center justify-center mb-3">
-                  <Users className="w-7 h-7 text-[#444]" />
+                <div className="w-10 h-10 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center mb-3 text-[#9ca3af]">
+                  <Users className="w-5 h-5" />
                 </div>
-                <p className="text-[13px] text-[#666] mb-1">No donors found</p>
-                <p className="text-[11px] text-[#444]">Try changing the blood group, city, or availability filter.</p>
+                <p className="text-sm font-semibold text-[#f3f4f6]">No donors matched your filter</p>
+                <p className="text-xs text-[#9ca3af] mt-1">Try resetting the blood group or location filter.</p>
               </Card>
             )}
           </div>
@@ -188,35 +205,51 @@ export default function BloodPage() {
 
 function DonorCard({ donor }: { donor: BloodDonor }) {
   return (
-    <Card className="p-5 hover:border-[rgba(255,255,255,0.12)] transition-all">
-      <div className="flex items-start gap-4">
+    <Card className="p-4 sm:p-5 flex flex-col justify-between">
+      <div className="flex items-start gap-3.5">
         <Avatar src={donor.avatar_url} name={donor.full_name} size="lg" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1">
-            <h3 className="text-[14px] font-semibold text-[#fafafa] truncate">{donor.full_name}</h3>
-            <Badge variant="danger">{donor.blood_group}</Badge>
-            {donor.available ? <Badge variant="success">Available</Badge> : <Badge variant="warning">Recent donation</Badge>}
+            <h4 className="font-serif text-base font-semibold text-[#f3f4f6] truncate">{donor.full_name}</h4>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-red-500/15 text-red-300 border border-red-500/30">
+              {donor.blood_group}
+            </span>
+            {donor.available ? (
+              <Badge variant="success">Available</Badge>
+            ) : (
+              <Badge variant="warning">Recent Donor</Badge>
+            )}
           </div>
 
-          <div className="space-y-1.5 mt-3">
-            {donor.batch && <p className="text-[12px] text-[#777]">Batch {donor.batch}</p>}
+          <div className="space-y-1 mt-2 text-xs text-[#9ca3af]">
+            {donor.batch && <p>Batch {donor.batch}</p>}
             {donor.city && (
-              <p className="flex items-center gap-1.5 text-[12px] text-[#777]"><MapPin className="w-3.5 h-3.5 text-[#555]" />{donor.city}</p>
+              <p className="flex items-center gap-1 text-[#6b7280]">
+                <MapPin className="w-3.5 h-3.5" />
+                <span>{donor.city}</span>
+              </p>
             )}
             {donor.last_donation_date && (
-              <p className="text-[11px] text-[#555]">Last donated: {new Date(donor.last_donation_date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</p>
+              <p className="text-[11px] text-[#6b7280]">
+                Last donated: {new Date(donor.last_donation_date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+              </p>
             )}
           </div>
-
-          <div className="flex gap-2 mt-4 flex-wrap">
-            <Button size="sm" className="px-3" onClick={() => window.location.href = `tel:${donor.phone}`}>
-              <Phone className="w-4 h-4" /> Call
-            </Button>
-            <a href={getWhatsAppUrl(donor.phone)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium bg-[rgba(255,255,255,0.06)] text-[#a0a0a0] hover:bg-[rgba(255,255,255,0.1)] hover:text-[#fafafa] transition-all">
-              WhatsApp
-            </a>
-          </div>
         </div>
+      </div>
+
+      <div className="flex gap-2 mt-4 pt-3 border-t border-white/[0.06]">
+        <Button size="sm" className="flex-1" onClick={() => window.location.href = `tel:${donor.phone}`}>
+          <Phone className="w-3.5 h-3.5 mr-1.5" /> Call
+        </Button>
+        <a
+          href={getWhatsAppUrl(donor.phone)}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium bg-[#181b22] border border-white/10 text-[#d1d5db] hover:text-white hover:border-white/20 transition-colors flex-1"
+        >
+          WhatsApp
+        </a>
       </div>
     </Card>
   );

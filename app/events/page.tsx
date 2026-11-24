@@ -9,9 +9,7 @@ import { useI18n } from "@/lib/i18n/client";
 import { useQuery } from "@tanstack/react-query";
 import type { Event, EventRsvp, EventRsvpCounts } from "@/lib/types";
 import RsvpButton from "./rsvp-button";
-import {
-  CalendarDays, MapPin, Clock, Sparkles,
-} from "lucide-react";
+import { CalendarDays, MapPin, Clock } from "lucide-react";
 
 export default function EventsPage() {
   const { t } = useI18n();
@@ -61,20 +59,22 @@ export default function EventsPage() {
     <DashboardShell title={t("events.title")}>
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
-        <div className="slide-up stagger-1">
-          <div className="flex items-center gap-2 mb-1">
-            <h2 className="text-[22px] font-bold text-[#fafafa] tracking-tight">{t("events.title")}</h2>
-            <Sparkles className="w-5 h-5 text-[#FBBF24]" />
-          </div>
-          <p className="text-[#777] text-[14px]">{t("events.subtitle")}</p>
+        <div>
+          <h2 className="font-serif text-2xl sm:text-3xl font-semibold text-[#f3f4f6] tracking-tight mb-1">
+            {t("events.title")}
+          </h2>
+          <p className="text-sm text-[#9ca3af]">{t("events.subtitle")}</p>
         </div>
 
         {/* Upcoming Events */}
-        <div className="slide-up stagger-2">
-          <h3 className="text-[15px] font-semibold text-[#fafafa] mb-4 flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#34D399] animate-pulse" />
-            {t("events.upcoming")}
-          </h3>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#34d399]" />
+            <h3 className="font-serif text-lg font-semibold text-[#f3f4f6]">
+              {t("events.upcoming")}
+            </h3>
+          </div>
+
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[...Array(2)].map((_, i) => (
@@ -89,18 +89,20 @@ export default function EventsPage() {
             </div>
           ) : (
             <Card className="p-8 flex flex-col items-center justify-center text-center">
-              <div className="w-14 h-14 rounded-xl bg-[rgba(255,255,255,0.03)] flex items-center justify-center mb-3">
-                <CalendarDays className="w-7 h-7 text-[#444]" />
+              <div className="w-12 h-12 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center mb-3 text-[#9ca3af]">
+                <CalendarDays className="w-6 h-6" />
               </div>
-              <p className="text-[13px] text-[#555]">{t("events.noUpcoming")}</p>
+              <p className="text-sm text-[#9ca3af]">{t("events.noUpcoming")}</p>
             </Card>
           )}
         </div>
 
         {/* Past Events */}
         {pastEvents.length > 0 && (
-          <div className="slide-up stagger-3">
-            <h3 className="text-[15px] font-semibold text-[#777] mb-4">{t("events.past")}</h3>
+          <div className="space-y-4 pt-4 border-t border-white/[0.08]">
+            <h3 className="font-serif text-lg font-semibold text-[#9ca3af]">
+              {t("events.past")}
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {pastEvents.map((event) => (
                 <EventCard key={event.id} event={event} />
@@ -119,39 +121,54 @@ function EventCard({ event, isUpcoming = false }: { event: Event; isUpcoming?: b
   const day = eventDate.getDate();
 
   return (
-    <Card className={`p-0 overflow-hidden group ${!isUpcoming ? "opacity-60" : ""}`} hover={isUpcoming}>
+    <Card className={`p-0 overflow-hidden ${!isUpcoming ? "opacity-60" : ""}`} hover={isUpcoming}>
       <div className="flex">
         {/* Date column */}
-        <div className={`w-20 flex-shrink-0 flex flex-col items-center justify-center py-5 ${isUpcoming ? "bg-[rgba(20,184,166,0.1)]" : "bg-[rgba(255,255,255,0.02)]"}`}>
-          <span className={`text-[10px] font-bold tracking-wider uppercase ${isUpcoming ? "text-[#14B8A6]" : "text-[#555]"}`}>{month}</span>
-          <span className={`text-[28px] font-bold leading-none mt-1 ${isUpcoming ? "text-[#fafafa]" : "text-[#666]"}`}>{day}</span>
+        <div
+          className={`w-20 flex-shrink-0 flex flex-col items-center justify-center py-5 ${
+            isUpcoming
+              ? "bg-[#1a634b]/15 border-r border-[#22785c]/30 text-[#34d399]"
+              : "bg-white/[0.02] border-r border-white/[0.06] text-[#6b7280]"
+          }`}
+        >
+          <span className="text-[10px] font-mono font-bold tracking-wider uppercase">
+            {month}
+          </span>
+          <span className="font-serif text-2xl font-bold leading-none mt-1 text-[#f3f4f6]">
+            {day}
+          </span>
         </div>
 
         {/* Content */}
-          <div className="flex-1 p-4 min-w-0">
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <h4 className="text-[14px] font-semibold text-[#fafafa] leading-tight truncate">{event.title}</h4>
+        <div className="flex-1 p-4 min-w-0">
+          <div className="flex items-start justify-between gap-2 mb-1.5">
+            <h4 className="font-serif text-base font-semibold text-[#f3f4f6] leading-tight truncate">
+              {event.title}
+            </h4>
             {isUpcoming && <Badge variant="success">Upcoming</Badge>}
           </div>
 
           {event.description && (
-            <p className="text-[12px] text-[#777] leading-relaxed line-clamp-2 mb-3">{event.description}</p>
+            <p className="text-xs text-[#9ca3af] leading-relaxed line-clamp-2 mb-3">
+              {event.description}
+            </p>
           )}
 
-          <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex items-center gap-3.5 flex-wrap text-xs text-[#9ca3af]">
             {event.event_time && (
-              <div className="flex items-center gap-1.5 text-[11px] text-[#666]">
-                <Clock className="w-3 h-3 flex-shrink-0" />
+              <div className="flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-[#6b7280]" />
                 <span>{event.event_time}</span>
               </div>
             )}
             {event.location && (
-              <div className="flex items-center gap-1.5 text-[11px] text-[#666]">
-                <MapPin className="w-3 h-3 flex-shrink-0" />
+              <div className="flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-[#6b7280]" />
                 <span className="truncate">{event.location}</span>
               </div>
             )}
           </div>
+
           {isUpcoming && (
             <RsvpButton
               eventId={event.id}

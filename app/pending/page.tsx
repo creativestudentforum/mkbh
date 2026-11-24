@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Button from "@/components/atoms/Button";
 import { useAuth } from "@/lib/auth-context";
 import { Clock, RefreshCw, LogOut, XCircle, GraduationCap, Mail, Phone, Users } from "lucide-react";
@@ -23,133 +24,108 @@ export default function PendingPage() {
   const isRejected = profile?.status === "rejected";
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
-      {/* Background decoration */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[radial-gradient(circle,rgba(20,184,166,0.03)_0%,transparent_70%)]" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[radial-gradient(circle,rgba(255,160,99,0.03)_0%,transparent_70%)]" />
-      </div>
-
-      <div className="w-full max-w-md text-center relative z-10">
-        <div className="glass rounded-2xl p-8 sm:p-10 slide-up">
+    <div className="min-h-screen bg-[#0c0d11] text-[#f3f4f6] flex items-center justify-center p-4">
+      <div className="w-full max-w-md text-center">
+        <div className="bg-[#13151b] border border-white/10 rounded-xl p-7 sm:p-9 shadow-xl">
           {/* Logo */}
-          <div className="flex justify-center mb-6">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#0D9488] to-[#14B8A6] flex items-center justify-center">
-              <GraduationCap className="w-5 h-5 text-white" />
+          <div className="flex justify-center mb-5">
+            <div className="w-14 h-14 rounded-full overflow-hidden bg-white border border-white/20 flex items-center justify-center relative shadow-md">
+              <Image
+                src="/logo.png"
+                alt="M.K.B.H High School"
+                fill
+                className="object-cover"
+                sizes="56px"
+                priority
+              />
             </div>
           </div>
 
-          {/* Status Icon */}
+          {/* Status Indicator */}
           <div
-            className={`w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 ${
+            className={`w-14 h-14 rounded-lg flex items-center justify-center mx-auto mb-5 ${
               isRejected
-                ? "bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.15)]"
-                : "bg-[rgba(251,191,36,0.08)] border border-[rgba(251,191,36,0.15)]"
+                ? "bg-red-500/10 border border-red-500/20 text-red-400"
+                : "bg-[#c89542]/15 border border-[#c89542]/30 text-[#e5b869]"
             }`}
           >
             {isRejected ? (
-              <XCircle className="w-10 h-10 text-[#EF4444]" />
+              <XCircle className="w-7 h-7 text-red-400" />
             ) : (
-              <div className="relative">
-                <Clock className="w-10 h-10 text-[#FBBF24]" />
-                {/* Pulsing ring for pending state */}
-                <div className="absolute inset-0 rounded-full border-2 border-[rgba(251,191,36,0.25)] animate-ping" />
-              </div>
+              <Clock className="w-7 h-7 text-[#c89542]" />
             )}
           </div>
 
-          <h1 className="text-[22px] font-bold text-[#fafafa] mb-3">
-            {isRejected ? "Application Rejected" : "Verification Pending"}
+          <h1 className="font-serif text-2xl font-semibold text-[#f3f4f6] mb-2 tracking-tight">
+            {isRejected ? "Application Declined" : "Verification In Progress"}
           </h1>
 
-          <p className="text-[#888] mb-2 leading-relaxed text-[13px]">
+          <p className="text-sm text-[#9ca3af] mb-6 leading-relaxed max-w-sm mx-auto">
             {isRejected
-              ? "We're sorry, but your application has been declined by the administrator."
-              : "Your account has been created successfully! An administrator needs to verify and approve your account."}
+              ? "Your application could not be verified by the school administration committee."
+              : "Your application has been received. An administrator will verify your graduation details against school records before granting access."}
           </p>
 
           {/* User info card */}
           {profile && (
-            <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-4 mb-6 border border-[rgba(255,255,255,0.06)]">
-              <div className="flex items-center justify-center gap-2 text-[13px] text-[#888]">
-                <Mail className="w-4 h-4" />
+            <div className="bg-[#0e1015] rounded-lg p-4 mb-6 border border-white/[0.08] text-left">
+              <div className="flex items-center gap-2 text-xs text-[#9ca3af]">
+                <Mail className="w-3.5 h-3.5 flex-shrink-0 text-[#6b7280]" />
                 <span className="truncate">{profile.email}</span>
               </div>
               {profile.full_name && (
-                <p className="text-[11px] text-[#555] mt-1">
-                  Signed up as {profile.full_name}
+                <p className="text-sm font-medium text-[#f3f4f6] mt-1">
+                  {profile.full_name}
                 </p>
               )}
-              <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2 text-left">
+              <div className="mt-3 grid grid-cols-3 gap-2 text-left pt-3 border-t border-white/[0.06]">
                 {profile.batch && (
-                  <div className="rounded-lg bg-[rgba(255,255,255,0.03)] px-3 py-2">
-                    <p className="text-[10px] text-[#555] uppercase tracking-wider">Batch</p>
-                    <p className="text-[12px] text-[#a0a0a0]">{profile.batch}</p>
+                  <div>
+                    <p className="text-[10px] text-[#6b7280] uppercase tracking-wider">Batch</p>
+                    <p className="text-xs text-[#d1d5db] font-medium">{profile.batch}</p>
                   </div>
                 )}
                 {profile.department && (
-                  <div className="rounded-lg bg-[rgba(255,255,255,0.03)] px-3 py-2">
-                    <p className="text-[10px] text-[#555] uppercase tracking-wider flex items-center gap-1"><Users className="w-3 h-3" /> Group</p>
-                    <p className="text-[12px] text-[#a0a0a0]">{profile.department}</p>
+                  <div>
+                    <p className="text-[10px] text-[#6b7280] uppercase tracking-wider">Group</p>
+                    <p className="text-xs text-[#d1d5db] font-medium">{profile.department}</p>
                   </div>
                 )}
                 {profile.phone && (
-                  <div className="rounded-lg bg-[rgba(255,255,255,0.03)] px-3 py-2">
-                    <p className="text-[10px] text-[#555] uppercase tracking-wider flex items-center gap-1"><Phone className="w-3 h-3" /> Phone</p>
-                    <p className="text-[12px] text-[#a0a0a0]">{profile.phone}</p>
+                  <div>
+                    <p className="text-[10px] text-[#6b7280] uppercase tracking-wider">Phone</p>
+                    <p className="text-xs text-[#d1d5db] font-medium truncate">{profile.phone}</p>
                   </div>
                 )}
               </div>
             </div>
           )}
 
-          {!isRejected && (
-            <div className="bg-[rgba(20,184,166,0.04)] rounded-xl p-4 mb-6 border border-[rgba(20,184,166,0.08)]">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[rgba(20,184,166,0.08)] flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <RefreshCw className="w-4 h-4 text-[#14B8A6]" />
-                </div>
-                <div className="text-left">
-                  <p className="text-[12px] font-medium text-[#14B8A6] mb-0.5">
-                    What happens next?
-                  </p>
-                  <p className="text-[12px] text-[#777] leading-relaxed">
-                    The admin will review your application. Once approved, you&apos;ll have full access to the alumni network.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-3">
+          {/* Action buttons */}
+          <div className="space-y-2">
             {!isRejected && (
               <Button
                 onClick={handleRefresh}
-                variant="primary"
                 className="w-full"
                 size="lg"
                 isLoading={loading}
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Check Status
+                Check Approval Status
               </Button>
             )}
 
             <Button
-              onClick={signOut}
               variant="secondary"
+              onClick={() => signOut()}
               className="w-full"
               size="lg"
             >
-              <LogOut className="w-4 h-4 mr-2" />
+              <LogOut className="w-4 h-4 mr-2 text-[#9ca3af]" />
               Sign Out
             </Button>
           </div>
         </div>
-
-        <p className="text-[11px] text-[#444] mt-6">
-          Need help? Contact the administrator
-        </p>
       </div>
     </div>
   );

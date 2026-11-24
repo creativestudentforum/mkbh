@@ -1,21 +1,40 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-[#0a0a0a] text-[#e5e5e5] px-4 py-10">
-      <div className="max-w-3xl mx-auto space-y-8">
-        <Link href="/" className="text-[13px] text-[#14B8A6] hover:text-[#0D9488]">Back to home</Link>
+    <main className="min-h-screen bg-[#0c0d11] text-[#f3f4f6] px-4 sm:px-6 py-12">
+      <div className="max-w-2xl mx-auto space-y-8">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs text-[#9ca3af] hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Back to home
+        </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-3">Terms of Use</h1>
-          <p className="text-[#888] text-sm">Last updated: October 2026</p>
+          <h1 className="font-serif text-3xl font-semibold tracking-tight text-[#f3f4f6] mb-2">
+            Terms of Use
+          </h1>
+          <p className="text-xs text-[#6b7280]">Last updated: October 2026</p>
         </div>
-        <section className="space-y-4 text-sm leading-7 text-[#a0a0a0]">
-          <p>AlumniHub is for verified alumni, teachers, and authorized administrators. Access may be approved, rejected, or removed by administrators.</p>
-          <p>Members must submit accurate information and must not misuse directory, phone, event, fund, gallery, or roster data.</p>
-          <p>Gallery and memorial content should be uploaded only when there is appropriate permission or consent.</p>
-          <p>The fund ledger is a transparency tool. Payment verification is manual and completed by administrators or committee members.</p>
-          <p>By using the platform, you agree to follow association rules and respect member privacy.</p>
-        </section>
+        <div className="space-y-4 text-sm leading-relaxed text-[#9ca3af] border-t border-white/[0.08] pt-6">
+          <p>
+            AlumniHub is an official community service reserved for verified alumni, current and former faculty members, and authorized school leaders. Membership applications are subject to administrative approval.
+          </p>
+          <p>
+            Members agree to provide accurate and truthful educational credentials. Misuse of directory contact information, automated scraping, or unauthorized sharing of peer data is strictly prohibited and subject to immediate account revocation.
+          </p>
+          <p>
+            Media uploaded to the school gallery or in memoriam sections must respect the privacy and dignity of depicted alumni and faculty, and must have appropriate familial or personal consent.
+          </p>
+          <p>
+            The transparency fund ledger is maintained for open community accounting. Financial contributions submitted via mobile banking or direct deposit are manually audited and reconciled by committee treasurers.
+          </p>
+          <p>
+            By participating in the network, you commit to upholding the values and mutual respect of our school community.
+          </p>
+        </div>
       </div>
     </main>
   );

@@ -15,15 +15,14 @@ export function Skeleton({ className }: SkeletonProps) {
  */
 export function ProfileCardSkeleton() {
   return (
-    <div className="bg-[#141414] border border-[rgba(255,255,255,0.06)] rounded-xl p-5">
-      <div className="flex items-start gap-4">
-        <Skeleton className="w-14 h-14 rounded-full flex-shrink-0" />
-        <div className="flex-1 space-y-2">
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-3 w-1/2" />
-          <Skeleton className="h-3 w-2/3" />
-        </div>
+    <div className="bg-[#13151b] border border-white/[0.08] rounded-[28px] p-6 sm:p-7 h-[420px] flex flex-col justify-between">
+      <div>
+        <Skeleton className="h-3 w-28 rounded-full mb-3" />
+        <Skeleton className="h-6 w-3/4 rounded-md mb-2" />
+        <Skeleton className="h-4 w-1/2 rounded mb-1" />
+        <Skeleton className="h-3 w-1/3 rounded" />
       </div>
+      <Skeleton className="h-52 w-full rounded-2xl" />
     </div>
   );
 }
@@ -33,13 +32,13 @@ export function ProfileCardSkeleton() {
  */
 export function StatsCardSkeleton() {
   return (
-    <div className="bg-[#141414] border border-[rgba(255,255,255,0.06)] rounded-xl p-5">
+    <div className="bg-[#13151b] border border-white/[0.08] rounded-xl p-5">
       <div className="flex items-start justify-between">
         <div className="space-y-2">
           <Skeleton className="h-3 w-20" />
           <Skeleton className="h-8 w-12" />
         </div>
-        <Skeleton className="w-12 h-12 rounded-xl" />
+        <Skeleton className="w-10 h-10 rounded-lg" />
       </div>
     </div>
   );
@@ -50,9 +49,9 @@ export function StatsCardSkeleton() {
  */
 export function UserRowSkeleton() {
   return (
-    <div className="bg-[#141414] border border-[rgba(255,255,255,0.06)] rounded-xl p-5">
+    <div className="bg-[#13151b] border border-white/[0.08] rounded-xl p-4">
       <div className="flex items-center gap-4">
-        <Skeleton className="w-14 h-14 rounded-full flex-shrink-0" />
+        <Skeleton className="w-12 h-12 rounded-full flex-shrink-0" />
         <div className="flex-1 space-y-2">
           <Skeleton className="h-4 w-2/5" />
           <Skeleton className="h-3 w-3/5" />
@@ -72,19 +71,19 @@ export function UserRowSkeleton() {
  */
 export function TeacherCardSkeleton() {
   return (
-    <div className="bg-[#141414] border border-[rgba(255,255,255,0.06)] rounded-xl p-5 animate-card-in">
+    <div className="bg-[#13151b] border border-white/[0.08] rounded-xl p-5">
       <div className="flex items-start gap-3 mb-4">
-        <Skeleton className="w-14 h-14 rounded-full flex-shrink-0" />
+        <Skeleton className="w-12 h-12 rounded-full flex-shrink-0" />
         <div className="flex-1 space-y-2">
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-3 w-1/2" />
           <Skeleton className="h-3 w-1/3" />
         </div>
       </div>
-      <Skeleton className="h-12 w-full mb-3" />
+      <Skeleton className="h-10 w-full mb-3" />
       <div className="flex gap-2">
-        <Skeleton className="h-6 w-16 rounded-md" />
-        <Skeleton className="h-6 w-20 rounded-md" />
+        <Skeleton className="h-5 w-16 rounded-md" />
+        <Skeleton className="h-5 w-20 rounded-md" />
       </div>
     </div>
   );
@@ -95,17 +94,17 @@ export function TeacherCardSkeleton() {
  */
 export function AlbumCardSkeleton() {
   return (
-    <div className="bg-[#141414] border border-[rgba(255,255,255,0.06)] rounded-xl overflow-hidden animate-card-in">
-      <Skeleton className="h-48 w-full rounded-none" />
-      <div className="p-5 space-y-3">
+    <div className="bg-[#13151b] border border-white/[0.08] rounded-xl overflow-hidden">
+      <Skeleton className="h-44 w-full rounded-none" />
+      <div className="p-4 space-y-3">
         <div className="flex justify-between items-center">
-          <Skeleton className="h-5 w-1/2" />
-          <Skeleton className="h-5 w-12 rounded-md" />
+          <Skeleton className="h-4 w-1/2" />
+          <Skeleton className="h-4 w-12 rounded-md" />
         </div>
-        <Skeleton className="h-4 w-4/5" />
-        <div className="pt-3 border-t border-[rgba(255,255,255,0.06)] flex justify-between items-center">
+        <Skeleton className="h-3 w-4/5" />
+        <div className="pt-3 border-t border-white/[0.06] flex justify-between items-center">
           <Skeleton className="h-3 w-20" />
-          <Skeleton className="h-4 w-4" />
+          <Skeleton className="h-3 w-4" />
         </div>
       </div>
     </div>
@@ -117,10 +116,10 @@ export function AlbumCardSkeleton() {
  */
 export function EventCardSkeleton() {
   return (
-    <div className="bg-[#141414] border border-[rgba(255,255,255,0.06)] rounded-xl overflow-hidden flex animate-card-in">
-      <div className="w-20 bg-[rgba(255,255,255,0.02)] flex flex-col items-center justify-center py-5 space-y-2 flex-shrink-0">
-        <Skeleton className="h-3 w-10" />
-        <Skeleton className="h-7 w-8" />
+    <div className="bg-[#13151b] border border-white/[0.08] rounded-xl overflow-hidden flex">
+      <div className="w-16 bg-white/[0.02] flex flex-col items-center justify-center py-4 space-y-1.5 flex-shrink-0">
+        <Skeleton className="h-3 w-8" />
+        <Skeleton className="h-6 w-7" />
       </div>
       <div className="flex-1 p-4 space-y-2">
         <div className="flex justify-between items-center">
@@ -129,8 +128,8 @@ export function EventCardSkeleton() {
         </div>
         <Skeleton className="h-3 w-full" />
         <div className="flex gap-4 pt-2">
+          <Skeleton className="h-3 w-16" />
           <Skeleton className="h-3 w-20" />
-          <Skeleton className="h-3 w-24" />
         </div>
       </div>
     </div>
@@ -142,17 +141,17 @@ export function EventCardSkeleton() {
  */
 export function BatchCardSkeleton() {
   return (
-    <div className="bg-[#141414] border border-[rgba(255,255,255,0.06)] rounded-xl p-5 animate-card-in">
+    <div className="bg-[#13151b] border border-white/[0.08] rounded-xl p-5">
       <div className="flex items-start justify-between">
         <div className="space-y-2">
           <Skeleton className="h-3 w-12" />
           <Skeleton className="h-7 w-20" />
         </div>
-        <Skeleton className="w-11 h-11 rounded-xl" />
+        <Skeleton className="w-9 h-9 rounded-lg" />
       </div>
-      <div className="mt-5 pt-4 border-t border-[rgba(255,255,255,0.06)] flex justify-between items-center">
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-4 w-4" />
+      <div className="mt-4 pt-3 border-t border-white/[0.06] flex justify-between items-center">
+        <Skeleton className="h-3 w-24" />
+        <Skeleton className="h-3 w-4" />
       </div>
     </div>
   );

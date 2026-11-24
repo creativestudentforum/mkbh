@@ -74,23 +74,23 @@ export default function AdminEventRsvpsPage() {
   return (
     <DashboardShell title="Event RSVPs">
       <div className="max-w-5xl mx-auto space-y-6">
-        <div className="flex items-start justify-between flex-wrap gap-4 slide-up stagger-1">
+        <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
-            <Link href="/admin/events" className="inline-flex items-center gap-2 text-[12px] text-[#777] hover:text-[#14B8A6] transition-colors mb-3">
+            <Link href="/admin/events" className="inline-flex items-center gap-2 text-[12px] text-muted hover:text-foreground transition-colors mb-3">
               <ArrowLeft className="w-4 h-4" /> Back to events
             </Link>
-            <h2 className="text-[22px] font-bold text-[#fafafa] tracking-tight">{data?.event?.title || "Event RSVPs"}</h2>
-            <p className="text-[#777] text-[14px]">RSVP list, guest count, and CSV export.</p>
+            <h2 className="text-2xl font-serif font-bold text-foreground tracking-tight">{data?.event?.title || "Event RSVPs"}</h2>
+            <p className="text-muted text-[14px]">RSVP list, guest count, and CSV export.</p>
           </div>
           <Button onClick={exportCsv} disabled={!rsvps.length} variant="secondary">
             <Download className="w-4 h-4" /> Export CSV
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 slide-up stagger-2">
-          <Card className="p-5"><p className="text-[11px] text-[#555] uppercase tracking-wider font-semibold mb-2">Going</p><p className="text-[28px] font-bold text-[#fafafa]">{going.length}</p></Card>
-          <Card className="p-5"><p className="text-[11px] text-[#555] uppercase tracking-wider font-semibold mb-2">Total Headcount</p><p className="text-[28px] font-bold text-[#fafafa]">{totalHeadcount}</p></Card>
-          <Card className="p-5"><p className="text-[11px] text-[#555] uppercase tracking-wider font-semibold mb-2">All Responses</p><p className="text-[28px] font-bold text-[#fafafa]">{rsvps.length}</p></Card>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Card className="p-5 bg-surface border-border"><p className="text-[11px] text-muted uppercase tracking-wider font-semibold mb-2">Going</p><p className="text-2xl font-serif font-bold text-brand">{going.length}</p></Card>
+          <Card className="p-5 bg-surface border-border"><p className="text-[11px] text-muted uppercase tracking-wider font-semibold mb-2">Total Headcount</p><p className="text-2xl font-serif font-bold text-foreground">{totalHeadcount}</p></Card>
+          <Card className="p-5 bg-surface border-border"><p className="text-[11px] text-muted uppercase tracking-wider font-semibold mb-2">All Responses</p><p className="text-2xl font-serif font-bold text-foreground">{rsvps.length}</p></Card>
         </div>
 
         <Card className="p-0 overflow-hidden slide-up stagger-3">

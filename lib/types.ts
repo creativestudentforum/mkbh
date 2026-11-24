@@ -157,11 +157,24 @@ export interface Batch {
   group_photo_url: string | null;
   description: string;
   created_at: string;
+  photo_count?: number;
 }
 
 export interface BatchStats {
   year: string;
   members: number;
+  photos?: number;
+}
+
+export interface BatchPhoto {
+  id: string;
+  batch_year: string;
+  url: string;
+  caption: string;
+  uploaded_by: string | null;
+  created_at: string;
+  uploader_name?: string | null;
+  uploader_avatar?: string | null;
 }
 
 export interface Album {

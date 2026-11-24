@@ -19,7 +19,7 @@ export const DEFAULT_PAYMENT_METHODS: FundPaymentMethod[] = [
     branch_name: null,
     routing_number: null,
     account_holder: siteConfig.payment.accountName,
-    instructions: "bKash অ্যাপ থেকে Send Money বা Make Payment করুন। রেফারেন্সে আপনার নাম বা ব্যাচ লিখুন এবং প্রাপ্ত TrxID নিচে প্রদান করুন।",
+    instructions: "Send Money or Make Payment from the bKash app. Include your name or batch in the reference, and submit the TrxID below.",
     contact_person: null,
     is_active: true,
     display_order: 1,
@@ -36,7 +36,7 @@ export const DEFAULT_PAYMENT_METHODS: FundPaymentMethod[] = [
     branch_name: null,
     routing_number: null,
     account_holder: siteConfig.payment.accountName,
-    instructions: "Nagad অ্যাপ বা ইউএসএসডি থেকে Send Money করুন এবং ফিরতি মেসেজের TrxID সংরক্ষণ করুন।",
+    instructions: "Send Money via Nagad app or USSD, and retain the TrxID from the confirmation SMS.",
     contact_person: null,
     is_active: true,
     display_order: 2,
@@ -53,7 +53,7 @@ export const DEFAULT_PAYMENT_METHODS: FundPaymentMethod[] = [
     branch_name: "School Branch / Main Branch",
     routing_number: "090271234",
     account_holder: siteConfig.payment.accountName,
-    instructions: "ব্যাংক জমা, অনলাইন ব্যাংকিং বা NPSB/BEFTN ট্রান্সফার করুন। জমার স্লিপের ছবি বা রেফারেন্স নম্বর ফর্মটিতে দিন।",
+    instructions: "Transfer via online banking, NPSB, or direct deposit. Attach deposit slip or enter transaction reference number.",
     contact_person: null,
     is_active: true,
     display_order: 3,
@@ -70,8 +70,8 @@ export const DEFAULT_PAYMENT_METHODS: FundPaymentMethod[] = [
     branch_name: null,
     routing_number: null,
     account_holder: null,
-    instructions: "স্কুল অফিসে বা নির্ধারিত কমিটির প্রতিনিধির কাছে সরাসরি ক্যাশ জমা দিয়ে রসিদ বুঝে নিন।",
-    contact_person: "হিসাবরক্ষক / সাধারণ সম্পাদক (অফিস রুম ১০২, ফোন: 01711-223344)",
+    instructions: "Pay direct cash at the school alumni office or to the authorized committee representative to receive an immediate receipt.",
+    contact_person: "Chief Accountant / General Secretary (Office Room 102, Phone: 01711-223344)",
     is_active: true,
     display_order: 4,
     created_at: new Date().toISOString(),
@@ -82,10 +82,10 @@ export const DEFAULT_PAYMENT_METHODS: FundPaymentMethod[] = [
 export const DEFAULT_CAMPAIGNS: FundCampaign[] = [
   {
     id: "default-science-lab",
-    title: "নতুন সায়েন্স ল্যাব নির্মাণ ও আধুনিকায়ন",
+    title: "Science Laboratory Modernization",
     slug: "science-lab",
     description:
-      "বিদ্যালয়ের বর্তমান শিক্ষার্থীদের বাস্তবমুখী ও আধুনিক বিজ্ঞানের পরীক্ষা-নিরীক্ষার জন্য নতুন পদার্থ, রসায়ন ও জীববিদ্যা ল্যাব সামগ্রী সংগ্রহ।",
+      "Procuring physics, chemistry, and biology laboratory equipment for hands-on student experiments and STEM excellence.",
     target_amount: 500000,
     start_date: "2026-01-01",
     end_date: "2026-12-31",
@@ -99,10 +99,10 @@ export const DEFAULT_CAMPAIGNS: FundCampaign[] = [
   },
   {
     id: "default-general-welfare",
-    title: "অ্যালামনাই সাধারণ কল্যাণ ও ছাত্রবৃত্তি তহবিল",
+    title: "Alumni Welfare & Merit Scholarship Fund",
     slug: "general-welfare",
     description:
-      "মেধাবী ও অসচ্ছল শিক্ষার্থীদের শিক্ষা সহায়তা, প্রাক্তন শিক্ষকদের চিকিৎসা সহায়তা এবং সার্বিক কল্যাণ কার্যক্রম।",
+      "Merit-based scholarships for underprivileged students, emergency teacher medical aid, and community welfare programs.",
     target_amount: 300000,
     start_date: "2026-01-01",
     end_date: null,
@@ -114,7 +114,159 @@ export const DEFAULT_CAMPAIGNS: FundCampaign[] = [
     raised_amount: 0,
     donor_count: 0,
   },
+  {
+    id: "default-library-archive",
+    title: "Digital Library & Book Bank Project",
+    slug: "digital-library",
+    description:
+      "Adding modern reference books, international academic journals, and a computerized student reading corner to the school library.",
+    target_amount: 200000,
+    start_date: "2026-02-01",
+    end_date: "2026-11-30",
+    banner_url: null,
+    status: "active",
+    created_by: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    raised_amount: 0,
+    donor_count: 0,
+  },
+  {
+    id: "default-campus-green",
+    title: "Green Campus & Solar Power Initiative",
+    slug: "green-campus",
+    description:
+      "Installing solar power systems on classroom rooftops to reduce utility costs, alongside a campus afforestation initiative.",
+    target_amount: 400000,
+    start_date: "2026-03-01",
+    end_date: "2026-12-31",
+    banner_url: null,
+    status: "active",
+    created_by: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    raised_amount: 0,
+    donor_count: 0,
+  },
 ];
+
+export interface ParsedFundMeta {
+  cleanNote: string;
+  senderNumber: string | null;
+  campaignTitle: string | null;
+  donorName: string | null;
+  donorBatch: string | null;
+  isAnonymous: boolean;
+  rejectionReason: string | null;
+  receiptNumber: string | null;
+  collectorName: string | null;
+}
+
+/**
+ * Robust parser to extract metadata whether stored in dedicated columns or encoded in note
+ */
+export function parseFundEntryMeta(entry: Partial<FundEntry> | null | undefined): ParsedFundMeta {
+  if (!entry) {
+    return {
+      cleanNote: "",
+      senderNumber: null,
+      campaignTitle: null,
+      donorName: null,
+      donorBatch: null,
+      isAnonymous: false,
+      rejectionReason: null,
+      receiptNumber: null,
+      collectorName: null,
+    };
+  }
+
+  let cleanNote = entry.note || "";
+  let senderNumber = entry.sender_number || null;
+  let campaignTitle = entry.fund_campaigns?.title || null;
+  let donorName = entry.donor_name || entry.profiles?.full_name || null;
+  let donorBatch = entry.profiles?.batch || null;
+  let isAnonymous = Boolean(entry.is_anonymous);
+  let rejectionReason = entry.rejection_reason || null;
+  let receiptNumber = entry.receipt_number || null;
+  let collectorName: string | null = null;
+
+  if (entry.note) {
+    const rawNote = entry.note;
+
+    const rejectMatch = rawNote.match(/\[Rejected:\s*([^\]]+)\]/i);
+    if (rejectMatch && !rejectionReason) {
+      rejectionReason = rejectMatch[1].trim();
+    }
+
+    if (rawNote.includes("(Anonymous)") || rawNote.includes("Anonymous: true")) {
+      isAnonymous = true;
+    }
+
+    const senderMatch = rawNote.match(/Sender:\s*([^|]+)/i);
+    if (senderMatch && !senderNumber) {
+      senderNumber = senderMatch[1].trim();
+    }
+
+    const campMatch = rawNote.match(/Campaign:\s*([^|]+)/i);
+    if (campMatch && !campaignTitle) {
+      campaignTitle = campMatch[1].trim();
+    }
+
+    const donorMatch = rawNote.match(/Donor:\s*([^|]+)/i);
+    if (donorMatch && !donorName) {
+      donorName = donorMatch[1].trim();
+    }
+
+    const batchMatch = rawNote.match(/Batch:\s*([^|]+)/i);
+    if (batchMatch && !donorBatch) {
+      donorBatch = batchMatch[1].trim();
+    }
+
+    const recMatch = rawNote.match(/Receipt:\s*([^|]+)/i);
+    if (recMatch && !receiptNumber) {
+      receiptNumber = recMatch[1].trim();
+    }
+
+    const colMatch = rawNote.match(/Received by:\s*([^|]+)/i);
+    if (colMatch) {
+      collectorName = colMatch[1].trim();
+    }
+
+    cleanNote = rawNote
+      .replace(/\[Rejected:[^\]]*\]/gi, "")
+      .replace(/\(Anonymous\)/gi, "")
+      .replace(/Anonymous:\s*(true|false)/gi, "")
+      .replace(/Sender:\s*[^|]+/gi, "")
+      .replace(/Campaign:\s*[^|]+/gi, "")
+      .replace(/Donor:\s*[^|]+/gi, "")
+      .replace(/Batch:\s*[^|]+/gi, "")
+      .replace(/Receipt:\s*[^|]+/gi, "")
+      .replace(/Received by:\s*[^|]+/gi, "")
+      .replace(/Category:\s*[^|]+/gi, "")
+      .replace(/Vendor:\s*[^|]+/gi, "")
+      .replace(/\|\s*\|/g, "|")
+      .replace(/^\|\s*/, "")
+      .replace(/\s*\|$/, "")
+      .trim();
+  }
+
+  if (!receiptNumber && entry.entry_date && entry.id) {
+    const year = new Date(entry.entry_date).getFullYear() || 2026;
+    receiptNumber = `REC-${year}-${entry.id.slice(0, 6).toUpperCase()}`;
+  }
+
+  return {
+    cleanNote,
+    senderNumber,
+    campaignTitle,
+    donorName,
+    donorBatch,
+    isAnonymous,
+    rejectionReason,
+    receiptNumber,
+    collectorName,
+  };
+}
 
 /**
  * Fetch active campaigns with computed raised amounts

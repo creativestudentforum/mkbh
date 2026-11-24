@@ -81,35 +81,35 @@ export default function AdminMemorialPage() {
   return (
     <DashboardShell title="Manage Memorials">
       <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex items-start justify-between flex-wrap gap-4 slide-up stagger-1">
-          <div><div className="flex items-center gap-2 mb-1"><h2 className="text-[22px] font-bold text-[#fafafa] tracking-tight">Manage Memorials</h2><Flower2 className="w-5 h-5 text-[#FBBF24]" /></div><p className="text-[#777] text-[14px]">Add respectful memorial entries after family consent.</p></div>
+        <div className="flex items-start justify-between flex-wrap gap-4">
+          <div><h2 className="text-2xl font-serif font-bold text-foreground tracking-tight mb-1">Manage Memorials</h2><p className="text-muted text-[14px]">Add respectful memorial entries after family consent.</p></div>
           <Button onClick={() => { resetForm(); setShowModal(true); }}><Plus className="w-4 h-4" />Add Memorial</Button>
         </div>
 
         {isLoading ? (
-          <div className="space-y-3">{Array.from({ length: 5 }).map((_, index) => <div key={index} className="skeleton h-24 rounded-xl" />)}</div>
+          <div className="space-y-3">{Array.from({ length: 5 }).map((_, index) => <div key={index} className="h-24 bg-surface animate-pulse rounded-xl border border-border" />)}</div>
         ) : memorials && memorials.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 slide-up stagger-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {memorials.map((person) => (
-              <Card key={person.id} className="p-5">
+              <Card key={person.id} className="p-5 bg-surface border-border">
                 <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3 min-w-0"><Avatar src={person.photo_url} name={person.full_name} size="lg" /><div><h3 className="text-[15px] font-bold text-[#fafafa]">{person.full_name}</h3><div className="flex gap-2 mt-2 flex-wrap">{person.batch && <Badge>Batch {person.batch}</Badge>}{person.date_of_death && <Badge variant="warning">{formatDate(person.date_of_death)}</Badge>}</div></div></div>
-                  <div className="flex gap-1"><Button variant="ghost" size="sm" onClick={() => openEdit(person)}><Edit3 className="w-4 h-4" /></Button><Button variant="ghost" size="sm" className="text-[#EF4444]" onClick={() => handleDelete(person)}><Trash2 className="w-4 h-4" /></Button></div>
+                  <div className="flex items-start gap-3 min-w-0"><Avatar src={person.photo_url} name={person.full_name} size="lg" /><div><h3 className="text-base font-serif font-bold text-foreground">{person.full_name}</h3><div className="flex gap-2 mt-2 flex-wrap">{person.batch && <Badge>Batch {person.batch}</Badge>}{person.date_of_death && <Badge variant="warning">{formatDate(person.date_of_death)}</Badge>}</div></div></div>
+                  <div className="flex gap-1"><Button variant="ghost" size="sm" onClick={() => openEdit(person)}><Edit3 className="w-4 h-4" /></Button><Button variant="ghost" size="sm" className="text-danger hover:text-danger/80" onClick={() => handleDelete(person)}><Trash2 className="w-4 h-4" /></Button></div>
                 </div>
-                {person.bio && <p className="text-[12px] text-[#777] line-clamp-2 mt-4">{person.bio}</p>}
+                {person.bio && <p className="text-[12px] text-muted line-clamp-2 mt-4">{person.bio}</p>}
               </Card>
             ))}
           </div>
         ) : (
-          <Card className="p-12 text-center"><Flower2 className="w-8 h-8 text-[#444] mx-auto mb-3" /><p className="text-[13px] text-[#666] mb-4">No memorials yet.</p><Button onClick={() => { resetForm(); setShowModal(true); }}><Plus className="w-4 h-4" />Add First Memorial</Button></Card>
+          <Card className="p-12 text-center bg-surface border-border"><Flower2 className="w-8 h-8 text-muted mx-auto mb-3" /><p className="text-[13px] text-muted mb-4">No memorials yet.</p><Button onClick={() => { resetForm(); setShowModal(true); }}><Plus className="w-4 h-4" />Add First Memorial</Button></Card>
         )}
       </div>
 
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editing ? "Edit Memorial" : "Add Memorial"} size="lg">
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4"><Input label="Full Name" value={fullName} onChange={(event) => setFullName(event.target.value)} required /><Input label="Batch" value={batch} onChange={(event) => setBatch(event.target.value)} /><Input label="Date of Death" type="date" value={dateOfDeath} onChange={(event) => setDateOfDeath(event.target.value)} /><Input label="Photo URL" type="url" value={photoUrl} onChange={(event) => setPhotoUrl(event.target.value)} /></div>
-          <div className="space-y-2"><label htmlFor="memorial-bio" className="block text-[13px] font-medium text-[#a0a0a0]">Bio</label><textarea id="memorial-bio" rows={4} value={bio} onChange={(event) => setBio(event.target.value)} className="w-full rounded-lg bg-[#141414] border border-[rgba(255,255,255,0.08)] text-[#fafafa] placeholder-[#444] px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[rgba(20,184,166,0.6)]" /></div>
-          <div className="flex justify-end gap-3 pt-4 border-t border-[rgba(255,255,255,0.06)]"><Button type="button" variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button><Button type="submit" isLoading={saving}><Save className="w-4 h-4" />Save</Button></div>
+          <div className="space-y-2"><label htmlFor="memorial-bio" className="block text-[13px] font-medium text-foreground">Bio</label><textarea id="memorial-bio" rows={4} value={bio} onChange={(event) => setBio(event.target.value)} className="w-full rounded-md bg-[#0e1015] border border-border text-foreground placeholder-muted px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-brand" /></div>
+          <div className="flex justify-end gap-3 pt-4 border-t border-border"><Button type="button" variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button><Button type="submit" isLoading={saving}><Save className="w-4 h-4" />Save</Button></div>
         </form>
       </Modal>
     </DashboardShell>
